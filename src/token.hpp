@@ -1,8 +1,11 @@
 #pragma once
 
-// Represents a token
-class Token
+namespace dragon
 {
-public:
-  virtual ~Token() = 0;
-}; 
+  // Represents a token
+  class Token
+  {
+  public:
+    virtual ~Token() = 0;
+  }; 
+}
