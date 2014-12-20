@@ -1,4 +1,4 @@
-#include "lexer.hpp" 
+#include "lexer.hpp"
 
 #include <cassert>
 
@@ -11,8 +11,16 @@ namespace dragon
 
   bool is_whitespace(wchar_t c)
   {
-    // TODO
+    if(c == L' ') return true;
+    if(c == L'\t') return true;
     return false;
+  }
+
+  int char_width(wchar_t c)
+  {
+    if(c == L' ') return 1;
+    if(c == L'\t') return 2;  /* TAB WIDTH */
+    return 0;
   }
 
   SourceReader::SourceReader(std::wistream &source)
@@ -65,8 +73,6 @@ namespace dragon
     {
       if(_instring)
       {
-        // TODO - no comments here!
-        // But checking delimeters, escape sequences, multiline strings...
         if(curr.chr == L'\\')
         {
           if(!_wysiwyg) _escape = !_escape;
@@ -121,9 +127,6 @@ namespace dragon
       }
       else
       {
-        // TODO - code here - so comments also
-        // for comment return whitespace (space?) character
-        // and string beginnings are here...
         if(nestcmt > 0)
         {
           // mamy komentarz zagnieżdżany ( /# ... #/ )
@@ -311,6 +314,22 @@ namespace dragon
   }
 
   bool CommentRemover::_source_empty()
+  {
+    return _source.empty();
+  }
+
+  Tokenizer::Tokenizer(IGenerator<Character> &source)
+    : _source(source)
+  {
+  }
+
+  bool Tokenizer::_next(Token &value)
+  {
+    // TODO
+    //
+  }
+
+  bool Tokenizer::_source_empty()
   {
     return _source.empty();
   }

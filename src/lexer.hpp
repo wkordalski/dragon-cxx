@@ -12,11 +12,17 @@ namespace dragon
     wchar_t chr;
     int row;
     int col;
+    int data; // For indentation
 
-    Character() : Character('\0', -1, -1) {}
+    Character() : Character('\0', -1, -1, 0) {}
 
     Character(wchar_t chr, int row, int col)
-      : chr(chr), row(row), col(col)
+      : chr(chr), row(row), col(col), data(-1)
+    {
+    }
+
+    Character(int indentation, int row, int col)
+      : chr('\0'), row(row), col(col), data(indentation)
     {
     }
   };
@@ -41,6 +47,20 @@ namespace dragon
   bool is_newline(wchar_t c);
 
   bool is_whitespace(wchar_t c);
+
+  int calculate_indent(wchar_t c)
+  {
+    if(c == L' ') return 1;
+    if(c == L'\t') return 2;
+  }
+
+  int calculate_indent(std::wstring &s)
+  {
+    int R = 0;
+    for(auto c : s)
+      R += calculate_indent(c);
+    return R;
+  }
 
   class SourceReader : public IGenerator<Character>
   {
@@ -87,13 +107,30 @@ namespace dragon
     virtual bool _source_empty();
   };
 
-  class LineProcessor : public IGenerator<Character>
-  {
-    // merges broken lines
-  };
-
   class Tokenizer : public IGenerator<Token>
   {
-    // tokenizes code
+    IGenerator<Character> &_source;
+
+    // GLOBAL STATE: in-string or not
+    // In-string literal support
+    bool _instring = false;
+    int _multiline = 0;
+    int _premline = 0;
+    bool _escape = false;
+    bool _wysiwyg = false;
+    wchar_t _delim; // only ' and " supported!
+
+    std::stack<wchar_t> _closing;
+    int _indent = 0;
+    // if true, whitespaces increment this
+    bool _newline = true;
+    bool _mergeline = false;
+
+  public:
+    Tokenizer(IGenerator<Character> &source);
+
+  protected:
+    virtual bool _next(Token &value);
+    virtual bool _source_empty();
   };
 }
