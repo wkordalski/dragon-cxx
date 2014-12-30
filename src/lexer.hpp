@@ -1,28 +1,24 @@
 #pragma once
 
 #include "generator.hpp"
+#include "prefix_tree.hpp"
 #include "token.hpp"
 
 #include <istream>
+#include <stack>
 
 namespace dragon
 {
   struct Character
   {
     wchar_t chr;
-    int row;
-    int col;
-    int data; // For indentation
+    unsigned long row;
+    unsigned long col;
 
-    Character() : Character('\0', -1, -1, 0) {}
+    Character() : Character(L'\0', -1, -1) {}
 
     Character(wchar_t chr, int row, int col)
-      : chr(chr), row(row), col(col), data(-1)
-    {
-    }
-
-    Character(int indentation, int row, int col)
-      : chr('\0'), row(row), col(col), data(indentation)
+      : chr(chr), row(row), col(col)
     {
     }
   };
@@ -48,19 +44,11 @@ namespace dragon
 
   bool is_whitespace(wchar_t c);
 
-  int calculate_indent(wchar_t c)
-  {
-    if(c == L' ') return 1;
-    if(c == L'\t') return 2;
-  }
+  bool is_letter(wchar_t c);
 
-  int calculate_indent(std::wstring &s)
-  {
-    int R = 0;
-    for(auto c : s)
-      R += calculate_indent(c);
-    return R;
-  }
+  bool is_digit(wchar_t c);
+
+  int char_width(wchar_t c);
 
   class SourceReader : public IGenerator<Character>
   {
@@ -107,30 +95,29 @@ namespace dragon
     virtual bool _source_empty();
   };
 
-  class Tokenizer : public IGenerator<Token>
+  class Tokenizer : public IGenerator<Token*>
   {
+    typedef Token * token;
     IGenerator<Character> &_source;
+    PrefixTree<wchar_t> _opers;
 
-    // GLOBAL STATE: in-string or not
-    // In-string literal support
-    bool _instring = false;
-    int _multiline = 0;
-    int _premline = 0;
-    bool _escape = false;
-    bool _wysiwyg = false;
-    wchar_t _delim; // only ' and " supported!
-
-    std::stack<wchar_t> _closing;
-    int _indent = 0;
-    // if true, whitespaces increment this
-    bool _newline = true;
-    bool _mergeline = false;
+// String literal is ONE token, so no need for global information storage
+/*
+    bool _instring = false;     // is inside string literal
+    int _premline = 0;          // how many characters to skip before looking for delimeter
+    bool _escape = false;       // is next escape character
+*/
+    std::stack<std::wstring> _paren;  // closing braces
+    std::stack<int> _indent;          // indentation blocks
+    bool _newline = true;             // new line encountred - count indentation
 
   public:
     Tokenizer(IGenerator<Character> &source);
 
   protected:
-    virtual bool _next(Token &value);
+    virtual bool _next(token &value);
     virtual bool _source_empty();
+
+    bool is_operator(wchar_t c);
   };
 }

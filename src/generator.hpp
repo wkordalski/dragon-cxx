@@ -14,7 +14,7 @@ namespace dragon
       return _forward.empty() and _source_empty();
     };
 
-    bool peek(T &value, int position)
+    bool peek(T &value, int position = 0)
     {
       while(_forward.size() <= position)
       {
@@ -43,5 +43,9 @@ namespace dragon
   protected:
     virtual bool _source_empty() = 0;
     virtual bool _next(T &value) = 0;
+    void _queue(T value)
+    {
+      _forward.push_back(value);
+    }
   };
 }
