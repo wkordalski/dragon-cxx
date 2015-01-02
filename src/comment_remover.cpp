@@ -39,6 +39,7 @@ namespace dragon
         else if(_escape)
         {
           value = curr;
+          _escape = false;
           if(_multiline > 0) _multiline = 3;
           return true;
         }
@@ -203,7 +204,7 @@ namespace dragon
         if(curr.chr == L'r')
         {
           Character n1;
-          if(_source.peek(n1, 0) and
+          if(_source.peek(n1) and
             (n1.chr == L'\'' or n1.chr == L'\"'))
           {
             _wysiwyg = true;
@@ -221,7 +222,7 @@ namespace dragon
         if(curr.chr == L'/')
         {
           Character n1;
-          if(_source.peek(n1, 0))
+          if(_source.peek(n1))
           {
             if(n1.chr == L'*')
             {

@@ -56,7 +56,12 @@ namespace dragon
   bool SourceReader::_next(Character &value)
   {
     wchar_t chr;
-    if(!this->_stream.get(chr)) return false;
+    if(nomore) return false;
+    if(!this->_stream.get(chr))
+    {
+      chr = L'\n';
+      nomore = true;
+    }
     value = {chr, row, col};
     col++;
     if(is_newline(chr))
@@ -71,5 +76,21 @@ namespace dragon
   {
     if(this->_stream) return false;
     return true;
+  }
+
+  std::vector<Handle> tokenize(std::wistream &source)
+  {
+    std::vector<Handle> r;
+
+    SourceReader sr(source);
+    CommentRemover cr(sr);
+    Tokenizer tk(cr);
+
+    Token *t;
+    while(tk.get(t))
+    {
+      r.push_back(Handle(t));
+    }
+    return r;
   }
 }

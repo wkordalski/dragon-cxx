@@ -55,6 +55,8 @@ namespace dragon
     add_operator(L"/=");
     add_operator(L"%=");
 
+    add_operator(L".");
+
     add_operator(L"(");
     add_operator(L"[");
     add_operator(L"{");

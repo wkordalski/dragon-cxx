@@ -56,11 +56,14 @@ namespace dragon
     // indexing from 0
     int row = 0;
     int col = 0;
+    bool nomore = false;
 
   public:
     SourceReader(std::wistream &source);
 
     // returns characters with specified column/row
+    // adds a newline at the end-of-file
+    // it must be there for grammar simplification
 
   protected:
     virtual bool _next(Character &value);
@@ -101,12 +104,6 @@ namespace dragon
     IGenerator<Character> &_source;
     PrefixTree<wchar_t> _opers;
 
-// String literal is ONE token, so no need for global information storage
-/*
-    bool _instring = false;     // is inside string literal
-    int _premline = 0;          // how many characters to skip before looking for delimeter
-    bool _escape = false;       // is next escape character
-*/
     std::stack<std::wstring> _paren;  // closing braces
     std::stack<int> _indent;          // indentation blocks
     bool _newline = true;             // new line encountred - count indentation
@@ -120,4 +117,6 @@ namespace dragon
 
     bool is_operator(wchar_t c);
   };
+
+  std::vector<Handle> tokenize(std::wistream &source);
 }
