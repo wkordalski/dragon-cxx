@@ -2,6 +2,7 @@ project (Dragon)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(GTest)
+find_package(Threads)
 
 set(SOURCES
   src/comment_remover.cpp
@@ -32,5 +33,5 @@ add_library(dragon ${SOURCES})
 if(GTEST_FOUND)
   add_executable(test ${TEST})
   include_directories(${GTEST_INCLUDE_DIRS})
-  target_link_libraries(test dragon ${GTEST_BOTH_LIBRARIES})
+  target_link_libraries(test dragon ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 endif()
