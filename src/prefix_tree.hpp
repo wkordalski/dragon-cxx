@@ -8,7 +8,7 @@ namespace dragon
   class PrefixTree
   {
   protected:
-    bool _ending;   // if here can the entry end
+    bool _ending = false;   // if here can the entry end
     std::map<T, PrefixTree<T>*> _follow;
 
   public:
