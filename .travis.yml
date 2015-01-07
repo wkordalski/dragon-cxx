@@ -3,5 +3,6 @@ compiler:
   - clang
 before_install:
   - sudo apt-get update && sudo apt-get install -y cmake libgtest-dev llvm-3.4 llvm-3.4-dev
+  - "cd /usr/src/gtest && sudo cmake . && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 script: mkdir build && cd build && cmake .. && make && ./test
