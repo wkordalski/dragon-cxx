@@ -168,4 +168,16 @@ namespace dragon
     virtual void levelup() { converter(this); }
     virtual void print(std::wostream &os) { os<<L"(";for(auto h : tokens) h->print(os); os<<L")"; }
   };
+
+  class Optional : public Token
+  {
+  public:
+    Handle token;
+
+    std::function<void(Token *)> converter = [](Token *t){};
+
+  public:
+    virtual void levelup() { converter(this); }
+    virtual void print(std::wostream &os) { os<<L"[?"; token->print(os); os<<L"]"; }
+  };
 }

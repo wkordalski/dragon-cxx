@@ -8,12 +8,12 @@ TEST(ParserTest, Sample)
   std::wstring code =
   L"import hallo.world\n"
   L"namespace a\n"
-  L"  b\n"
+  L"  var b\n"
   L"  namespace c.x.y. z\n"
   L"    namespace d.h\n"
-  L"      e\n"
-  L"  f\n"
-  L"g\n";
+  L"      var e =\n"
+  L"  var f :\n"
+  L"var g :=\n";
   std::wistringstream ss(code);
   auto toks = dragon::tokenize(ss);
   // std::vector<dragon::Handle>

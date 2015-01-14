@@ -1,40 +1,131 @@
 #include "parser.hpp"
 
+
+
 namespace dragon
 {
+  namespace impl
+  {
+    RKeyword * kwd(std::wstring t, std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RKeyword(t, f);
+    }
+
+    RIdentifier * id(std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RIdentifier(f);
+    }
+
+    ROperator * op(std::wstring t, std::function<void(Token*)> f = [](Token*){})
+    {
+      return new ROperator(t, f);
+    }
+
+    RLiteral * lit(std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RLiteral(f);
+    }
+
+    RAlternative * alt(std::vector<Rule*> r = {}, std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RAlternative(r, f);
+    }
+
+    RRepeat * rep(Rule *r, std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RRepeat(r, f);
+    }
+
+    RSequence * seq(std::vector<Rule*> r, std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RSequence(r, f);
+    }
+
+    ROptional * opt(Rule * r, std::function<void(Token*)> f = [](Token*){})
+    {
+      return new ROptional(r, f);
+    }
+
+    RIndent * ind(std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RIndent(f);
+    }
+
+    RDedent * ded(std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RDedent(f);
+    }
+
+    RNewline * nl(std::function<void(Token*)> f = [](Token*){})
+    {
+      return new RNewline(f);
+    }
+
+    // block token for indented blocks
+    RSequence * block(Rule *r, std::function<void(Token*)> f = [](Token*){})
+    {
+      static std::map<Rule *, RSequence *> memo;
+      if(memo.count(r) == 0) memo[r] = seq({ind(),rep(r),ded()});
+      return memo[r];
+    }
+
+    // Binary operator
+    RSequence * binop(Rule *r, Rule *s, std::function<void(Token*)> f = [](Token*){})
+    {
+      return seq({rep(seq({r,s})), r});
+    }
+  }
+
   void Parser::init_grammar()
   {
-    auto kwd = [](std::wstring t){ return new RKeyword(t);};
-    auto id = [](){return new RIdentifier();};
-    auto op = [](std::wstring t){ return new ROperator(t);};
-    auto alt = [](std::vector<Rule*> r = {}){return new RAlternative(r);};
-    auto rep = [](Rule *r) { return new RRepeat(r);};
-    auto seq = [](std::vector<Rule*> r){ return new RSequence(r);};
-
-    auto ind = [](){ return new RIndent(); };
-    auto ded = [](){ return new RDedent(); };
-    auto nl = [](){ return new RNewline(); };
+    using namespace impl;
 
     auto declaration = alt();
     auto program = rep(declaration);
+    auto docstring = lit();
 
-    auto block = [&](Rule *r)
+    // ATRIBUTTES
     {
-      static std::map<Rule *, Rule *> memo;
-      if(memo.count(r) == 0) memo[r] = seq({ind(),rep(r),ded()});
-      return memo[r];
-    };
-
-    auto binop = [&](Rule *r, Rule *s)
+      // TODO
+    }
+    // TEMPLATES
     {
-      return seq({rep(seq({r,s})), r});
-    };
+      // TODO
+    }
+    // DECLARATIONS
+    {
+      // IMPORT
+      auto import_smt = seq({ kwd(L"import"), binop(id(), op(L".")), nl() });
+      declaration->add(import_smt);
+      // ALIAS
+      auto alias_smt = seq({ kwd(L"use"), id(), op(L"="), binop(id(), op(L".")), nl() });
+      declaration->add(alias_smt);
+      // USE
+      auto use_smt = seq({ kwd(L"use"), binop(id(), op(L".")), nl() });
+      declaration->add(use_smt);
+      // NAMESPACE
+      auto namespace_smt = seq({ kwd(L"namespace"), binop(id(), op(L".")), nl(), block(declaration) });
+      declaration->add(namespace_smt);
+      // VARIABLE
+      auto typespec = seq({ op(L":")/*, type*/ });
+      auto initspec = seq({ op(L"=")/*, value */ });
+      auto variable_smt = seq({ kwd(L"var"), id(), opt(typespec), opt(initspec), alt({nl(), seq({nl(),ind(),docstring,nl(),ded()})}) });
+      declaration->add(variable_smt);
+      // TODO
+      // FUNCTION
+      // TODO
+      // PROPERTIES
+      // TODO
+      // ENUM
+      // TODO
+      // CLASS
+      // TODO
+      // INTERFACE
+      // TODO
+      // CONCEPT
+      // TODO
+    }
 
-    auto nm_smt = seq({ kwd(L"namespace"), binop(id(), op(L".")), nl(), block(declaration)});
-    declaration->add(nm_smt);
-    declaration->add( seq({id(), nl()}) );
-    auto imp_smt = seq({ kwd(L"import"), binop(id(), op(L".")), nl() });
-    declaration->add(imp_smt);
     // DECLARATIONS
     //auto module_name = seq( { rep( seq({id(), op(L".")}) ), id() } );
     //auto import_smt = seq({ kwd(L"import"), module_name});

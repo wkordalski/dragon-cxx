@@ -26,7 +26,7 @@ namespace dragon
     std::wstring text;
     std::function<void(Token*)> converter = [](Token *t){};
 
-    RKeyword(std::wstring t) : text(t) {}
+    RKeyword(std::wstring t, std::function<void(Token*)> f = [](Token*){}) : text(t), converter(f) {}
 
     virtual Handle match(iterator &current, iterator end)
     {
@@ -46,6 +46,8 @@ namespace dragon
   {
   public:
     std::function<void(Token*)> converter = [](Token *t){};
+
+    RIdentifier(std::function<void(Token*)> f = [](Token*){}) : converter(f) {}
 
     virtual Handle match(iterator &current, iterator end)
     {
@@ -68,7 +70,7 @@ namespace dragon
     std::wstring text;
     std::function<void(Token*)> converter = [](Token *t){};
 
-    ROperator(std::wstring t) : text(t) {}
+    ROperator(std::wstring t, std::function<void(Token*)> f = [](Token*){}) : text(t), converter(f) {}
 
     virtual Handle match(iterator &current, iterator end)
     {
@@ -84,10 +86,34 @@ namespace dragon
     }
   };
 
+  class RLiteral : public Rule
+  {
+  public:
+    std::function<void(Token*)> converter = [](Token *t){};
+
+    RLiteral(std::function<void(Token*)> f = [](Token*){}) : converter(f) {}
+
+    virtual Handle match(iterator &current, iterator end)
+    {
+      if(current == end) return Handle();
+      Handle cc = *current;
+      Token *t = cc.get().get();
+      auto *tt = dynamic_cast<Literal *>(t);
+      if(tt == nullptr) return Handle();
+      // [TODO] Do we need to exclude all keywords here?
+      // Then we can use PrefixTree there.
+      tt->converter = converter;
+      current++;
+      return cc;
+    }
+  };
+
   class RNewline : public Rule
   {
   public:
     std::function<void(Token*)> converter = [](Token *t){};
+
+    RNewline(std::function<void(Token*)> f = [](Token*){}) : converter(f) {}
 
     virtual Handle match(iterator &current, iterator end)
     {
@@ -107,6 +133,8 @@ namespace dragon
   public:
     std::function<void(Token*)> converter = [](Token *t){};
 
+    RIndent(std::function<void(Token*)> f = [](Token*){}) : converter(f) {}
+
     virtual Handle match(iterator &current, iterator end)
     {
       if(current == end) return Handle();
@@ -125,6 +153,8 @@ namespace dragon
   public:
     std::function<void(Token*)> converter = [](Token *t){};
 
+    RDedent(std::function<void(Token*)> f = [](Token*){}) : converter(f) {}
+
     virtual Handle match(iterator &current, iterator end)
     {
       if(current == end) return Handle();
@@ -138,24 +168,82 @@ namespace dragon
     }
   };
 
+
+  // USE THIS ONLY WITHIN A SEQUENCE
+  // AND WITH YOUR BRAIN USAGE
+  // IT IS SO UNSTABLE
+  class ROptional : public Rule
+  {
+  public:
+    Rule * rule;
+
+    std::function<void(Token*)> converter = [](Token *t){};
+
+    ROptional(Rule *r, std::function<void(Token*)> f = [](Token*){}) : rule(r), converter(f) {}
+
+    virtual Handle match(iterator &current, iterator end)
+    {
+      Handle t = rule->match(current, end);
+      if(not t.valid()) return Handle();
+      auto *r = new Optional();
+      r->token = t;
+      r->converter = converter;
+      return Handle(r);
+    }
+  };
+
   class RSequence : public Rule
   {
   public:
     std::vector<Rule *> rules;
     std::function<void(Token*)> converter = [](Token *t){};
 
-    RSequence(std::vector<Rule *> r) : rules(r) {}
+    RSequence(std::vector<Rule *> r, std::function<void(Token*)> f = [](Token*){}) : rules(r), converter(f) {}
 
     virtual Handle match(iterator &current, iterator end)
     {
+      return partial_match({}, rules.begin(), current, end);
+    }
+
+    Handle partial_match(std::vector<Handle> prefix, std::vector<Rule*>::iterator rule, iterator &current, iterator end)
+    {
       iterator it = current;
-      std::vector<Handle> tok;
-      for(auto &m : rules)
+      std::vector<Handle> &tok = prefix;
+      for(; rule != rules.end(); rule++)
       {
         // we must match them all
-        Handle t = m->match(it, end);
-        if(not t.valid()) return Handle();
-        tok.push_back(t);
+        auto &m = *rule;
+        auto ot = dynamic_cast<ROptional*>(m);
+        if(ot == nullptr)
+        {
+          Handle t = m->match(it, end);
+          if(not t.valid()) return Handle();
+          tok.push_back(t);
+        }
+        else
+        {
+          iterator bakap = it;
+          Handle t = ot->match(it, end);
+          iterator cakap = it;
+          if(not t.valid()) continue; // we can simply miss it :D
+          // now we should branch
+          rule++;
+          Handle a = partial_match(tok, rule, bakap, end);
+          tok.push_back(t);
+          Handle b = partial_match(tok, rule, cakap, end);
+          if(a.valid() and b.valid()) return Handle();
+          if(a.valid())
+          {
+            current = bakap;
+            return a;
+          }
+          if(b.valid())
+          {
+            current = cakap;
+            return b;
+          }
+          return Handle();
+        }
       }
       auto *r = new Sequence();
       r->tokens = tok;
@@ -171,7 +259,7 @@ namespace dragon
     std::vector<Rule *> rules;
     std::function<void(Token*)> converter = [](Token *t){};
 
-    RAlternative(std::vector<Rule*> r) : rules(r) {}
+    RAlternative(std::vector<Rule*> r, std::function<void(Token*)> f = [](Token*){}) : rules(r), converter(f) {}
 
     void add(Rule *r)
     {
@@ -210,7 +298,7 @@ namespace dragon
 
     std::function<void(Token*)> converter = [](Token *t){};
 
-    RRepeat(Rule *r) : rule(r) {}
+    RRepeat(Rule *r, std::function<void(Token*)> f = [](Token*){}) : rule(r), converter(f) {}
 
     virtual Handle match(iterator &current, iterator end)
     {
