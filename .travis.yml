@@ -6,3 +6,10 @@ before_install:
   - "cd /usr/src/gtest && sudo cmake . && sudo cmake --build . && sudo mv libg* /usr/local/lib/ ; cd -"
 
 script: mkdir build && cd build && cmake .. && make && ./test
+
+notifications:
+  email: false
+
+branches:
+  only:
+    - master
