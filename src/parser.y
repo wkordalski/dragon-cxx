@@ -1,5 +1,6 @@
 %require "2.4.1"
 %skeleton "lalr1.cc"
+%locations
 %defines
 %define namespace "dragon"
 %define parser_class_name "Parser"
@@ -23,7 +24,7 @@
 
 %code {
 	// Prototype for the yylex function
-	static int yylex(dragon::Parser::semantic_type * yylval, dragon::Scanner &scanner);
+	static int yylex(dragon::Parser::semantic_type * yylval, dragon::Parser::location_type * yylloc, dragon::Scanner &scanner);
 }
 
 
@@ -39,15 +40,41 @@
 
 %token <token> AND_KEYWORD "and"
 %token <token> AS_KEYWORD "as"
+%token <token> ASSERT_KEYWORD "assert"
+%token <token> BREAK_KEYWORD "break"
+%token <token> CLASS_KEYWORD "class"
+%token <token> CONTINUE_KEYWORD "continue"
+%token <token> CUE_KEYWORD "cue"
 %token <token> DEF_KEYWORD "def"
+%token <token> ELIF_KEYWORD "elif"
 %token <token> ELSE_KEYWORD "else"
+%token <token> ENUM_KEYWORD "enum"
+%token <token> EXCEPT_KEYWORD "except"
+%token <token> FINALLY_KEYWORD "finally"
 %token <token> FOR_KEYWORD "for"
+%token <token> FROM_KEYWORD "from"
+%token <token> GET_KEYWORD "get"
 %token <token> IF_KEYWORD "if"
+%token <token> IMPORT_KEYWORD "import"
 %token <token> IN_KEYWORD "in"
+%token <token> INTERFACE_KEYWORD "interface"
 %token <token> IS_KEYWORD "is"
+%token <token> LET_KEYWORD "let"
+%token <token> NAMESPACE_KEYWORD "namespace"
 %token <token> NOT_KEYWORD "not"
 %token <token> OR_KEYWORD "or"
+%token <token> RAISE_KEYWORD "raise"
+%token <token> RETURN_KEYWORD "return"
+%token <token> SET_KEYWORD "set"
+%token <token> THEN_KEYWORD "then"
+%token <token> TRACE_KEYWORD "trace"
+%token <token> TRY_KEYWORD "try"
+%token <token> TYPE_KEYWORD "type"
+%token <token> USE_KEYWORD "use"
 %token <token> VAR_KEYWORD "var"
+%token <token> WHERE_KEYWORD "where"
+%token <token> WHILE_KEYWORD "while"
+%token <token> YIELD_KEYWORD "yield"
 
 %token <token> AMPERSAND "&"
 %token <token> AMPERSAND_EQUAL "&="
@@ -120,14 +147,18 @@
 %%
 
 program
-	: declaration NEWLINE program {}
-	| declaration NEWLINE					{}
+	: declaration program {}
+	| declaration					{}
+	| NEWLINE program							{}
+	| NEWLINE											{}
 	;
 
 /* EXPRESSIONS */
 
 expr0
 	: IDENTIFIER
+	| LITERAL
+	| "(" ")"
 	| "(" expr_all ")"
 	| "[" expr_list "]"
 	/*| "[" expr_all "for" /* TODO * / "]"*/
@@ -226,7 +257,7 @@ expr15 : expr14
 
 expr15a : expr15
 	| "if" expr_all "then" expr_all "else" expr_all
-	| "try" expr15 catch_then_exprs
+	| "try" expr_all except_then_exprs
 	;
 
 expr16 : expr15a
@@ -281,8 +312,8 @@ expr22 : expr21
 	| expr22 "or" expr21
 	;
 
-catch_then_expr	: "catch" expr15 "then" expr15 ;
-catch_then_exprs : catch_then_expr | catch_then_expr catch_then_exprs ;
+except_then_expr	: "except" expr_all "then" expr_all ;
+except_then_exprs : except_then_expr | except_then_expr except_then_exprs ;
 
 expr_cond : expr22 ;
 expr_val : expr17 ;
@@ -304,14 +335,13 @@ lambda_head : "[#]"
 /* ATTRIBUTES */
 
 attribute : "@" expr_list "[--]" ;
-attribute_list : attribute | attribute attribute_list ;
-
+attribute_list_noempty : attribute | attribute attribute_list_noempty ;
+attribute_list : attribute_list_noempty | /* EMPTY */ ;
 
 /* DECLARATIONS */
 
 declaration
 	: attribute_list "var" var_attr "[--]" {}
-	| attribute_list "var" var_attr "[--]" "[>>]" "[@]" "[--]" "[<<]" {}
 	;
 
 
@@ -326,7 +356,7 @@ var_attr
 
 // We have to implement the error function
 void dragon::Parser::error(const dragon::Parser::location_type &loc, const std::string &msg) {
-	std::cerr << "Error: " << msg << std::endl;
+	std::cerr << "Error [" << (*loc.begin.filename) << ": " << loc.begin.line << ":" << loc.begin.column << "-" << loc.end.column << "]: " << msg << std::endl;
 }
 
 // Now that we have the Parser declared, we can declare the Scanner and implement
@@ -334,6 +364,6 @@ void dragon::Parser::error(const dragon::Parser::location_type &loc, const std::
 
 
 #include STRINGIZE(SCANNER_HPP_FILE)
-static int yylex(dragon::Parser::semantic_type * yylval, dragon::Scanner &scanner) {
-	return scanner.lex(yylval);
+static int yylex(dragon::Parser::semantic_type * yylval, dragon::Parser::location_type *yylloc, dragon::Scanner &scanner) {
+	return scanner.lex(yylval, yylloc);
 }

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "location.hh"
+
 namespace dragon
 {
   // Represents a token
@@ -56,6 +58,15 @@ namespace dragon
     unsigned long row;
     unsigned long col;
     unsigned long len;
+
+    dragon::location location(std::string &f)
+    {
+      return dragon::location
+      (
+        dragon::position(&f, row+1, col+1),
+        dragon::position(&f, row+1, col+1 + len)
+      );
+    }
   };
 
   class Identifier : public Token
@@ -131,53 +142,5 @@ namespace dragon
 
   public:
     virtual void levelup() { converter(this); }
-  };
-
-  class Sequence : public Token
-  {
-  public:
-    std::vector<Handle> tokens;
-
-    std::function<void(Token*)> converter = [](Token *t){};
-
-  public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os<<L"(";for(auto h : tokens) h->print(os); os<<L")"; }
-  };
-
-  class Alternative : public Token
-  {
-  public:
-    Handle token;
-
-    std::function<void(Token *)> converter = [](Token *t){};
-
-  public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os<<L"{"; token->print(os); os<<L"}"; }
-  };
-
-  class Repeat : public Token
-  {
-  public:
-    std::vector<Handle> tokens;
-
-    std::function<void(Token *)> converter = [](Token *t){};
-
-  public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os<<L"(";for(auto h : tokens) h->print(os); os<<L")"; }
-  };
-
-  class Optional : public Token
-  {
-  public:
-    Handle token;
-
-    std::function<void(Token *)> converter = [](Token *t){};
-
-  public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os<<L"[?"; token->print(os); os<<L"]"; }
   };
 }

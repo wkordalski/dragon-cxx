@@ -18,13 +18,13 @@ set(TEST
 
   test/comment_remover.cpp
   test/manager.cpp
-  #test/parser.cpp
+  test/parser.cpp
   test/prefix_tree.cpp
   test/tokenizer.cpp
 )
 
 # if DEBUG
-  add_definitions(-g -Wall)
+  add_definitions(-g -Wall -DYYDEBUG)
 # endif
 add_definitions (-std=c++11)
 
