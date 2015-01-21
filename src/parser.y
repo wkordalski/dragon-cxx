@@ -1,5 +1,6 @@
 %require "2.4.1"
-%skeleton "lalr1.cc"
+%glr-parser
+%skeleton "glr.cc"
 %locations
 %defines
 %define namespace "dragon"
@@ -17,14 +18,34 @@
 	#include STRINGIZE(AST_HPP_FILE)
 
 	namespace dragon {
+
+		template<typename T, typename... Args>
+		void del(T a, Args... b)
+		{
+			delete a;
+			if(sizeof...(b)) del(b...);
+		}
+		template<typename T>
+		void del(T a)
+		{
+			delete a;
+		}
+		template<typename T>
+		T* as(Handle *h)
+		{
+			return dynamic_cast<T*>(&(*(*(*h))));
+		}
+
 		class Scanner;
 		class Handle;
 	}
 }
 
 %code {
+	// Only in parser.cpp - so not visible outside
+	using namespace dragon;
 	// Prototype for the yylex function
-	static int yylex(dragon::Parser::semantic_type * yylval, dragon::Parser::location_type * yylloc, dragon::Scanner &scanner);
+	static int yylex(dragon::Parser::semantic_type * zzlval, dragon::Parser::location_type * zzlloc, dragon::Scanner &scanner);
 }
 
 
@@ -142,90 +163,101 @@
 %token <token> TRIPPLE_LESSER "<<<"
 %token <token> TRIPPLE_LESSER_EQUAL "<<<="
 
+%type <token>  expr0  expr1  expr2  expr3  expr4  expr5  expr6  expr7  expr8  expr9
+%type <token> expr10 expr11 expr12 expr13 expr14 expr15 expr16 expr17 expr18 expr19 expr15a
+%type <token> expr20 expr21 expr22
 
+%type <token> expr_all expr_cond expr_val expr_noass
+
+%type <token> program program_decls
+%type <token> declaration
 
 %%
 
-program
-	: declaration program {}
-	| declaration					{}
-	| NEWLINE program							{}
-	| NEWLINE											{}
+program : program_decls													{ $$ = $1; }
+	| "[@]" "[--]" program_decls									{ as<Program>($3)->docstring = $1; $$ = $3; del($2); }
+	;
+
+program_decls
+	: declaration program													{ auto &dl = as<Program>($2)->declarations; dl.insert(dl.begin(),$1); $$ = $2; }
+	| declaration																	{ $$ = new Handle(new Program(nullptr, {$1})); }
+	| NEWLINE program															{ $$ = $2; }
+	| NEWLINE																			{ $$ = new Handle(new Program()); }
 	;
 
 /* EXPRESSIONS */
 
 expr0
-	: IDENTIFIER
-	| LITERAL
+	: IDENTIFIER																	{ $$ = $1; }
+	| LITERAL																			{ $$ = $1; }
 	| "(" ")"
-	| "(" expr_all ")"
-	| "[" expr_list "]"
-	/*| "[" expr_all "for" /* TODO * / "]"*/
+	| "(" expr_all ")"														{ $$ = $2; del($1, $3);}
+	| "[" expr_list "]"		/* an array literal */
+	/*| "[" expr_all "for" /* TODO * / "]"*/ /* a nice inline generator */
 	| "{" expr_list "}"
-	/*| "{" expr_all "for" /* TODO * / "}"*/
 	;
 
-expr1 : expr0
+expr1 : expr0																		{ $$ = $1; }
 	| expr1 "." expr0
 	| expr1 "++"
 	| expr1 "--"
+	| expr1 "*"  /* pointer type */
 	| expr1 "(" expr_list ")"
 	| expr1 "[" expr_list "]"
 	;
 
-expr2 : expr1
+expr2 : expr1																		{ $$ = $1; }
 	| "++" expr2
 	| "--" expr2
 	;
 
-expr3 : expr2
+expr3 : expr2																		{ $$ = $1; }
 	| expr3 "**" expr2
 	;
 
-expr4 : expr3
+expr4 : expr3																		{ $$ = $1; }
 	| "-" expr4
 	| "+" expr4
 	| "!" expr4
 	| "~" expr4
 	;
 
-expr5 : expr4
+expr5 : expr4																		{ $$ = $1; }
 	| expr5 "*" expr4
 	| expr5 "/" expr4
 	| expr5 "%" expr4
 	;
 
-expr6 : expr5
+expr6 : expr5																		{ $$ = $1; }
 	| expr6 "+" expr5
 	| expr6 "-" expr5
 	| expr6 "~" expr5
 	;
 
-expr7 : expr6
+expr7 : expr6																		{ $$ = $1; }
 	| expr7 ">>" expr6
 	| expr7 "<<" expr6
 	| expr7 ">>>" expr6
 	| expr7 "<<<" expr6
 	;
 
-expr8 : expr7
+expr8 : expr7																		{ $$ = $1; }
 	| expr8 "&" expr7
 	;
 
-expr9 : expr8
+expr9 : expr8																		{ $$ = $1; }
 	| expr9 "^" expr8
 	;
 
-expr10 : expr9
+expr10 : expr9																	{ $$ = $1; }
 	| expr10 "|" expr9
 	;
 
-expr11 : expr10
+expr11 : expr10																	{ $$ = $1; }
 	| expr11 ".." expr10
 	;
 
-expr12 : expr11
+expr12 : expr11																	{ $$ = $1; }
 	| expr12 "<" expr11
 	| expr12 "<=" expr11
 	| expr12 ">" expr11
@@ -236,7 +268,7 @@ expr12 : expr11
 	| expr12 "!<=" expr11
 	;
 
-expr13 : expr12
+expr13 : expr12																	{ $$ = $1; }
 	| expr13 "==" expr12
 	| expr13 "!=" expr12
 	| expr13 "!<>=" expr12
@@ -247,20 +279,20 @@ expr13 : expr12
 	| expr13 "!==" expr12
 	;
 
-expr14 : expr13
+expr14 : expr13																	{ $$ = $1; }
 	| expr14 "&&" expr13
 	;
 
-expr15 : expr14
+expr15 : expr14																	{ $$ = $1; }
 	| expr15 "||" expr14
 	;
 
-expr15a : expr15
-	| "if" expr_all "then" expr_all "else" expr_all
+expr15a : expr15																{ $$ = $1; }
+	| "if" expr_all "then" expr_all elif_then_elses
 	| "try" expr_all except_then_exprs
 	;
 
-expr16 : expr15a
+expr16 : expr15a																{ $$ = $1; }
 	| expr15 "=" expr16
 	| expr15 "+=" expr16
 	| expr15 "-=" expr16
@@ -281,43 +313,47 @@ expr16 : expr15a
 	| lambda_head "->" expr16
 	;
 
-expr17 : expr16
+expr17 : expr16																	{ $$ = $1; }
 	| expr17 "as" expr16
 	| expr17 "not" "as" expr16
 	| expr17 "!" "as" expr16
 	;
 
-expr18 : expr17
+expr18 : expr17																	{ $$ = $1; }
 	| expr18 "," expr17
 	;
 
-expr19 : expr18
+expr19 : expr18																	{ $$ = $1; }
 	| expr19 "is" expr18
 	| expr19 "not" "is" expr18
 	| expr19 "!" "is" expr18
 	;
 
-expr20 : expr19
+expr20 : expr19																	{ $$ = $1; }
 	| expr20 "in" expr19
 	| expr20 "not" "in" expr19
 	| expr20 "!" "in" expr19
 	;
 
-expr21 : expr20
+expr21 : expr20																	{ $$ = $1; }
 	| "not" expr21
 	;
 
-expr22 : expr21
+expr22 : expr21																	{ $$ = $1; }
 	| expr22 "and" expr21
 	| expr22 "or" expr21
 	;
 
 except_then_expr	: "except" expr_all "then" expr_all ;
 except_then_exprs : except_then_expr | except_then_expr except_then_exprs ;
+elif_then_elses
+	: "else" expr_all
+	| "elif" expr_all "then" expr_all elif_then_elses
+	;
 
-expr_cond : expr22 ;
-expr_val : expr17 ;
-expr_noass : expr15 ;
+expr_cond : expr22															{ $$ = $1; };
+expr_val : expr17 															{ $$ = $1; };
+expr_noass : expr15 														{ $$ = $1; };
 expr_list_noempty : expr_val
 	| expr_val "," expr_list
 	;
@@ -341,7 +377,17 @@ attribute_list : attribute_list_noempty | /* EMPTY */ ;
 /* DECLARATIONS */
 
 declaration
-	: attribute_list "var" var_attr "[--]" {}
+	: attribute_list "namespace" id_dot_list "[--]" "[>>]" "[@]" "[--]" declaration_block "[<<]"
+	| attribute_list "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
+	| attribute_list "var" var_attr "[--]" {}
+	;
+
+id_dot_list : "[#]"
+	| "[#]" "." id_dot_list
+	;
+
+declaration_block : declaration
+	| declaration declaration_block
 	;
 
 
@@ -364,6 +410,6 @@ void dragon::Parser::error(const dragon::Parser::location_type &loc, const std::
 
 
 #include STRINGIZE(SCANNER_HPP_FILE)
-static int yylex(dragon::Parser::semantic_type * yylval, dragon::Parser::location_type *yylloc, dragon::Scanner &scanner) {
-	return scanner.lex(yylval, yylloc);
+static int yylex(dragon::Parser::semantic_type * zzlval, dragon::Parser::location_type *zzlloc, dragon::Scanner &scanner) {
+	return scanner.lex(zzlval, zzlloc);
 }

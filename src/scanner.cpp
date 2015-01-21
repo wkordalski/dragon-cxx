@@ -3,36 +3,36 @@
 namespace dragon
 {
   // TODO
-  int Scanner::lex(dragon::Parser::semantic_type * yylval, dragon::Parser::location_type * yylloc)
+  int Scanner::lex(dragon::Parser::semantic_type * val, dragon::Parser::location_type * loc)
   {
     Token *t;
     if(tk.get(t))
     {
-      yylval->token = new Handle(t);
+      val->token = new Handle(t);
       // determine token type!
       if(auto tt = dynamic_cast<Newline*>(t))
       {
-        *yylloc = tt->place.location(filename);
+        *loc = tt->place.location(filename);
         return Parser::token::NEWLINE;
       }
       if(auto tt = dynamic_cast<Indent*>(t))
       {
-        *yylloc = tt->place.location(filename);
+        *loc = tt->place.location(filename);
         return Parser::token::INDENT;
       }
       if(auto tt = dynamic_cast<Dedent*>(t))
       {
-        *yylloc = tt->place.location(filename);
+        *loc = tt->place.location(filename);
         return Parser::token::DEDENT;
       }
       if(auto tt = dynamic_cast<Literal*>(t))
       {
-        *yylloc = tt->place.location(filename);
+        *loc = tt->place.location(filename);
         return Parser::token::LITERAL;
       }
       if(auto tt = dynamic_cast<Identifier*>(t))
       {
-        *yylloc = tt->place.location(filename);
+        *loc = tt->place.location(filename);
         // Check keyword
         if(tt->text == L"and") return Parser::token::AND_KEYWORD;
         if(tt->text == L"as") return Parser::token::AS_KEYWORD;
@@ -75,7 +75,7 @@ namespace dragon
       }
       if(auto tt = dynamic_cast<Operator*>(t))
       {
-        *yylloc = tt->place.location(filename);
+        *loc = tt->place.location(filename);
         // Check operator
         if(tt->text == L"&") return Parser::token::AMPERSAND;
         if(tt->text == L"&=") return Parser::token::AMPERSAND_EQUAL;

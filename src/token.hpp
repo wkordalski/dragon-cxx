@@ -61,11 +61,8 @@ namespace dragon
 
     dragon::location location(std::string &f)
     {
-      return dragon::location
-      (
-        dragon::position(&f, row+1, col+1),
-        dragon::position(&f, row+1, col+1 + len)
-      );
+      dragon::location c; c.initialize(&f, row+1, col+1); c.columns(len);
+      return c;
     }
   };
 

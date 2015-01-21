@@ -13,6 +13,6 @@ namespace dragon
     std::string filename;
   public:
     Scanner(std::wistream &source, std::string filename = "<input>"): sr(source), cr(sr), tk(cr), filename(filename) {}
-    int lex(dragon::Parser::semantic_type * yylval, dragon::Parser::location_type * yylloc);
+    int lex(dragon::Parser::semantic_type * val, dragon::Parser::location_type * loc);
   };
 }
