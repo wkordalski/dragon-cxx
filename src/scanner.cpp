@@ -8,7 +8,7 @@ namespace dragon
     Token *t;
     if(tk.get(t))
     {
-      val->token = new Handle(t);
+      (*val) = Handle(t);
       // determine token type!
       if(auto tt = dynamic_cast<Newline*>(t))
       {
@@ -79,6 +79,7 @@ namespace dragon
         // Check operator
         if(tt->text == L"&") return Parser::token::AMPERSAND;
         if(tt->text == L"&=") return Parser::token::AMPERSAND_EQUAL;
+        if(tt->text == L"<-") return Parser::token::ARROWL;
         if(tt->text == L"->") return Parser::token::ARROWR;
         if(tt->text == L"*") return Parser::token::ASTERISK;
         if(tt->text == L"*=") return Parser::token::ASTERISK_EQUAL;

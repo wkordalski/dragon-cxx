@@ -47,10 +47,23 @@ namespace dragon
 
     bool valid() const;
 
+    template<typename T>
+    std::shared_ptr<T> as()
+    {
+      return std::dynamic_pointer_cast<T>(get());
+    }
+
   protected:
     int h;
 
     friend class Token;
+
+  public:
+    template<class T, typename... Args>
+    static Handle make(Args... args)
+    {
+      return Handle(new T(args...));
+    }
   };
 
   struct Place

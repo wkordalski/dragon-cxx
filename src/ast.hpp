@@ -7,11 +7,11 @@ namespace dragon
   class Program : public Token
   {
   public:
-    Handle * docstring = nullptr;
-    std::vector<Handle *> declarations;
+    Handle docstring = Handle();
+    std::vector<Handle> declarations;
 
-    Program() {}
-    Program(Handle * doc, std::vector<Handle*> decls) : docstring(doc), declarations(decls) {}
+    Program(Handle h) : declarations({h}) {}
+    Program(std::vector<Handle> decls = {}, Handle doc = Handle()) : docstring(doc), declarations(decls) {}
 
     virtual void levelup() { /* TODO */ }
   };
@@ -19,8 +19,17 @@ namespace dragon
   class NamespaceDecl : public Token
   {
   public:
-    std::vector<Handle *> name;
-    std::vector<Handle *> declarations;
+    std::vector<Handle> name;
+    Handle docstring = Handle();
+    std::vector<Handle> declarations;
+
+    virtual void levelup() { /* TODO */ }
+  };
+
+  class VariableDecl : public Token
+  {
+  public:
+    /* TODO */
 
     virtual void levelup() { /* TODO */ }
   };

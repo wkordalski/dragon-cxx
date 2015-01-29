@@ -1,10 +1,12 @@
+%language "c++"
 %require "2.4.1"
 %glr-parser
 %skeleton "glr.cc"
 %locations
 %defines
-%define namespace "dragon"
-%define parser_class_name "Parser"
+%define api.namespace {dragon}
+%define api.value.type {dragon::Handle}
+%define parser_class_name {Parser}
 %parse-param { dragon::Scanner &scanner }
 %lex-param   { dragon::Scanner &scanner }
 
@@ -18,24 +20,6 @@
 	#include STRINGIZE(AST_HPP_FILE)
 
 	namespace dragon {
-
-		template<typename T, typename... Args>
-		void del(T a, Args... b)
-		{
-			delete a;
-			if(sizeof...(b)) del(b...);
-		}
-		template<typename T>
-		void del(T a)
-		{
-			delete a;
-		}
-		template<typename T>
-		T* as(Handle *h)
-		{
-			return dynamic_cast<T*>(&(*(*(*h))));
-		}
-
 		class Scanner;
 		class Handle;
 	}
@@ -49,140 +33,128 @@
 }
 
 
-%union {
-	dragon::Handle * token;
-}
+%token IDENTIFIER "[#]"
+%token LITERAL "[@]"
+%token NEWLINE "[--]"
+%token INDENT "[>>]"
+%token DEDENT "[<<]"
 
-%token <token> IDENTIFIER "[#]"
-%token <token> LITERAL "[@]"
-%token <token> NEWLINE "[--]"
-%token <token> INDENT "[>>]"
-%token <token> DEDENT "[<<]"
+%token AND_KEYWORD "and"
+%token AS_KEYWORD "as"
+%token ASSERT_KEYWORD "assert"
+%token BREAK_KEYWORD "break"
+%token CLASS_KEYWORD "class"
+%token CONTINUE_KEYWORD "continue"
+%token CUE_KEYWORD "cue"
+%token DEF_KEYWORD "def"
+%token ELIF_KEYWORD "elif"
+%token ELSE_KEYWORD "else"
+%token ENUM_KEYWORD "enum"
+%token EXCEPT_KEYWORD "except"
+%token FINALLY_KEYWORD "finally"
+%token FOR_KEYWORD "for"
+%token FROM_KEYWORD "from"
+%token GET_KEYWORD "get"
+%token IF_KEYWORD "if"
+%token IMPORT_KEYWORD "import"
+%token IN_KEYWORD "in"
+%token INTERFACE_KEYWORD "interface"
+%token IS_KEYWORD "is"
+%token LET_KEYWORD "let"
+%token NAMESPACE_KEYWORD "namespace"
+%token NOT_KEYWORD "not"
+%token OR_KEYWORD "or"
+%token RAISE_KEYWORD "raise"
+%token RETURN_KEYWORD "return"
+%token SET_KEYWORD "set"
+%token THEN_KEYWORD "then"
+%token TRACE_KEYWORD "trace"
+%token TRY_KEYWORD "try"
+%token TYPE_KEYWORD "type"
+%token USE_KEYWORD "use"
+%token VAR_KEYWORD "var"
+%token WHERE_KEYWORD "where"
+%token WHILE_KEYWORD "while"
+%token YIELD_KEYWORD "yield"
 
-%token <token> AND_KEYWORD "and"
-%token <token> AS_KEYWORD "as"
-%token <token> ASSERT_KEYWORD "assert"
-%token <token> BREAK_KEYWORD "break"
-%token <token> CLASS_KEYWORD "class"
-%token <token> CONTINUE_KEYWORD "continue"
-%token <token> CUE_KEYWORD "cue"
-%token <token> DEF_KEYWORD "def"
-%token <token> ELIF_KEYWORD "elif"
-%token <token> ELSE_KEYWORD "else"
-%token <token> ENUM_KEYWORD "enum"
-%token <token> EXCEPT_KEYWORD "except"
-%token <token> FINALLY_KEYWORD "finally"
-%token <token> FOR_KEYWORD "for"
-%token <token> FROM_KEYWORD "from"
-%token <token> GET_KEYWORD "get"
-%token <token> IF_KEYWORD "if"
-%token <token> IMPORT_KEYWORD "import"
-%token <token> IN_KEYWORD "in"
-%token <token> INTERFACE_KEYWORD "interface"
-%token <token> IS_KEYWORD "is"
-%token <token> LET_KEYWORD "let"
-%token <token> NAMESPACE_KEYWORD "namespace"
-%token <token> NOT_KEYWORD "not"
-%token <token> OR_KEYWORD "or"
-%token <token> RAISE_KEYWORD "raise"
-%token <token> RETURN_KEYWORD "return"
-%token <token> SET_KEYWORD "set"
-%token <token> THEN_KEYWORD "then"
-%token <token> TRACE_KEYWORD "trace"
-%token <token> TRY_KEYWORD "try"
-%token <token> TYPE_KEYWORD "type"
-%token <token> USE_KEYWORD "use"
-%token <token> VAR_KEYWORD "var"
-%token <token> WHERE_KEYWORD "where"
-%token <token> WHILE_KEYWORD "while"
-%token <token> YIELD_KEYWORD "yield"
-
-%token <token> AMPERSAND "&"
-%token <token> AMPERSAND_EQUAL "&="
-%token <token> ARROWR "->"
-%token <token> ASTERISK "*"
-%token <token> ASTERISK_EQUAL "*="
-%token <token> AT "@"
-%token <token> CARET "^"
-%token <token> CARET_EQUAL "^="
-%token <token> COLON ":"
-%token <token> COMMA ","
-%token <token> DIFFERENT "<>"
-%token <token> DIFFERENT_EQUAL "<>="
-%token <token> DOT "."
-%token <token> DOUBLE_AMPERSAND "&&"
-%token <token> DOUBLE_AMPERSAND_EQUAL "&&="
-%token <token> DOUBLE_ASTERISK "**"
-%token <token> DOUBLE_ASTERISK_EQUAL "**="
-%token <token> DOUBLE_DOT ".."
-%token <token> DOUBLE_EQUAL "=="
-%token <token> DOUBLE_GREATER ">>"
-%token <token> DOUBLE_GREATER_EQUAL ">>="
-%token <token> DOUBLE_LESSER "<<"
-%token <token> DOUBLE_LESSER_EQUAL "<<="
-%token <token> DOUBLE_MINUS "--"
-%token <token> DOUBLE_PIPE "||"
-%token <token> DOUBLE_PIPE_EQUAL "||="
-%token <token> DOUBLE_PLUS "++"
-%token <token> EQUAL "="
-%token <token> EXCLAMATION "!"
-%token <token> GREATER ">"
-%token <token> GREATER_EQUAL ">="
-%token <token> LEFT1 "("
-%token <token> LEFT2 "["
-%token <token> LEFT3 "{"
-%token <token> LESSER "<"
-%token <token> LESSER_EQUAL "<="
-%token <token> MINUS "-"
-%token <token> MINUS_EQUAL "-="
-%token <token> NOT_DIFFERENT "!<>"
-%token <token> NOT_DIFFERENT_EQUAL "!<>="
-%token <token> NOT_DOUBLE_EQUAL "!=="
-%token <token> NOT_EQUAL "!="
-%token <token> NOT_GREATER "!>"
-%token <token> NOT_GREATER_EQUAL "!>="
-%token <token> NOT_LESSER "!<"
-%token <token> NOT_LESSER_EQUAL "!<="
-%token <token> PERCENT "%"
-%token <token> PERCENT_EQUAL "%="
-%token <token> PIPE "|"
-%token <token> PIPE_EQUAL "|="
-%token <token> PLUS "+"
-%token <token> PLUS_EQUAL "+="
-%token <token> RIGHT1 ")"
-%token <token> RIGHT2 "]"
-%token <token> RIGHT3 "}"
-%token <token> SEMICOLON ";"
-%token <token> SLASH "/"
-%token <token> SLASH_EQUAL "/="
-%token <token> TILDE "~"
-%token <token> TILDE_EQUAL "~="
-%token <token> TRIPPLE_EQUAL "==="
-%token <token> TRIPPLE_GREATER ">>>"
-%token <token> TRIPPLE_GREATER_EQUAL ">>>="
-%token <token> TRIPPLE_LESSER "<<<"
-%token <token> TRIPPLE_LESSER_EQUAL "<<<="
-
-%type <token>  expr0  expr1  expr2  expr3  expr4  expr5  expr6  expr7  expr8  expr9
-%type <token> expr10 expr11 expr12 expr13 expr14 expr15 expr16 expr17 expr18 expr19 expr15a
-%type <token> expr20 expr21 expr22
-
-%type <token> expr_all expr_cond expr_val expr_noass
-
-%type <token> program program_decls
-%type <token> declaration
+%token AMPERSAND "&"
+%token AMPERSAND_EQUAL "&="
+%token ARROWL "<-"
+%token ARROWR "->"
+%token ASTERISK "*"
+%token ASTERISK_EQUAL "*="
+%token AT "@"
+%token CARET "^"
+%token CARET_EQUAL "^="
+%token COLON ":"
+%token COMMA ","
+%token DIFFERENT "<>"
+%token DIFFERENT_EQUAL "<>="
+%token DOT "."
+%token DOUBLE_AMPERSAND "&&"
+%token DOUBLE_AMPERSAND_EQUAL "&&="
+%token DOUBLE_ASTERISK "**"
+%token DOUBLE_ASTERISK_EQUAL "**="
+%token DOUBLE_DOT ".."
+%token DOUBLE_EQUAL "=="
+%token DOUBLE_GREATER ">>"
+%token DOUBLE_GREATER_EQUAL ">>="
+%token DOUBLE_LESSER "<<"
+%token DOUBLE_LESSER_EQUAL "<<="
+%token DOUBLE_MINUS "--"
+%token DOUBLE_PIPE "||"
+%token DOUBLE_PIPE_EQUAL "||="
+%token DOUBLE_PLUS "++"
+%token EQUAL "="
+%token EXCLAMATION "!"
+%token GREATER ">"
+%token GREATER_EQUAL ">="
+%token LEFT1 "("
+%token LEFT2 "["
+%token LEFT3 "{"
+%token LESSER "<"
+%token LESSER_EQUAL "<="
+%token MINUS "-"
+%token MINUS_EQUAL "-="
+%token NOT_DIFFERENT "!<>"
+%token NOT_DIFFERENT_EQUAL "!<>="
+%token NOT_DOUBLE_EQUAL "!=="
+%token NOT_EQUAL "!="
+%token NOT_GREATER "!>"
+%token NOT_GREATER_EQUAL "!>="
+%token NOT_LESSER "!<"
+%token NOT_LESSER_EQUAL "!<="
+%token PERCENT "%"
+%token PERCENT_EQUAL "%="
+%token PIPE "|"
+%token PIPE_EQUAL "|="
+%token PLUS "+"
+%token PLUS_EQUAL "+="
+%token RIGHT1 ")"
+%token RIGHT2 "]"
+%token RIGHT3 "}"
+%token SEMICOLON ";"
+%token SLASH "/"
+%token SLASH_EQUAL "/="
+%token TILDE "~"
+%token TILDE_EQUAL "~="
+%token TRIPPLE_EQUAL "==="
+%token TRIPPLE_GREATER ">>>"
+%token TRIPPLE_GREATER_EQUAL ">>>="
+%token TRIPPLE_LESSER "<<<"
+%token TRIPPLE_LESSER_EQUAL "<<<="
 
 %%
 
 program : program_decls													{ $$ = $1; }
-	| "[@]" "[--]" program_decls									{ as<Program>($3)->docstring = $1; $$ = $3; del($2); }
+	| "[@]" "[--]" program_decls									{ $$ = $3; $$.as<Program>()->docstring = $1; }
 	;
 
 program_decls
-	: declaration program													{ auto &dl = as<Program>($2)->declarations; dl.insert(dl.begin(),$1); $$ = $2; }
-	| declaration																	{ $$ = new Handle(new Program(nullptr, {$1})); }
-	| NEWLINE program															{ $$ = $2; }
-	| NEWLINE																			{ $$ = new Handle(new Program()); }
+	: program_decls	declaration 									{ $$ = $1; $$.as<Program>()->declarations.push_back($2); }
+	| declaration																	{ $$ = Handle::make<Program>($1); }
+	| program_decls NEWLINE 											{ $$ = $1; }
+	| NEWLINE																			{ $$ = Handle::make<Program>(); }
 	;
 
 /* EXPRESSIONS */
@@ -191,9 +163,9 @@ expr0
 	: IDENTIFIER																	{ $$ = $1; }
 	| LITERAL																			{ $$ = $1; }
 	| "(" ")"
-	| "(" expr_all ")"														{ $$ = $2; del($1, $3);}
+	| "(" expr_all ")"														{ $$ = $2; }
 	| "[" expr_list "]"		/* an array literal */
-	/*| "[" expr_all "for" /* TODO * / "]"*/ /* a nice inline generator */
+	| "[" expr_all "for" "[#]" ":" expr18 "in" expr18 "]" /* a nice inline generator */
 	| "{" expr_list "}"
 	;
 
@@ -209,6 +181,8 @@ expr1 : expr0																		{ $$ = $1; }
 expr2 : expr1																		{ $$ = $1; }
 	| "++" expr2
 	| "--" expr2
+	| "*" expr2
+	| "&" expr2
 	;
 
 expr3 : expr2																		{ $$ = $1; }
@@ -277,6 +251,7 @@ expr13 : expr12																	{ $$ = $1; }
 	| expr13 "<>=" expr12
 	| expr13 "===" expr12
 	| expr13 "!==" expr12
+	| expr13 "<=>" expr12
 	;
 
 expr14 : expr13																	{ $$ = $1; }
@@ -293,6 +268,7 @@ expr15a : expr15																{ $$ = $1; }
 	;
 
 expr16 : expr15a																{ $$ = $1; }
+	/* Expr15 is intentional here below */
 	| expr15 "=" expr16
 	| expr15 "+=" expr16
 	| expr15 "-=" expr16
@@ -310,6 +286,7 @@ expr16 : expr15a																{ $$ = $1; }
 	| expr15 "&&=" expr16
 	| expr15 "||=" expr16
 	| expr15 "**=" expr16
+	| expr15 "<-" expr16
 	| lambda_head "->" expr16
 	;
 
@@ -378,12 +355,21 @@ attribute_list : attribute_list_noempty | /* EMPTY */ ;
 
 declaration
 	: attribute_list "namespace" id_dot_list "[--]" "[>>]" "[@]" "[--]" declaration_block "[<<]"
+	{
+		$$ = Handle(); /* TODO */
+	}
 	| attribute_list "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
-	| attribute_list "var" var_attr "[--]" {}
+	{
+		$$ = Handle(); /* TODO */
+	}
+	| attribute_list "var" var_attr "[--]"
+	{
+		$$ = Handle(); /* TODO */
+	}
 	;
 
 id_dot_list : "[#]"
-	| "[#]" "." id_dot_list
+	| id_dot_list "." "[#]"
 	;
 
 declaration_block : declaration

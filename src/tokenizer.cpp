@@ -45,6 +45,7 @@ namespace dragon
     auto addop = [this](std::wstring op) { _opers.insert(op.begin(), op.end()); };
     addop(L"&");
     addop(L"&=");
+    addop(L"<-");
     addop(L"->");
     addop(L"*");
     addop(L"*=");
