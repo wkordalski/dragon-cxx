@@ -1,7 +1,9 @@
 %language "c++"
 %require "2.4.1"
 %glr-parser
-%skeleton "glr.cc"
+/* custom skeleton for non-trivially constructed semantic type support */
+/* it is a modification of GLR parser provided by Bison */
+%skeleton "./skel.cc"
 %locations
 %defines
 %define api.namespace {dragon}

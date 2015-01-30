@@ -20,3 +20,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+-------
+
+Files: src/skel.c and src/skel.cc are provided under GPLv3
+as they are modification of glr.c and glr.cc files provided by Bison
+
+Files: src/glr.hpp and src/glr.cpp are provided under GPLv3
+as they are rewrite of Bison-generated parser.
