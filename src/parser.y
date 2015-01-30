@@ -175,12 +175,12 @@
 %%
 
 program : program_decls													{ $$ = $1; }
-	| "[@]" "[--]" program_decls									{ as<Program>($3)->docstring = $1; $$ = $3; del($2); }
+	| "[@]" "[--]" program_decls									{ as<Program>($3)->docstring = *$1; $$ = $3; del($1, $2); }
 	;
 
 program_decls
-	: declaration program													{ auto &dl = as<Program>($2)->declarations; dl.insert(dl.begin(),$1); $$ = $2; }
-	| declaration																	{ $$ = new Handle(new Program(nullptr, {$1})); }
+	: declaration program													{ auto &dl = as<Program>($2)->declarations; dl.insert(dl.begin(),*$1); $$ = $2; del($1); }
+	| declaration																	{ $$ = new Handle(new Program({*$1})); }
 	| NEWLINE program															{ $$ = $2; }
 	| NEWLINE																			{ $$ = new Handle(new Program()); }
 	;
@@ -377,9 +377,9 @@ attribute_list : attribute_list_noempty | /* EMPTY */ ;
 /* DECLARATIONS */
 
 declaration
-	: attribute_list "namespace" id_dot_list "[--]" "[>>]" "[@]" "[--]" declaration_block "[<<]"
-	| attribute_list "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
-	| attribute_list "var" var_attr "[--]" {}
+	: attribute_list "namespace" id_dot_list "[--]" "[>>]" "[@]" "[--]" declaration_block "[<<]" { $$ = new Handle(); }
+	| attribute_list "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]" { $$ = new Handle(); }
+	| attribute_list "var" var_attr "[--]" { $$ = new Handle(); }
 	;
 
 id_dot_list : "[#]"

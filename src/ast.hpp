@@ -7,11 +7,11 @@ namespace dragon
   class Program : public Token
   {
   public:
-    Handle * docstring = nullptr;
-    std::vector<Handle *> declarations;
+    Handle docstring = Handle();
+    std::vector<Handle> declarations;
 
     Program() {}
-    Program(Handle * doc, std::vector<Handle*> decls) : docstring(doc), declarations(decls) {}
+    Program(std::vector<Handle> decls, Handle doc = Handle()) : docstring(doc), declarations(decls) {}
 
     virtual void levelup() { /* TODO */ }
   };
