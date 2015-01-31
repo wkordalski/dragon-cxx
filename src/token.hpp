@@ -46,6 +46,10 @@ namespace dragon
     Handle & set(pointer);
 
     bool valid() const;
+    operator bool() { return valid(); }
+    bool operator !() { return !valid(); }
+
+    static void cleanup();
 
   protected:
     int h;

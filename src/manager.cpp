@@ -1,6 +1,7 @@
 #include "token.hpp"
 
 #include <cassert>
+#include <iomanip>
 #include <unordered_map>
 
 namespace dragon
@@ -33,6 +34,7 @@ namespace dragon
   Handle::~Handle()
   {
     if(h == 0) return;
+    if(manager_map.count(h) == 0) return;
     manager_map[h].first--;
     if(manager_map[h].first == 0)
     {
@@ -91,5 +93,34 @@ namespace dragon
     h = 0;
     assert(t->h != 0);
     manager_map[t->h].second = Handle::pointer(t);
+  }
+
+  void Handle::cleanup()
+  {
+
+    std::vector<int> hs;
+    for(std::pair<int,std::pair<int,Handle::pointer>> p : manager_map)
+    {
+      hs.push_back(p.first);
+    }
+    if(hs.size() > 0)
+    {
+      std::wcerr << L"LEAKS DETECTED           \t [  running clean-up  ]" << std::endl;
+      for(int h : hs)
+      {
+        std::wcerr << L"Freeing managed object: 0x" << std::internal << std::hex << std::setw(4) << std::setfill(L'0') << h;
+        if(manager_map.count(h))
+        {
+          std::wcerr << L"\t [ " << std::internal << std::hex << std::setw(18) << std::setfill(L'0') << manager_map[h].second.get() << L" ]" << std::endl;
+          manager_map.erase(h);
+        }
+        else
+        {
+          std::wcerr << L"\t [    dead pointer    ]" << std::endl;
+        }
+      }
+      std::wcerr << L"Clear container..." << std::endl;
+    }
+    manager_map.clear();
   }
 }

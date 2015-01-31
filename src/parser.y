@@ -3,9 +3,10 @@
 %skeleton "glr.cc"
 %locations
 %defines
-%define namespace "dragon"
+%define api.namespace {dragon}
 %define parser_class_name "Parser"
 %parse-param { dragon::Scanner &scanner }
+%parse-param { dragon::Handle &root }
 %lex-param   { dragon::Scanner &scanner }
 
 
@@ -16,6 +17,8 @@
 	#define STRINGIZE(A) STRINGIZE_NX(A)
 
 	#include STRINGIZE(AST_HPP_FILE)
+
+	#include <vector>
 
 	namespace dragon {
 
@@ -51,6 +54,7 @@
 
 %union {
 	dragon::Handle * token;
+	std::vector<dragon::Handle> * list;
 }
 
 %token <token> IDENTIFIER "[#]"
@@ -169,20 +173,15 @@
 
 %type <token> expr_all expr_cond expr_val expr_noass
 
-%type <token> program program_decls
+%type <token> program
 %type <token> declaration
+
+%type <list> id_dot_list declaration_block expr_list expr_list_noempty
 
 %%
 
-program : program_decls													{ $$ = $1; }
-	| "[@]" "[--]" program_decls									{ as<Program>($3)->docstring = *$1; $$ = $3; del($1, $2); }
-	;
-
-program_decls
-	: declaration program													{ auto &dl = as<Program>($2)->declarations; dl.insert(dl.begin(),*$1); $$ = $2; del($1); }
-	| declaration																	{ $$ = new Handle(new Program({*$1})); }
-	| NEWLINE program															{ $$ = $2; }
-	| NEWLINE																			{ $$ = new Handle(new Program()); }
+program : declaration_block											{ $$ = new Handle(new Program(*$1)); del($1); }
+	| "[@]" "[--]" declaration_block							{ $$ = new Handle(new Program(*$3, *$1)); del($1,$2,$3); }
 	;
 
 /* EXPRESSIONS */
@@ -192,7 +191,7 @@ expr0
 	| LITERAL																			{ $$ = $1; }
 	| "(" ")"
 	| "(" expr_all ")"														{ $$ = $2; del($1, $3);}
-	| "[" expr_list "]"		/* an array literal */
+	| "[" expr_list "]"		/* an array literal */	{ $$ = new Handle(new ArrayLiteral(*$2)); del($1, $2, $3); }
 	/*| "[" expr_all "for" /* TODO * / "]"*/ /* a nice inline generator */
 	| "{" expr_list "}"
 	;
@@ -354,11 +353,13 @@ elif_then_elses
 expr_cond : expr22															{ $$ = $1; };
 expr_val : expr17 															{ $$ = $1; };
 expr_noass : expr15 														{ $$ = $1; };
-expr_list_noempty : expr_val
-	| expr_val "," expr_list
+expr_list_noempty : expr_val										{ $$ = new std::vector<dragon::Handle>({*$1}); del($1); }
+	| expr_list_noempty "," expr_val							{ $$ = $1; $$->push_back(*$3); del($2, $3); }
 	;
 
-expr_list : expr_list_noempty | /* EMPTY */ ;
+expr_list : expr_list_noempty										{ $$ = $1; }
+	| /* EMPTY */																	{ $$ = new std::vector<dragon::Handle>(); }
+	;
 
 expr_all : expr22 ;
 
@@ -377,17 +378,18 @@ attribute_list : attribute_list_noempty | /* EMPTY */ ;
 /* DECLARATIONS */
 
 declaration
-	: attribute_list "namespace" id_dot_list "[--]" "[>>]" "[@]" "[--]" declaration_block "[<<]" { $$ = new Handle(); }
-	| attribute_list "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]" { $$ = new Handle(); }
+	: "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]" { $$ = new Handle(new NamespaceDecl(*$2, *$5)); del($1, $2, $3, $4, $5, $6); }
 	| attribute_list "var" var_attr "[--]" { $$ = new Handle(); }
 	;
 
-id_dot_list : "[#]"
-	| "[#]" "." id_dot_list
+id_dot_list : "[#]"														{ $$ = new std::vector<Handle>({*$1}); del($1); }
+	| id_dot_list "." "[#]"											{ $$ = $1; $$->push_back(*$3); del($2, $3); }
 	;
 
-declaration_block : declaration
-	| declaration declaration_block
+declaration_block : declaration								{ $$ = new std::vector<Handle>({*$1}); del($1); }
+	| NEWLINE																		{ $$ = new std::vector<Handle>(); del($1); }
+	| declaration_block NEWLINE									{ $$ = $1; del($2); }
+	| declaration_block declaration							{ $$ = $1; $$->push_back(*$2); del($2); }
 	;
 
 
