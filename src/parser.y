@@ -4,7 +4,7 @@
 %locations
 %defines
 %define api.namespace {dragon}
-%define parser_class_name "Parser"
+%define parser_class_name {Parser}
 %parse-param { dragon::Scanner &scanner }
 %parse-param { dragon::Handle &root }
 %lex-param   { dragon::Scanner &scanner }
@@ -21,24 +21,6 @@
 	#include <vector>
 
 	namespace dragon {
-
-		template<typename T, typename... Args>
-		void del(T a, Args... b)
-		{
-			delete a;
-			if(sizeof...(b)) del(b...);
-		}
-		template<typename T>
-		void del(T a)
-		{
-			delete a;
-		}
-		template<typename T>
-		T* as(Handle *h)
-		{
-			return dynamic_cast<T*>(&(*(*(*h))));
-		}
-
 		class Scanner;
 		class Handle;
 	}
@@ -49,6 +31,52 @@
 	using namespace dragon;
 	// Prototype for the yylex function
 	static int yylex(dragon::Parser::semantic_type * zzlval, dragon::Parser::location_type * zzlloc, dragon::Scanner &scanner);
+
+	template<typename T>
+	void del(T a)
+	{
+		delete a;
+	}
+	template<typename T, typename... Args>
+	void del(T a, Args... b)
+	{
+		delete a;
+		if(sizeof...(b)) del(b...);
+	}
+
+	template<typename T>
+	T* as(Handle *h)
+	{
+		return dynamic_cast<T*>(&(*(*(*h))));
+	}
+
+	template<typename T, typename... Args>
+	Handle * make(Args... args)
+	{
+		return new Handle(new T(args...));
+	}
+
+
+	std::vector<Handle> * list()
+	{
+		return new std::vector<Handle>();
+	}
+
+	template<typename T, typename... Args>
+	std::vector<Handle> * list(Args... args, T v)
+	{
+		auto l = list(args...);
+		l->push_back(v);
+		return l;
+	}
+
+	template<typename T>
+	std::vector<Handle> * list(T v)
+	{
+		auto l = list();
+		l->push_back(v);
+		return l;
+	}
 }
 
 
@@ -103,6 +131,7 @@
 
 %token <token> AMPERSAND "&"
 %token <token> AMPERSAND_EQUAL "&="
+%token <token> ARROWL "<-"
 %token <token> ARROWR "->"
 %token <token> ASTERISK "*"
 %token <token> ASTERISK_EQUAL "*="
@@ -137,6 +166,7 @@
 %token <token> LEFT3 "{"
 %token <token> LESSER "<"
 %token <token> LESSER_EQUAL "<="
+%token <token> LESSER_EQUAL_GREATER "<=>"
 %token <token> MINUS "-"
 %token <token> MINUS_EQUAL "-="
 %token <token> NOT_DIFFERENT "!<>"
@@ -176,12 +206,14 @@
 %type <token> program
 %type <token> declaration
 
-%type <list> id_dot_list declaration_block expr_list expr_list_noempty
+%type <token> elif_then_elses except_then_exprs
+
+%type <list> id_dot_list declaration_block expr_list expr_list_noempty attribute attribute_list attribute_list_noempty
 
 %%
 
-program : declaration_block											{ $$ = new Handle(new Program(*$1)); del($1); }
-	| "[@]" "[--]" declaration_block							{ $$ = new Handle(new Program(*$3, *$1)); del($1,$2,$3); }
+program : declaration_block											{ $$ = make<Program>(*$1); del($1); }
+	| "[@]" "[--]" declaration_block							{ $$ = make<Program>(*$3, *$1); del($1,$2,$3); }
 	;
 
 /* EXPRESSIONS */
@@ -191,18 +223,18 @@ expr0
 	| LITERAL																			{ $$ = $1; }
 	| "(" ")"
 	| "(" expr_all ")"														{ $$ = $2; del($1, $3);}
-	| "[" expr_list "]"		/* an array literal */	{ $$ = new Handle(new ArrayLiteral(*$2)); del($1, $2, $3); }
+	| "[" expr_list "]"		/* an array literal */	{ $$ = make<ArrayLiteral>(*$2); del($1, $2, $3); }
 	/*| "[" expr_all "for" /* TODO * / "]"*/ /* a nice inline generator */
 	| "{" expr_list "}"
 	;
 
 expr1 : expr0																		{ $$ = $1; }
-	| expr1 "." expr0
+	| expr1 "." expr0															{ $$ = make<MemberOperator>(*$1, *$3); del($1,$2,$3); }
 	| expr1 "++"
 	| expr1 "--"
 	| expr1 "*"  /* pointer type */
-	| expr1 "(" expr_list ")"
-	| expr1 "[" expr_list "]"
+	| expr1 "(" expr_list ")"											{ $$ = make<CallOperator>(*$1, *$3); del($1,$2,$3,$4);}
+	| expr1 "[" expr_list "]"											{ $$ = make<IndexOperator>(*$1, *$3); del($1,$2,$3,$4);}
 	;
 
 expr2 : expr1																		{ $$ = $1; }
@@ -276,6 +308,7 @@ expr13 : expr12																	{ $$ = $1; }
 	| expr13 "<>=" expr12
 	| expr13 "===" expr12
 	| expr13 "!==" expr12
+	| expr13 "<=>" expr12
 	;
 
 expr14 : expr13																	{ $$ = $1; }
@@ -288,11 +321,23 @@ expr15 : expr14																	{ $$ = $1; }
 
 expr15a : expr15																{ $$ = $1; }
 	| "if" expr_all "then" expr_all elif_then_elses
+	{
+		$$ = $5;
+		auto &ie = as<IfElseExpression>($$)->if_exprs;
+		ie.insert(ie.begin(), std::make_pair(*$2, *$4));
+		del($1,$2,$3,$4);
+	}
 	| "try" expr_all except_then_exprs
+	{
+		$$ = $3;
+		as<TryExceptExpression>($$)->expr = *$2;
+		del($1,$2);
+	}
 	;
 
 expr16 : expr15a																{ $$ = $1; }
 	| expr15 "=" expr16
+	| expr15 "<-" expr16
 	| expr15 "+=" expr16
 	| expr15 "-=" expr16
 	| expr15 "*=" expr16
@@ -343,22 +388,44 @@ expr22 : expr21																	{ $$ = $1; }
 	| expr22 "or" expr21
 	;
 
-except_then_expr	: "except" expr_all "then" expr_all ;
-except_then_exprs : except_then_expr | except_then_expr except_then_exprs ;
+except_then_exprs
+	: "except" expr_all "then" expr_all
+	{
+		$$ = make<TryExceptExpression>(std::make_pair(*$2,*$4));
+		del($1,$2,$3,$4);
+	}
+	| "except" expr_all "then" expr_all except_then_exprs
+	{
+		$$ = $5;
+		auto &ie = as<TryExceptExpression>($$)->catches;
+		ie.insert(ie.begin(), std::make_pair(*$2, *$4));
+		del($1,$2,$3,$4);
+	}
+	;
 elif_then_elses
 	: "else" expr_all
+	{
+		$$ = make<IfElseExpression>(*$2);
+		del($1,$2);
+	}
 	| "elif" expr_all "then" expr_all elif_then_elses
+	{
+		$$ = $5;
+		auto &ie = as<IfElseExpression>($$)->if_exprs;
+		ie.insert(ie.begin(), std::make_pair(*$2, *$4));
+		del($1,$2,$3,$4);
+	}
 	;
 
 expr_cond : expr22															{ $$ = $1; };
 expr_val : expr17 															{ $$ = $1; };
 expr_noass : expr15 														{ $$ = $1; };
-expr_list_noempty : expr_val										{ $$ = new std::vector<dragon::Handle>({*$1}); del($1); }
+expr_list_noempty : expr_val										{ $$ = list(*$1); del($1); }
 	| expr_list_noempty "," expr_val							{ $$ = $1; $$->push_back(*$3); del($2, $3); }
 	;
 
 expr_list : expr_list_noempty										{ $$ = $1; }
-	| /* EMPTY */																	{ $$ = new std::vector<dragon::Handle>(); }
+	| /* EMPTY */																	{ $$ = list(); }
 	;
 
 expr_all : expr22 ;
@@ -371,9 +438,9 @@ lambda_head : "[#]"
 
 /* ATTRIBUTES */
 
-attribute : "@" expr_list "[--]" ;
-attribute_list_noempty : attribute | attribute attribute_list_noempty ;
-attribute_list : attribute_list_noempty | /* EMPTY */ ;
+attribute : "@" expr_list "[--]"								{ $$ = $2; del($1,$3); } ;
+attribute_list_noempty : attribute { $$ = $1; } | attribute_list_noempty attribute {$$ = $1; std::move($2->begin(), $2->end(), $1->end());del($2);} ;
+attribute_list : attribute_list_noempty {$$ = $1;} | /* EMPTY */  {$$=list();};
 
 /* DECLARATIONS */
 
@@ -382,12 +449,12 @@ declaration
 	| attribute_list "var" var_attr "[--]" { $$ = new Handle(); }
 	;
 
-id_dot_list : "[#]"														{ $$ = new std::vector<Handle>({*$1}); del($1); }
+id_dot_list : "[#]"														{ $$ = list(*$1); del($1); }
 	| id_dot_list "." "[#]"											{ $$ = $1; $$->push_back(*$3); del($2, $3); }
 	;
 
-declaration_block : declaration								{ $$ = new std::vector<Handle>({*$1}); del($1); }
-	| NEWLINE																		{ $$ = new std::vector<Handle>(); del($1); }
+declaration_block : declaration								{ $$ = list(*$1); del($1); }
+	| NEWLINE																		{ $$ = list(); del($1); }
 	| declaration_block NEWLINE									{ $$ = $1; del($2); }
 	| declaration_block declaration							{ $$ = $1; $$->push_back(*$2); del($2); }
 	;

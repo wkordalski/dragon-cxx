@@ -79,6 +79,7 @@ namespace dragon
         // Check operator
         if(tt->text == L"&") return Parser::token::AMPERSAND;
         if(tt->text == L"&=") return Parser::token::AMPERSAND_EQUAL;
+        if(tt->text == L"<-") return Parser::token::ARROWL;
         if(tt->text == L"->") return Parser::token::ARROWR;
         if(tt->text == L"*") return Parser::token::ASTERISK;
         if(tt->text == L"*=") return Parser::token::ASTERISK_EQUAL;
@@ -113,6 +114,7 @@ namespace dragon
         if(tt->text == L"{") return Parser::token::LEFT3;
         if(tt->text == L"<") return Parser::token::LESSER;
         if(tt->text == L"<=") return Parser::token::LESSER_EQUAL;
+        if(tt->text == L"<=>") return Parser::token::LESSER_EQUAL_GREATER;
         if(tt->text == L"-") return Parser::token::MINUS;
         if(tt->text == L"-=") return Parser::token::MINUS_EQUAL;
         if(tt->text == L"!<>") return Parser::token::NOT_DIFFERENT;

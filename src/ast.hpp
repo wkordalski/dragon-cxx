@@ -44,4 +44,61 @@ namespace dragon
 
     virtual void levelup() { /* TODO */ }
   };
+
+  class MemberOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+
+    MemberOperator(Handle l, Handle r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+  class CallOperator : public Token
+  {
+  public:
+    Handle left;
+    std::vector<Handle> right;
+
+    CallOperator(Handle l, std::vector<Handle> r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+  class IndexOperator : public Token
+  {
+  public:
+    Handle left;
+    std::vector<Handle> right;
+
+    IndexOperator(Handle l, std::vector<Handle> r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+  class IfElseExpression : public Token
+  {
+  public:
+    std::vector<std::pair<Handle,Handle>> if_exprs;
+    Handle else_expr;
+
+    IfElseExpression() {}
+    IfElseExpression(Handle else_expr) : else_expr(else_expr) {}
+
+    virtual void levelup() {}
+  };
+
+  class TryExceptExpression : public Token
+  {
+  public:
+    Handle expr = Handle();
+    std::vector<std::pair<Handle, Handle>> catches;
+
+    TryExceptExpression() {}
+    TryExceptExpression(std::pair<Handle,Handle> acatch) : catches({acatch}) {}
+
+    virtual void levelup() {}
+  };
 }
