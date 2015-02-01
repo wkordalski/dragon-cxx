@@ -117,6 +117,7 @@
 %token <token> NOT_KEYWORD "not"
 %token <token> OR_KEYWORD "or"
 %token <token> RAISE_KEYWORD "raise"
+%token <token> REF_KEYWORD "ref"
 %token <token> RETURN_KEYWORD "return"
 %token <token> SET_KEYWORD "set"
 %token <token> THEN_KEYWORD "then"
@@ -203,120 +204,126 @@
 
 %type <token> expr_all expr_cond expr_val expr_noass
 
-%type <token> program
 %type <token> declaration
 
 %type <token> elif_then_elses except_then_exprs
 
-%type <list> id_dot_list declaration_block expr_list expr_list_noempty attribute attribute_list attribute_list_noempty
+%type <token> var_single_decl
+
+%type <list> id_dot_list declaration_block expr_list expr_list_noempty attribute attribute_list attribute_list_noempty var_single_decl_list
 
 %%
 
-program : declaration_block											{ $$ = make<Program>(*$1); del($1); }
-	| "[@]" "[--]" declaration_block							{ $$ = make<Program>(*$3, *$1); del($1,$2,$3); }
+program : declaration_block											{ root = Handle(new Program(*$1)); del($1); }
+	| "[@]" "[--]" declaration_block							{ root = Handle(new Program(*$3, *$1)); del($1,$2,$3); }
 	;
 
-/* EXPRESSIONS */
+/* ------------------------------------------------------------------------------------------------------ */
+/*                                              EXPRESSIONS                                               */
+/* ------------------------------------------------------------------------------------------------------ */
 
 expr0
 	: IDENTIFIER																	{ $$ = $1; }
 	| LITERAL																			{ $$ = $1; }
-	| "(" ")"
+	| "(" ")"																			{ $$ = make<NoneOperator>(); del($1,$2); }
 	| "(" expr_all ")"														{ $$ = $2; del($1, $3);}
 	| "[" expr_list "]"		/* an array literal */	{ $$ = make<ArrayLiteral>(*$2); del($1, $2, $3); }
 	/*| "[" expr_all "for" /* TODO * / "]"*/ /* a nice inline generator */
-	| "{" expr_list "}"
+	| "{" expr_list "}"  /* what this should be? - I don't plan any literals for sets or maps */
 	;
 
 expr1 : expr0																		{ $$ = $1; }
 	| expr1 "." expr0															{ $$ = make<MemberOperator>(*$1, *$3); del($1,$2,$3); }
-	| expr1 "++"
-	| expr1 "--"
-	| expr1 "*"  /* pointer type */
+	| expr1 "++"																	{ $$ = make<UnaryPostfixUserOperator>("++", *$2); del($1,$2); }
+	| expr1 "--"																	{ $$ = make<UnaryPostfixUserOperator>("--", *$2); del($1,$2); }
+	| expr1 "*"  /* pointer type */								{ $$ = make<PointerTypeOperator>(*$1); del($1,$2);}
 	| expr1 "(" expr_list ")"											{ $$ = make<CallOperator>(*$1, *$3); del($1,$2,$3,$4);}
 	| expr1 "[" expr_list "]"											{ $$ = make<IndexOperator>(*$1, *$3); del($1,$2,$3,$4);}
 	;
 
 expr2 : expr1																		{ $$ = $1; }
-	| "++" expr2
-	| "--" expr2
+	| "++" expr2																	{ $$ = make<UnaryPrefixUserOperator>("++", *$2); del($1,$2); }
+	| "--" expr2																	{ $$ = make<UnaryPrefixUserOperator>("--", *$2); del($1,$2); }
 	;
 
 expr3 : expr2																		{ $$ = $1; }
-	| expr3 "**" expr2
+	| expr3 "**" expr2														{ $$ = make<BinaryUserOperator>("**",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr4 : expr3																		{ $$ = $1; }
-	| "-" expr4
-	| "+" expr4
-	| "!" expr4
-	| "~" expr4
+	| "-" expr4																		{ $$ = make<UnaryPrefixUserOperator>("-", *$2); del($1,$2); }
+	| "+" expr4																		{ $$ = make<UnaryPrefixUserOperator>("+", *$2); del($1,$2); }
+	| "!" expr4																		{ $$ = make<UnaryPrefixUserOperator>("!", *$2); del($1,$2); }
+	| "~" expr4																		{ $$ = make<UnaryPrefixUserOperator>("~", *$2); del($1,$2); }
 	;
 
 expr5 : expr4																		{ $$ = $1; }
-	| expr5 "*" expr4
-	| expr5 "/" expr4
-	| expr5 "%" expr4
+	| expr5 "*" expr4															{ $$ = make<BinaryUserOperator>("*",*$1,*$3); del($1,$2,$3); }
+	| expr5 "/" expr4															{ $$ = make<BinaryUserOperator>("/",*$1,*$3); del($1,$2,$3); }
+	| expr5 "%" expr4															{ $$ = make<BinaryUserOperator>("%",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr6 : expr5																		{ $$ = $1; }
-	| expr6 "+" expr5
-	| expr6 "-" expr5
-	| expr6 "~" expr5
+	| expr6 "+" expr5															{ $$ = make<BinaryUserOperator>("+",*$1,*$3); del($1,$2,$3); }
+	| expr6 "-" expr5															{ $$ = make<BinaryUserOperator>("-",*$1,*$3); del($1,$2,$3); }
+	| expr6 "~" expr5															{ $$ = make<BinaryUserOperator>("~",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr7 : expr6																		{ $$ = $1; }
-	| expr7 ">>" expr6
-	| expr7 "<<" expr6
-	| expr7 ">>>" expr6
-	| expr7 "<<<" expr6
+	| expr7 ">>" expr6														{ $$ = make<BinaryUserOperator>(">>",*$1,*$3); del($1,$2,$3); }
+	| expr7 "<<" expr6														{ $$ = make<BinaryUserOperator>("<<",*$1,*$3); del($1,$2,$3); }
+	| expr7 ">>>" expr6														{ $$ = make<BinaryUserOperator>(">>>",*$1,*$3); del($1,$2,$3); }
+	| expr7 "<<<" expr6														{ $$ = make<BinaryUserOperator>("<<<",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr8 : expr7																		{ $$ = $1; }
-	| expr8 "&" expr7
+	| expr8 "&" expr7															{ $$ = make<BinaryUserOperator>("&",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr9 : expr8																		{ $$ = $1; }
-	| expr9 "^" expr8
+	| expr9 "^" expr8															{ $$ = make<BinaryUserOperator>("^",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr10 : expr9																	{ $$ = $1; }
-	| expr10 "|" expr9
+	| expr10 "|" expr9														{ $$ = make<BinaryUserOperator>("|",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr11 : expr10																	{ $$ = $1; }
-	| expr11 ".." expr10
+	| expr11 ".." expr10													{ $$ = make<RangeOperator>(*$1,*$3); del($1,$2,$3); }
 	;
 
 expr12 : expr11																	{ $$ = $1; }
-	| expr12 "<" expr11
-	| expr12 "<=" expr11
-	| expr12 ">" expr11
-	| expr12 ">=" expr11
-	| expr12 "!>" expr11
-	| expr12 "!>=" expr11
-	| expr12 "!<" expr11
-	| expr12 "!<=" expr11
+	| expr12 "<" expr11														{ $$ = make<CompareOperator>("<",*$1,*$3); del($1,$2,$3); }
+	| expr12 "<=" expr11													{ $$ = make<CompareOperator>("<=",*$1,*$3); del($1,$2,$3); }
+	| expr12 ">" expr11														{ $$ = make<CompareOperator>(">",*$1,*$3); del($1,$2,$3); }
+	| expr12 ">=" expr11													{ $$ = make<CompareOperator>(">=",*$1,*$3); del($1,$2,$3); }
+	| expr12 "!>" expr11													{ $$ = make<CompareOperator>("!>",*$1,*$3); del($1,$2,$3); }
+	| expr12 "!>=" expr11													{ $$ = make<CompareOperator>("!>=",*$1,*$3); del($1,$2,$3); }
+	| expr12 "!<" expr11													{ $$ = make<CompareOperator>("!<",*$1,*$3); del($1,$2,$3); }
+	| expr12 "!<=" expr11													{ $$ = make<CompareOperator>("!<=",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr13 : expr12																	{ $$ = $1; }
-	| expr13 "==" expr12
-	| expr13 "!=" expr12
-	| expr13 "!<>=" expr12
-	| expr13 "!<>" expr12
-	| expr13 "<>" expr12
-	| expr13 "<>=" expr12
-	| expr13 "===" expr12
+	| expr13 "==" expr12													{ $$ = make<CompareOperator>("==",*$1,*$3); del($1,$2,$3); }
+	| expr13 "!=" expr12													{ $$ = make<CompareOperator>("!=",*$1,*$3); del($1,$2,$3); }
+	| expr13 "!<>=" expr12												{ $$ = make<CompareOperator>("!<>=",*$1,*$3); del($1,$2,$3); }
+	| expr13 "!<>" expr12													{ $$ = make<CompareOperator>("!<>",*$1,*$3); del($1,$2,$3); }
+	| expr13 "<>" expr12													{ $$ = make<CompareOperator>("<>",*$1,*$3); del($1,$2,$3); }
+	| expr13 "<>=" expr12													{ $$ = make<CompareOperator>("<>=",*$1,*$3); del($1,$2,$3); }
+	| expr13 "===" expr12													{ $$ = make<RelationOperator>("===", *$1,*$3); del($1,$2,$3);}
 	| expr13 "!==" expr12
-	| expr13 "<=>" expr12
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("===", *$1,*$3))); del($1,$2,$3);
+	}
+	| expr13 "<=>" expr12													{ $$ = make<RelationOperator>("<=>", *$1,*$3); del($1,$2,$3);}
 	;
 
 expr14 : expr13																	{ $$ = $1; }
-	| expr14 "&&" expr13
+	| expr14 "&&" expr13													{ $$ = make<BinaryUserOperator>("&&",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr15 : expr14																	{ $$ = $1; }
-	| expr15 "||" expr14
+	| expr15 "||" expr14													{ $$ = make<BinaryUserOperator>("||",*$1,*$3); del($1,$2,$3); }
 	;
 
 expr15a : expr15																{ $$ = $1; }
@@ -336,57 +343,79 @@ expr15a : expr15																{ $$ = $1; }
 	;
 
 expr16 : expr15a																{ $$ = $1; }
-	| expr15 "=" expr16
-	| expr15 "<-" expr16
-	| expr15 "+=" expr16
-	| expr15 "-=" expr16
-	| expr15 "*=" expr16
-	| expr15 "/=" expr16
-	| expr15 "%=" expr16
-	| expr15 "&=" expr16
-	| expr15 "|=" expr16
-	| expr15 "^=" expr16
-	| expr15 "~=" expr16
-	| expr15 "<<=" expr16
-	| expr15 ">>=" expr16
-	| expr15 "<<<=" expr16
-	| expr15 ">>>=" expr16
-	| expr15 "&&=" expr16
-	| expr15 "||=" expr16
-	| expr15 "**=" expr16
+	| expr15 "=" expr16														{ $$ = make<AssignOperator>(*$1, *$3); del($1,$2,$3); }
+	| expr15 "<-" expr16													{ $$ = make<StorePointerOperator>(*$1, *$3); del($1,$2,$3); }
+	| expr15 "+=" expr16													{ $$ = make<BinaryUserAssignOperator>("+",*$1,*$3); del($1,$2,$3); }
+	| expr15 "-=" expr16													{ $$ = make<BinaryUserAssignOperator>("-",*$1,*$3); del($1,$2,$3); }
+	| expr15 "*=" expr16													{ $$ = make<BinaryUserAssignOperator>("*",*$1,*$3); del($1,$2,$3); }
+	| expr15 "/=" expr16													{ $$ = make<BinaryUserAssignOperator>("/",*$1,*$3); del($1,$2,$3); }
+	| expr15 "%=" expr16													{ $$ = make<BinaryUserAssignOperator>("%",*$1,*$3); del($1,$2,$3); }
+	| expr15 "&=" expr16													{ $$ = make<BinaryUserAssignOperator>("&",*$1,*$3); del($1,$2,$3); }
+	| expr15 "|=" expr16													{ $$ = make<BinaryUserAssignOperator>("|",*$1,*$3); del($1,$2,$3); }
+	| expr15 "^=" expr16													{ $$ = make<BinaryUserAssignOperator>("^",*$1,*$3); del($1,$2,$3); }
+	| expr15 "~=" expr16													{ $$ = make<BinaryUserAssignOperator>("~",*$1,*$3); del($1,$2,$3); }
+	| expr15 "<<=" expr16													{ $$ = make<BinaryUserAssignOperator>("<<",*$1,*$3); del($1,$2,$3); }
+	| expr15 ">>=" expr16													{ $$ = make<BinaryUserAssignOperator>(">>",*$1,*$3); del($1,$2,$3); }
+	| expr15 "<<<=" expr16												{ $$ = make<BinaryUserAssignOperator>("<<<",*$1,*$3); del($1,$2,$3); }
+	| expr15 ">>>=" expr16												{ $$ = make<BinaryUserAssignOperator>(">>>",*$1,*$3); del($1,$2,$3); }
+	| expr15 "&&=" expr16													{ $$ = make<BinaryUserAssignOperator>("&&",*$1,*$3); del($1,$2,$3); }
+	| expr15 "||=" expr16													{ $$ = make<BinaryUserAssignOperator>("||",*$1,*$3); del($1,$2,$3); }
+	| expr15 "**=" expr16													{ $$ = make<BinaryUserAssignOperator>("**",*$1,*$3); del($1,$2,$3); }
 	| lambda_head "->" expr16
 	;
 
 expr17 : expr16																	{ $$ = $1; }
-	| expr17 "as" expr16
+	| expr17 "as" expr16													{ $$ = make<RelationOperator>("as", *$1,*$3); del($1,$2,$3);}
 	| expr17 "not" "as" expr16
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("as", *$1, *$4))); del($1,$2,$3,$4);
+	}
 	| expr17 "!" "as" expr16
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("as", *$1, *$4))); del($1,$2,$3,$4);
+	}
 	;
 
 expr18 : expr17																	{ $$ = $1; }
-	| expr18 "," expr17
+	| expr18 "," expr17														{ $$ = make<CommaOperator>(*$1,*$3); del($1,$2,$3);}
 	;
 
 expr19 : expr18																	{ $$ = $1; }
-	| expr19 "is" expr18
+	| expr19 "is" expr18													{ $$ = make<RelationOperator>("===", *$1,*$3); del($1,$2,$3);} /* or maby <=> ? */
 	| expr19 "not" "is" expr18
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("===", *$1, *$4))); del($1,$2,$3,$4);
+	}
 	| expr19 "!" "is" expr18
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("===", *$1, *$4))); del($1,$2,$3,$4);
+	}
 	;
 
 expr20 : expr19																	{ $$ = $1; }
-	| expr20 "in" expr19
+	| expr20 "in" expr19													{ $$ = make<RelationOperator>("in", *$1,*$3); del($1,$2,$3); } /* only one overloadable relation operator */
 	| expr20 "not" "in" expr19
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("in", *$1, *$4))); del($1,$2,$3,$4);
+	}
 	| expr20 "!" "in" expr19
+	{
+		$$ = make<UnaryPrefixUserOperator>("!", Handle(new RelationOperator("in", *$1, *$4))); del($1,$2,$3,$4);
+	}
 	;
 
 expr21 : expr20																	{ $$ = $1; }
-	| "not" expr21
+	| "not" expr21																{ $$ = make<UnaryPrefixUserOperator>("!", *$2); del($1,$2); }
 	;
 
 expr22 : expr21																	{ $$ = $1; }
-	| expr22 "and" expr21
-	| expr22 "or" expr21
+	| expr22 "and" expr21													{ $$ = make<BinaryUserOperator>("&&",*$1,*$3); del($1,$2,$3); }
+	| expr22 "or" expr21													{ $$ = make<BinaryUserOperator>("||",*$1,*$3); del($1,$2,$3); }
 	;
+
+/* ------------------------------------------------------------------------------------------------------ */
+/*                                           EXPRESSION HELPERS                                           */
+/* ------------------------------------------------------------------------------------------------------ */
 
 except_then_exprs
 	: "except" expr_all "then" expr_all
@@ -436,17 +465,30 @@ lambda_head : "[#]"
 	/* TODO */
 	;
 
-/* ATTRIBUTES */
+/* ------------------------------------------------------------------------------------------------------ */
+/*                                               ATTRIBUTES                                               */
+/* ------------------------------------------------------------------------------------------------------ */
 
 attribute : "@" expr_list "[--]"								{ $$ = $2; del($1,$3); } ;
 attribute_list_noempty : attribute { $$ = $1; } | attribute_list_noempty attribute {$$ = $1; std::move($2->begin(), $2->end(), $1->end());del($2);} ;
 attribute_list : attribute_list_noempty {$$ = $1;} | /* EMPTY */  {$$=list();};
 
-/* DECLARATIONS */
+/* ------------------------------------------------------------------------------------------------------ */
+/*                                              DECLARATIONS                                              */
+/* ------------------------------------------------------------------------------------------------------ */
 
 declaration
-	: "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]" { $$ = new Handle(new NamespaceDecl(*$2, *$5)); del($1, $2, $3, $4, $5, $6); }
-	| attribute_list "var" var_attr "[--]" { $$ = new Handle(); }
+	: "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
+	{
+		$$ = make<NamespaceDecl>(*$2, *$5); del($1, $2, $3, $4, $5, $6); }
+	| attribute_list "var" var_single_decl_list "[--]"
+	{
+		$$ = make<VariableDecl>(*$1, *$3); del($1,$2,$3,$4);
+	}
+	| attribute_list "var" var_single_decl_list "[--]" "[>>]" "[@]" "[--]" "[<<]"
+	{
+		$$ = make<VariableDecl>(*$1, *$3, *$6); del($1,$2,$3,$4,$5,$6,$7,$8);
+	}
 	;
 
 id_dot_list : "[#]"														{ $$ = list(*$1); del($1); }
@@ -460,11 +502,74 @@ declaration_block : declaration								{ $$ = list(*$1); del($1); }
 	;
 
 
-var_attr
-	: "[#]"
-	| "[#]" ":" expr_noass
-	| "[#]" "=" expr_val
-	| "[#]" ":" expr_noass "=" expr_val
+var_single_decl
+	: "[#]"																			{ $$ = make<VariableSingleDecl>(*$1, Handle(), Handle()); del($1); }
+	| "[#]" ":" expr_noass											{ $$ = make<VariableSingleDecl>(*$1, *$3, Handle()); del($1,$2,$3); }
+	| "[#]" "=" expr_val												{ $$ = make<VariableSingleDecl>(*$1, Handle(), *$3); del($1,$2,$3); }
+	| "[#]" ":" expr_noass "=" expr_val					{ $$ = make<VariableSingleDecl>(*$1, *$3, *$5); del($1,$2,$3,$4,$5); }
+	;
+
+var_single_decl_list
+	: var_single_decl														{ $$ = list(*$1); del($1); }
+	| var_single_decl_list var_single_decl			{ $$ = $1; $$->push_back(*$2); del($2); }
+	;
+
+/* ------------------------------------------------------------------------------------------------------ */
+/*                                               STATEMENTS                                               */
+/* ------------------------------------------------------------------------------------------------------ */
+
+/* instrukcja wraz z tokenem nowej lini */
+statement
+	: one_line_statement "[--]"
+	| if_statement
+	;
+
+one_line_statement
+	: nonewline_statement
+	| one_line_statement ";" nonewline_statement
+	;
+
+nonewline_statement
+	: expr_all
+	| return_statement
+	| assert_statement
+	| trace_statement
+	;
+
+statement_block : statement
+	| NEWLINE
+	| statement_block NEWLINE
+	| statement_block statement
+	;
+
+if_statement
+	: "if" expr_cond "[--]" "[>>]" statement_block "[<<]" else_statements
+	| "if" expr_cond "then" statement else_statements
+	;
+
+else_statements
+	: "else" "[--]" "[>>]" statement_block "[<<]"
+	| "else" statement
+	| "elif" expr_cond "[--]" "[>>]" statement_block "[<<]" else_statements
+	| "elif" expr_cond "then" statement else_statements
+	;
+
+while_statement
+	: "while" expr_cond "[--]" "[>>]" statement_block "[<<]"
+	| "while" expr_cond "then" statement
+	;
+
+return_statement
+	: "return"
+	| "return" expr_all
+	;
+
+assert_statement
+	: "assert" expr_cond
+	;
+
+trace_statement
+	: "trace" expr_list_noempty
 	;
 
 %%

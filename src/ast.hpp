@@ -32,6 +32,33 @@ namespace dragon
   { os << L"[namespace "; for(auto h : declarations) h->print(os); os<<"]" << std::endl; for(auto h : declarations)if(h) h->print(os); }
   };
 
+  class VariableDecl : public Token
+  {
+  public:
+    std::vector<Handle> attribs;
+    std::vector<Handle> decls;
+    Handle docstring;
+
+    VariableDecl() {}
+    VariableDecl(std::vector<Handle> attribs, std::vector<Handle> decls, Handle doc = Handle())
+      : attribs(attribs), decls(decls), docstring(doc) {}
+
+    virtual void levelup() {}
+  };
+
+  class VariableSingleDecl : public Token
+  {
+  public:
+    Handle id;
+    Handle type;
+    Handle value;
+
+    VariableSingleDecl() {}
+    VariableSingleDecl(Handle id, Handle type, Handle value) : id(id), type(type), value(value) {}
+
+    virtual void levelup() {}
+  };
+
   class ArrayLiteral : public Token
   {
   public:
@@ -98,6 +125,154 @@ namespace dragon
 
     TryExceptExpression() {}
     TryExceptExpression(std::pair<Handle,Handle> acatch) : catches({acatch}) {}
+
+    virtual void levelup() {}
+  };
+
+  class AssignOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+
+    AssignOperator() {}
+    AssignOperator(Handle l, Handle r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+  class BinaryUserOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+    std::string op;
+
+    BinaryUserOperator() {}
+    BinaryUserOperator(std::string o, Handle l, Handle r) : left(l), right(r), op(o) {}
+
+    virtual void levelup() {}
+  };
+
+  class BinaryUserAssignOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+    std::string op;
+
+    BinaryUserAssignOperator() {}
+    BinaryUserAssignOperator(std::string o, Handle l, Handle r) : left(l), right(r), op(o) {}
+
+    virtual void levelup() {}
+  };
+
+  class RangeOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+
+    RangeOperator() {}
+    RangeOperator(Handle l, Handle r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+  class CompareOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+    std::string rel;
+
+    CompareOperator() {}
+    CompareOperator(std::string o, Handle l, Handle r) : left(l), right(r), rel(o) {}
+
+    virtual void levelup() {}
+  };
+
+  class UnaryPrefixUserOperator : public Token
+  {
+  public:
+    Handle expr;
+    std::string op;
+
+    UnaryPrefixUserOperator() {}
+    UnaryPrefixUserOperator(std::string o, Handle e) : expr(e), op(o) {}
+
+    virtual void levelup() {}
+  };
+
+  class UnaryPostfixUserOperator : public Token
+  {
+  public:
+    Handle expr;
+    std::string op;
+
+    UnaryPostfixUserOperator() {}
+    UnaryPostfixUserOperator(std::string o, Handle e) : expr(e), op(o) {}
+
+    virtual void levelup() {}
+  };
+
+  class PointerTypeOperator : public Token
+  {
+  public:
+    Handle type;
+
+    PointerTypeOperator(Handle t) : type(t) {}
+
+    virtual void levelup() {}
+  };
+
+  class StorePointerOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+
+    StorePointerOperator() {}
+    StorePointerOperator(Handle l, Handle r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+
+  class RelationOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+    std::string rel;
+
+    RelationOperator() {}
+    RelationOperator(std::string o, Handle l, Handle r) : left(l), right(r), rel(o) {}
+
+    virtual void levelup() {}
+  };
+
+  class LambdaOperator : public Token
+  {
+    // TODO
+  };
+
+  class CommaOperator : public Token
+  {
+  public:
+    Handle left;
+    Handle right;
+
+    CommaOperator() {}
+    CommaOperator(Handle l, Handle r) : left(l), right(r) {}
+
+    virtual void levelup() {}
+  };
+
+  class NoneOperator : public Token
+  {
+  public:
+    NoneOperator() {}
 
     virtual void levelup() {}
   };

@@ -18,6 +18,7 @@ namespace dragon
 
   Handle::Handle(Handle::pointer p)
   {
+
     while(manager_counter == 0 or manager_map.count(manager_counter) > 0) manager_counter++;
     manager_map[manager_counter] = std::make_pair(1, p);
     p->h = manager_counter;
