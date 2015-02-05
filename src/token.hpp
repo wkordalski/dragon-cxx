@@ -45,8 +45,6 @@ namespace dragon
     Handle(const Handle &);
     ~Handle();
 
-    explicit Handle(int h);
-
     Handle & operator = (const Handle &);
 
     pointer operator -> () const;
@@ -90,6 +88,10 @@ namespace dragon
     }
 
     static void cleanup();
+
+    // DEBUGGING PURPOSES ONLY!!!
+    explicit Handle(int h);
+    static bool exists(int h);
 
   protected:
     int h;
@@ -200,6 +202,15 @@ namespace std
     std::size_t operator() (const dragon::Handle &h) const
     {
       return h->hash();
+    }
+  };
+
+  template<>
+  struct equal_to<dragon::Handle>
+  {
+    bool operator () (const dragon::Handle &l, const dragon::Handle &r) const
+    {
+      return l->equal(r.get().get());
     }
   };
 }

@@ -41,6 +41,11 @@ namespace dragon
     manager_map[h].first++;
   }
 
+  bool Handle::exists(int handle)
+  {
+    return manager_map.count(handle) > 0;
+  }
+
   Handle::~Handle()
   {
     if(h == 0) return;

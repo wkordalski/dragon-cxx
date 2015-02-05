@@ -8,6 +8,7 @@ namespace dragon
 {
   class IDeclaration
   {
+  public:
     // Name of this declaration
     virtual Handle get_name() = 0;
 
@@ -17,7 +18,12 @@ namespace dragon
 
   class IDeclarationContainer
   {
-    // TODO
+  public:
+    // Declaration by name
+    virtual Handle by_name(Handle h) = 0;
+
+    // Add declaration
+    virtual void add_declaration(Handle h) = 0;
   };
 
   class Namespace : public Token, public IDeclaration, public IDeclarationContainer
@@ -31,6 +37,20 @@ namespace dragon
 
     virtual Handle get_name() { return name; }
     virtual bool is_internal() { return internal; }
+    virtual Handle by_name(Handle h) { if(declarations.count(h) > 0) return declarations[h]; else return Handle(); }
+    virtual void add_declaration(Handle h)
+    {
+      auto decl = h.is<IDeclaration>();
+      assert(declarations.count(decl->get_name()) == 0);
+      declarations[decl->get_name()] = h;
+    }
+
+    virtual void print(std::wostream &os)
+    {
+      os << "Namespace ["<<handle()<<"] ( name = "<<int(name)<<(internal?", internal":"")<<", decls = [ ";
+      for(auto p : declarations) os << int(p.second) << " ";
+      os << "])" << std::endl;
+    }
   };
 
   class Variable : public Token, public IDeclaration

@@ -7,9 +7,23 @@ namespace dragon
 {
   class Assembly : public Token, public IDeclarationContainer
   {
+    std::unordered_map<Handle, Handle> declarations;
   public:
-    /* Name is identifier or template something */
-    Handle member(Handle name);
+
+    virtual Handle by_name(Handle h) { if(declarations.count(h) > 0) return declarations[h]; else return Handle(); }
+    virtual void add_declaration(Handle h)
+    {
+      auto decl = h.is<IDeclaration>();
+      assert(declarations.count(decl->get_name()) == 0);
+      declarations[decl->get_name()] = h;
+    }
+
+    virtual void print(std::wostream &os)
+    {
+      os << "Assembly ["<<handle()<<"] ( decls = [ ";
+      for(auto p : declarations) os << int(p.second) << " ";
+      os << "])" << std::endl;
+    }
   };
 
   class CompiledAssembly : public Token

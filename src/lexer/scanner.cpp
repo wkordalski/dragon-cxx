@@ -2,8 +2,7 @@
 
 namespace dragon
 {
-  // TODO
-  int Scanner::lex(dragon::Parser::semantic_type * val, dragon::Parser::location_type * loc)
+  int FileScanner::lex(dragon::Parser::semantic_type * val, dragon::Parser::location_type * loc)
   {
     Token *t;
     if(tk.get(t))

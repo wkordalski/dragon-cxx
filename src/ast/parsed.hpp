@@ -35,12 +35,14 @@ namespace dragon
 
     virtual void print(std::wostream &os)
     {
-      os << "Namespace [" << handle() << "] ( name = [ ";
+      os << "NamespaceDecl [" << handle() << "] ( name = [ ";
       for(auto h : name) os << int(h) << " ";
       os << "], decls = [ ";
       for(auto h : declarations) os << int(h) << " ";
       os << "] )" << std::endl;
     }
+
+    void fillin_decls(Handle h);
   };
 
   class VariableDecls : public Token
