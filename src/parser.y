@@ -214,8 +214,8 @@
 
 %%
 
-program : declaration_block											{ root = Handle(new Program(*$1)); del($1); }
-	| "[@]" "[--]" declaration_block							{ root = Handle(new Program(*$3, *$1)); del($1,$2,$3); }
+program : declaration_block											{ root = Handle(new File(*$1)); del($1); }
+	| "[@]" "[--]" declaration_block							{ root = Handle(new File(*$3, *$1)); del($1,$2,$3); }
 	;
 
 /* ------------------------------------------------------------------------------------------------------ */
@@ -483,11 +483,11 @@ declaration
 		$$ = make<NamespaceDecl>(*$2, *$5); del($1, $2, $3, $4, $5, $6); }
 	| attribute_list "var" var_single_decl_list "[--]"
 	{
-		$$ = make<VariableDecl>(*$1, *$3); del($1,$2,$3,$4);
+		$$ = make<VariableDecls>(*$1, *$3); del($1,$2,$3,$4);
 	}
 	| attribute_list "var" var_single_decl_list "[--]" "[>>]" "[@]" "[--]" "[<<]"
 	{
-		$$ = make<VariableDecl>(*$1, *$3, *$6); del($1,$2,$3,$4,$5,$6,$7,$8);
+		$$ = make<VariableDecls>(*$1, *$3, *$6); del($1,$2,$3,$4,$5,$6,$7,$8);
 	}
 	;
 
@@ -503,10 +503,10 @@ declaration_block : declaration								{ $$ = list(*$1); del($1); }
 
 
 var_single_decl
-	: "[#]"																			{ $$ = make<VariableSingleDecl>(*$1, Handle(), Handle()); del($1); }
-	| "[#]" ":" expr_noass											{ $$ = make<VariableSingleDecl>(*$1, *$3, Handle()); del($1,$2,$3); }
-	| "[#]" "=" expr_val												{ $$ = make<VariableSingleDecl>(*$1, Handle(), *$3); del($1,$2,$3); }
-	| "[#]" ":" expr_noass "=" expr_val					{ $$ = make<VariableSingleDecl>(*$1, *$3, *$5); del($1,$2,$3,$4,$5); }
+	: "[#]"																			{ $$ = make<VariableDecl>(*$1, Handle(), Handle()); del($1); }
+	| "[#]" ":" expr_noass											{ $$ = make<VariableDecl>(*$1, *$3, Handle()); del($1,$2,$3); }
+	| "[#]" "=" expr_val												{ $$ = make<VariableDecl>(*$1, Handle(), *$3); del($1,$2,$3); }
+	| "[#]" ":" expr_noass "=" expr_val					{ $$ = make<VariableDecl>(*$1, *$3, *$5); del($1,$2,$3,$4,$5); }
 	;
 
 var_single_decl_list

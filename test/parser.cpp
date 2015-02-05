@@ -1,5 +1,5 @@
 #include "parser.hpp"     // cause it is in autoinclude dir
-#include "../src/scanner.hpp"
+#include "../src/lexer/scanner.hpp"
 
 #include <gtest/gtest.h>
 

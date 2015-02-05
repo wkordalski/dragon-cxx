@@ -1,4 +1,4 @@
-#include "../src/prefix_tree.hpp"
+#include "../src/utils/prefix_tree.hpp"
 
 #include <gtest/gtest.h>
 
@@ -123,5 +123,5 @@ TEST(PrefixTreeTest, Prefix)
     << "The word is not any prefix of 'elephant'";
   ASSERT_FALSE(pt.prefix(std::begin(g), std::end(g)))
     << "Longer word is not a prefix of shorter one";
-    
+
 }

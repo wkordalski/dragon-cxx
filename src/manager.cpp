@@ -32,6 +32,15 @@ namespace dragon
     if(h != 0) manager_map[h].first++;
   }
 
+  // ONLY DEBUGGING PURPOSES
+  Handle::Handle(int handle)
+  {
+    this->h = handle;
+    if(h == 0) return;
+    assert(manager_map.count(handle) > 0 && "Invalid handle passed");
+    manager_map[h].first++;
+  }
+
   Handle::~Handle()
   {
     if(h == 0) return;

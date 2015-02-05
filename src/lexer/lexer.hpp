@@ -1,8 +1,8 @@
 #pragma once
 
-#include "generator.hpp"
-#include "prefix_tree.hpp"
-#include "token.hpp"
+#include "../utils/generator.hpp"
+#include "../utils/prefix_tree.hpp"
+#include "../token.hpp"
 
 #include <istream>
 #include <stack>
