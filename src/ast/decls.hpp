@@ -55,6 +55,28 @@ namespace dragon
 
   class Variable : public Token, public IDeclaration
   {
-    // TODO
+  public:
+    Handle name;
+    bool internal = true;
+    std::vector<Handle> attribs;
+    Handle type;
+    Handle value;
+
+    Variable(Handle name) : name(name) {}
+
+    virtual Handle get_name() { return name; }
+    virtual bool is_internal() { return internal; }
+
+    virtual void print(std::wostream &os)
+    {
+      os << "Variable ["<<handle()<<"] ( name = "<<int(name)<<(internal?", internal":"")<<", type = "<<int(type)<<", value = "<<int(value);
+      if(!attribs.empty())
+      {
+        os << ", attribs = [ ";
+        for(auto p : attribs) os << int(p) << " ";
+        os << "]";
+      }
+      os << ")" << std::endl;
+    }
   };
 }

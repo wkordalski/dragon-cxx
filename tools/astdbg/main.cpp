@@ -5,6 +5,8 @@
 #include "../../src/lexer/scanner.hpp"
 #include "parser.hpp"
 
+#include "../../src/ast/value.hpp"
+
 int main(int argc, char *argv[])
 {
   std::vector<dragon::Handle> fileroots;

@@ -32,6 +32,24 @@ namespace dragon
     return false;
   }
 
+  bool is_hex_digit(wchar_t c)
+  {
+    if(is_digit(c)) return true;
+    if(c == L'a') return true;
+    if(c == L'b') return true;
+    if(c == L'c') return true;
+    if(c == L'd') return true;
+    if(c == L'e') return true;
+    if(c == L'f') return true;
+    if(c == L'A') return true;
+    if(c == L'B') return true;
+    if(c == L'C') return true;
+    if(c == L'D') return true;
+    if(c == L'E') return true;
+    if(c == L'F') return true;
+    return false;
+  }
+
   bool is_letter(wchar_t c)
   {
     // [TODO] Write it better

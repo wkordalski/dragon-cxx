@@ -20,7 +20,6 @@ namespace dragon
     int h;    // simple handle for itself :P
   public:
     virtual ~Token() {};
-    virtual void levelup() {};
     virtual void print(std::wostream &os) { os << L"Token ["<< h <<"]" << std::endl; }
     virtual bool equal(Token *t) { assert(false && "Unimplemented comparison between tokens"); }
     virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
@@ -118,10 +117,10 @@ namespace dragon
     std::wstring text;
     Place place;
 
-    std::function<void(Token *)> converter = [](Token *t){};
+    Identifier() = default;
+    Identifier(std::wstring s) : text(s) {}
 
   public:
-    virtual void levelup() { converter(this); }
     virtual void print(std::wostream &os) { os << L"Identifier ["<<handle()<<"] \""<<text<<"\"" << std::endl; }
     virtual bool equal(Token *t) { if(auto tt = dynamic_cast<Identifier*>(t)) return (text == tt->text); else return false; }
     virtual std::size_t hash() const
@@ -136,11 +135,8 @@ namespace dragon
     std::wstring text;
     Place place;
 
-    std::function<void(Token *)> converter = [](Token *t){};
-
   public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os << L"[@ "<<text<<"]"; }
+    virtual void print(std::wostream &os) { os << L"Operator ["<<handle()<<"] <nonprintable>" << std::endl; }
   };
 
   class Literal : public Token
@@ -149,47 +145,31 @@ namespace dragon
     std::wstring text;
     Place place;
 
-    std::function<void(Token *)> converter = [](Token *t){};
-
   public:
-    virtual void levelup() { converter(this); }
     virtual void print(std::wostream &os) { os << L"[! "<<text<<"]"; }
+
+    void parse_literal();
   };
 
   class Newline : public Token
   {
   public:
     Place place;
-
-    std::function<void(Token *)> converter = [](Token *t){};
-
-  public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os << L"[=]"; }
+    virtual void print(std::wostream &os) { os << L"Newline ["<<handle()<<"]" << std::endl; }
   };
 
   class Indent : public Token
   {
   public:
     Place place;
-
-    std::function<void(Token *)> converter = [](Token *t){};
-
-  public:
-    virtual void levelup() { converter(this); }
-    virtual void print(std::wostream &os) { os << L"[>>]"; }
+    virtual void print(std::wostream &os) { os << L"Indent ["<<handle()<<"]" << std::endl; }
   };
 
   class Dedent : public Token
   {
   public:
     Place place;
-
-    std::function<void(Token *)> converter = [](Token *t){};
-    virtual void print(std::wostream &os) { os << L"[<<]"; }
-
-  public:
-    virtual void levelup() { converter(this); }
+    virtual void print(std::wostream &os) { os << L"Dedent ["<<handle()<<"]" << std::endl; }
   };
 }
 

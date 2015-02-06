@@ -47,6 +47,7 @@ namespace dragon
   bool is_letter(wchar_t c);
 
   bool is_digit(wchar_t c);
+  bool is_hex_digit(wchar_t c);
 
   int char_width(wchar_t c);
 

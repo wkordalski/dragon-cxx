@@ -8,15 +8,18 @@ find_package(Threads)
 
 
 set(SOURCES
+  src/ast/ast.cpp
   src/ast/parsed.cpp
+  src/ast/token.cpp
 
   src/lexer/comment_remover.cpp
   src/lexer/lexer.cpp
   src/lexer/scanner.cpp
   src/lexer/tokenizer.cpp
 
-  src/ast.cpp
-  src/manager.cpp
+  src/utils/manager.cpp
+
+
 )
 
 set(TEST
