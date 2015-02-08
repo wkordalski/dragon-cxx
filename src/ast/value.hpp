@@ -1,28 +1,47 @@
 #pragma once
 
 #include "../token.hpp"
+#include "../lexer/lexer.hpp"
 #include <llvm/IR/Value.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/APSInt.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/raw_ostream.h>
 
 namespace dragon
 {
-  class LLVMValue
+  class ICompileTimeValue
   {
-  public:
-    llvm::Value lval;
+    // TODO
+    virtual void to_llvm() = 0;
   };
 
-  class IntegralValue : public Token
+  class IntegralValue : public Token, public ICompileTimeValue
   {
   protected:
     Handle type;
   public:
-    llvm::APInt value;
+    llvm::APSInt value;
 
-    IntegralValue(std::wstring s) {}
+    IntegralValue(std::wstring s);
+    IntegralValue(std::wstring s, int width, bool sign = false);
 
-    void print(std::wostream &os) { os << "IntegralValue ["<<handle()<<"] <todo>" << std::endl; }
+    void print(std::wostream &os)
+    {
+      std::string s;
+      {
+        llvm::raw_string_ostream oos(s);
+        oos << value;
+      }
+      os << "IntegralValue ["<<handle()<<"] ( type = "<<int(type)<<", value = "<<s.c_str()<< ")" << std::endl;
+    }
+
+    virtual void to_llvm()
+    {
+      //auto llv = new LLVMIntegralConstantValue(value, type.to_llvm());
+      //replace(llv);
+      assert(false && "TODO");
+    }
   };
 
   class IntegralSignedValue

@@ -24,6 +24,38 @@ namespace dragon
     void fillin(Handle h);
   };
 
+  class ImportDecls : public Token
+  {
+  public:
+    std::vector<Handle> imports;
+
+    ImportDecls() {}
+    ImportDecls(std::vector<Handle> imports) : imports(imports) {}
+
+    virtual void print(std::wostream &os)
+    {
+      os << "ImportDecls ["<<handle()<<"] ( imports = [ ";
+      for(auto h : imports) os << int(h) << " ";
+      os << "] )" << std::endl;
+    }
+  };
+
+  class ImportDecl : public Token
+  {
+  public:
+    std::vector<Handle> module;
+
+    ImportDecl() {}
+    ImportDecl(std::vector<Handle> module) : module(module) {}
+
+    virtual void print(std::wostream &os)
+    {
+      os << "ImportDecl ["<<handle()<<"] ( name = [ ";
+      for(auto h : module) os << int(h) << " ";
+      os << "] )" << std::endl;
+    }
+  };
+
   class NamespaceDecl : public Token
   {
   public:

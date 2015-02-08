@@ -11,6 +11,7 @@ set(SOURCES
   src/ast/ast.cpp
   src/ast/parsed.cpp
   src/ast/token.cpp
+  src/ast/value.cpp
 
   src/lexer/comment_remover.cpp
   src/lexer/lexer.cpp

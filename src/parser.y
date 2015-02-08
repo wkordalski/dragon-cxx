@@ -211,6 +211,7 @@
 %type <token> var_single_decl
 
 %type <list> id_dot_list declaration_block expr_list expr_list_noempty attribute attribute_list attribute_list_noempty var_single_decl_list
+%type <list> module_list
 
 %%
 
@@ -478,7 +479,11 @@ attribute_list : attribute_list_noempty {$$ = $1;} | /* EMPTY */  {$$=list();};
 /* ------------------------------------------------------------------------------------------------------ */
 
 declaration
-	: "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
+	: "import" module_list
+	{
+		$$ = make<ImportDecls>(*$2); del($1, $2);
+	}
+	| "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
 	{
 		$$ = make<NamespaceDecl>(*$2, *$5); del($1, $2, $3, $4, $5, $6); }
 	| attribute_list "var" var_single_decl_list "[--]"
@@ -493,6 +498,10 @@ declaration
 
 id_dot_list : "[#]"														{ $$ = list(*$1); del($1); }
 	| id_dot_list "." "[#]"											{ $$ = $1; $$->push_back(*$3); del($2, $3); }
+	;
+
+module_list : id_dot_list											{ $$ = list(Handle::make<ImportDecl>(*$1)); del($1); }
+	| module_list "," id_dot_list							{ $$ = $1; $$->push_back(Handle::make<ImportDecl>(*$3)); del($2, $3); }
 	;
 
 declaration_block : declaration								{ $$ = list(*$1); del($1); }

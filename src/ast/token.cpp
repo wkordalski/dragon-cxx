@@ -18,19 +18,39 @@ namespace dragon
       // postfix starts with _ or letter w/o A-F and a-f
       auto str = text.begin();
       auto end = text.end();
-      auto pfx = std::find_if_not(str, end, [](wchar_t c){ return is_hex_digit(c) or c == L'.' or c == L'\'';});
-      std::wstring lit = L"", opr = L"";
-      std::copy_if(str, pfx, std::back_inserter(lit), [](wchar_t c){ return c != L'\''; } );
-      std::copy(pfx, end, std::back_inserter(opr));
-      if(pfx == end)
+      int rsi = 0;        // radix support index
+      bool rss = false;   // radix support switch
+      auto pfx = std::find_if_not(str, end,
+      [&rsi, &rss](wchar_t c)
       {
-        replace(new IntegralValue(lit));
+        if(c == L'0' and rsi == 0) rss = true;
+        else if(rss and rsi == 1 and (c == L'x' or c == L'o' or c == L'b')) return true;
+        rsi++;
+        return is_hex_digit(c) or c == L'.' or c == L'\'';
+      }
+      );
+      std::wstring lit = L"", opr = L"";
+      std::copy_if(str, pfx, std::back_inserter(lit), [](wchar_t c){ return c != L'\'' and c != L'\"'; } );
+      std::copy(pfx, end, std::back_inserter(opr));
+      if(std::find(str, pfx, L'.') == pfx)
+      {
+        if(pfx == end)
+        {
+          // Default width of integer - I should also add type too (TODO)
+          replace(new IntegralValue(lit, 64, true));
+        }
+        else
+        {
+          // Postfix operator decides how wide should be the integer
+          // I should also add type too (for PostfixLiteralOperator) (TODO)
+          auto hi = Handle::make<IntegralValue>(lit);
+          auto pi = Handle::make<Identifier>(opr);
+          replace(new PostfixLiteralOperator(hi, pi));
+        }
       }
       else
       {
-        auto hi = Handle::make<IntegralValue>(lit);
-        auto pi = Handle::make<Identifier>(opr);
-        replace(new PostfixLiteralOperator(hi, pi));
+        // Decimal literal todo
       }
     }
     else
