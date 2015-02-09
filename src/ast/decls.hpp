@@ -45,11 +45,11 @@ namespace dragon
       declarations[decl->get_name()] = h;
     }
 
-    virtual void print(std::wostream &os)
+    virtual void print(std::wostream &os) const
     {
       os << "Namespace ["<<handle()<<"] ( name = "<<int(name)<<(internal?", internal":"")<<", decls = [ ";
       for(auto p : declarations) os << int(p.second) << " ";
-      os << "])" << std::endl;
+      os << "] )" << std::endl;
     }
   };
 
@@ -67,7 +67,7 @@ namespace dragon
     virtual Handle get_name() { return name; }
     virtual bool is_internal() { return internal; }
 
-    virtual void print(std::wostream &os)
+    virtual void print(std::wostream &os) const
     {
       os << "Variable ["<<handle()<<"] ( name = "<<int(name)<<(internal?", internal":"")<<", type = "<<int(type)<<", value = "<<int(value);
       if(!attribs.empty())
@@ -76,7 +76,7 @@ namespace dragon
         for(auto p : attribs) os << int(p) << " ";
         os << "]";
       }
-      os << ")" << std::endl;
+      os << " )" << std::endl;
     }
   };
 }

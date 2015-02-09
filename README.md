@@ -1,6 +1,10 @@
-Dragon language compiler
-========================
+Dragon language
+===============
 
-Compiles Dragon language to native with LLVM.
+Dragon is a programming language.
+If it succeed, I will also call it D++ ;-) .
 
-If it succeed, I will call it also D++.
+Compiler
+--------
+
+See [here](tools/drgc/README.md) to read about Dragon compiler.

@@ -1,4 +1,5 @@
-#include "../ast.hpp"
+#include "parsed.hpp"
+#include "ast.hpp"
 
 namespace dragon
 {
@@ -9,7 +10,20 @@ namespace dragon
     {
       if(auto tt = hd.as<NamespaceDecl>()) tt->fillin_decls(h);
       if(auto tt = hd.as<VariableDecls>()) tt->fillin_decls(h);
+      if(auto tt = hd.as<ImportDecls>()) tt->add_imports(h);
     }
+  }
+
+  void ImportDecls::add_imports(Handle h)
+  {
+    for(auto imp : imports)
+      imp.is<ImportDecl>()->add_import(h);
+  }
+
+  void ImportDecl::add_import(Handle h)
+  {
+    auto ass = h.is<Assembly>();
+    ass->imports.insert(Handle::make<Import>(module));
   }
 
   void NamespaceDecl::fillin_decls(Handle h)
@@ -30,6 +44,7 @@ namespace dragon
     {
       if(auto tt = hd.as<NamespaceDecl>()) tt->fillin_decls(hc);
       if(auto tt = hd.as<VariableDecls>()) tt->fillin_decls(hc);
+      if(auto tt = hd.as<ImportDecls>()) assert(false && "Import statements are illegal in namespace block! Should be error (TODO)");
     }
   }
 

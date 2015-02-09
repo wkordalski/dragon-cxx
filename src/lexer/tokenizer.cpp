@@ -1,4 +1,5 @@
 #include "lexer.hpp"
+#include "../ast/source.hpp"
 
 #include <cassert>
 #include <list>

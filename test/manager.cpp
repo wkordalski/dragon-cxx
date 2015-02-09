@@ -1,4 +1,4 @@
-#include "../src/token.hpp"
+#include "../src/ast/source.hpp"
 
 #include <gtest/gtest.h>
 

@@ -479,7 +479,7 @@ attribute_list : attribute_list_noempty {$$ = $1;} | /* EMPTY */  {$$=list();};
 /* ------------------------------------------------------------------------------------------------------ */
 
 declaration
-	: "import" module_list
+	: "import" module_list "[--]"
 	{
 		$$ = make<ImportDecls>(*$2); del($1, $2);
 	}
@@ -501,7 +501,7 @@ id_dot_list : "[#]"														{ $$ = list(*$1); del($1); }
 	;
 
 module_list : id_dot_list											{ $$ = list(Handle::make<ImportDecl>(*$1)); del($1); }
-	| module_list "," id_dot_list							{ $$ = $1; $$->push_back(Handle::make<ImportDecl>(*$3)); del($2, $3); }
+	| module_list "," id_dot_list								{ $$ = $1; $$->push_back(Handle::make<ImportDecl>(*$3)); del($2, $3); }
 	;
 
 declaration_block : declaration								{ $$ = list(*$1); del($1); }

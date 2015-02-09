@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <typeindex>
 #include <vector>
 
 #include "utils/hash.hpp"
@@ -20,8 +19,8 @@ namespace dragon
     int h;    // simple handle for itself :P
   public:
     virtual ~Token() {};
-    virtual void print(std::wostream &os) { os << L"Token ["<< h <<"]" << std::endl; }
-    virtual bool equal(Token *t) { assert(false && "Unimplemented comparison between tokens"); }
+    virtual void print(std::wostream &os) const { os << L"Token ["<< h <<"]" << std::endl; }
+    virtual bool equal(const Token *t) const { assert(false && "Unimplemented comparison between tokens"); }
     virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
 
     // Token replaces this token.
@@ -30,7 +29,7 @@ namespace dragon
     friend class Handle;
 
   protected:
-    int handle() { return h; }
+    int handle() const { return h; }
   };
 
   class Handle
@@ -54,10 +53,10 @@ namespace dragon
     Handle & set(pointer);
 
     bool valid() const;
-    operator bool() { return valid(); }
-    bool operator !() { return !valid(); }
+    operator bool() const { return valid(); }
+    bool operator !() const { return !valid(); }
 
-    explicit operator int() { return h; }
+    explicit operator int() const { return h; }
 
     Handle operator % (Handle h) const
     {
@@ -109,67 +108,6 @@ namespace dragon
       dragon::location c; c.initialize(&f, row+1, col+1); c.columns(len);
       return c;
     }
-  };
-
-  class Identifier : public Token
-  {
-  public:
-    std::wstring text;
-    Place place;
-
-    Identifier() = default;
-    Identifier(std::wstring s) : text(s) {}
-
-  public:
-    virtual void print(std::wostream &os) { os << L"Identifier ["<<handle()<<"] \""<<text<<"\"" << std::endl; }
-    virtual bool equal(Token *t) { if(auto tt = dynamic_cast<Identifier*>(t)) return (text == tt->text); else return false; }
-    virtual std::size_t hash() const
-    {
-      return hash_args< std::hash<std::type_index>, std::hash<std::wstring> >( std::type_index(typeid(*this)), text );
-    }
-  };
-
-  class Operator : public Token
-  {
-  public:
-    std::wstring text;
-    Place place;
-
-  public:
-    virtual void print(std::wostream &os) { os << L"Operator ["<<handle()<<"] <nonprintable>" << std::endl; }
-  };
-
-  class Literal : public Token
-  {
-  public:
-    std::wstring text;
-    Place place;
-
-  public:
-    virtual void print(std::wostream &os) { os << L"[! "<<text<<"]"; }
-
-    void parse_literal();
-  };
-
-  class Newline : public Token
-  {
-  public:
-    Place place;
-    virtual void print(std::wostream &os) { os << L"Newline ["<<handle()<<"]" << std::endl; }
-  };
-
-  class Indent : public Token
-  {
-  public:
-    Place place;
-    virtual void print(std::wostream &os) { os << L"Indent ["<<handle()<<"]" << std::endl; }
-  };
-
-  class Dedent : public Token
-  {
-  public:
-    Place place;
-    virtual void print(std::wostream &os) { os << L"Dedent ["<<handle()<<"]" << std::endl; }
   };
 }
 

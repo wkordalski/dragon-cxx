@@ -26,14 +26,14 @@ namespace dragon
     IntegralValue(std::wstring s);
     IntegralValue(std::wstring s, int width, bool sign = false);
 
-    void print(std::wostream &os)
+    void print(std::wostream &os) const
     {
       std::string s;
       {
         llvm::raw_string_ostream oos(s);
         oos << value;
       }
-      os << "IntegralValue ["<<handle()<<"] ( type = "<<int(type)<<", value = "<<s.c_str()<< ")" << std::endl;
+      os << "IntegralValue ["<<handle()<<"] ( type = "<<int(type)<<", value = "<<s.c_str()<< " )" << std::endl;
     }
 
     virtual void to_llvm()

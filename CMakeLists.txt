@@ -9,8 +9,9 @@ find_package(Threads)
 
 set(SOURCES
   src/ast/ast.cpp
+  src/ast/builtins.cpp
   src/ast/parsed.cpp
-  src/ast/token.cpp
+  src/ast/source.cpp
   src/ast/value.cpp
 
   src/lexer/comment_remover.cpp
@@ -65,3 +66,6 @@ endif()
 
 add_executable(astdbg tools/astdbg/main.cpp)
 target_link_libraries(astdbg dragon)
+
+add_executable(drgc tools/drgc/main.cpp)
+target_link_libraries(drgc dragon)
