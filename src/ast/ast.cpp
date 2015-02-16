@@ -20,4 +20,10 @@ namespace dragon
     auto h = create_declaration_tree(files);
     return h;
   }
+
+  void desymbolize_expressions(Handle assembly)
+  {
+    for(auto p : assembly.as<Assembly>()->declarations)
+      p.second.as<IDeclaration>()->desymbolize();
+  }
 }

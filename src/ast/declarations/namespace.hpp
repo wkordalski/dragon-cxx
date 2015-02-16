@@ -19,6 +19,12 @@ namespace dragon
     virtual bool is_internal() { return internal; }
     virtual Handle get_parent() { return _parent; }
     virtual void set_parent(Handle h) { _parent = h; }
+    virtual void desymbolize()
+    {
+      for(auto p : declarations)
+        p.second.as<IDeclaration>()->desymbolize();
+    }
+
     virtual void llvm_decl(llvm::LLVMContext &ctx, llvm::Module *mod)
     {
       for(auto p : declarations)

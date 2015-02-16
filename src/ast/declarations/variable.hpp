@@ -2,6 +2,7 @@
 
 #include "../../token.hpp"
 #include "../declarations.hpp"
+#include "../expressions.hpp"
 #include "../value.hpp"
 
 namespace dragon
@@ -24,6 +25,11 @@ namespace dragon
     virtual bool is_internal() { return _internal; }
     virtual Handle get_parent() { return _parent; }
     virtual void set_parent(Handle h) { _parent = h; }
+    virtual void desymbolize()
+    {
+      if(_type) _type.as<IExpression>()->desymbolize_expression(_parent);
+      if(_value) _value.as<IExpression>()->desymbolize_expression(_parent);
+    }
     virtual void llvm_decl(llvm::LLVMContext &ctx, llvm::Module *mod);
 
     virtual void llvm_value(llvm::LLVMContext &ctx, llvm::Module *mod)

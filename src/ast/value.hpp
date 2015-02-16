@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../token.hpp"
+#include "expressions.hpp"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -8,11 +9,13 @@
 
 namespace dragon
 {
-  class IValue
+  class IValue : public IExpression
   {
   public:
     virtual void llvm_value(llvm::LLVMContext &ctx, llvm::Module *mod) = 0;
     virtual bool is_constant() { return false; }
+
+    virtual void desymbolize_expression(Handle symbol_table) {}
   };
 
   class ICompileTimeValue : public IValue

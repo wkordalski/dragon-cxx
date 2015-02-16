@@ -30,6 +30,10 @@ int main(int argc, char *argv[])
     std::wcout << "Linking..." << std::endl;
     ass = dragon::files_to_assembly(fileroots);
   }
+  if(ass or false /* check if we turned on/off desymbolization */)
+  {
+    dragon::desymbolize_expressions(ass);
+  }
   int cmd;
   std::wcout << ">> ";
   while(std::cin >> cmd)
@@ -59,5 +63,6 @@ int main(int argc, char *argv[])
     std::wcout << ">> ";
   }
   std::wcout << "\b\b\b\b    \b\b\b\b";
+  dragon::Handle::cleanup();
   return 0;
 }

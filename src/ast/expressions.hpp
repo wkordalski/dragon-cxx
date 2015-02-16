@@ -8,7 +8,7 @@ namespace dragon
   class IExpression
   {
   public:
-    virtual void desymbolize(Handle symbol_table) { assert(false and "Should be abstract!"); }
+    virtual void desymbolize_expression(Handle symbol_table) { assert(false or "Should be abstract!"); }
   };
 
   class IdentifierExpression : public Token, public IExpression
@@ -18,7 +18,7 @@ namespace dragon
 
     IdentifierExpression(Handle id) : id(id) {}
 
-    virtual void desymbolize(Handle symbol_table)
+    virtual void desymbolize_expression(Handle symbol_table)
     { auto desym = symbol_table.as<ISymbolTable>()->lookup(id); if(!desym) assert("Error - no suchly named thing!"); replace(desym.get()); }
 
     virtual void print(std::wostream &os) const { os << L"IdentifierExpression ["<<handle()<<"] ( identifier = "<< int(id) <<" )" << std::endl;}

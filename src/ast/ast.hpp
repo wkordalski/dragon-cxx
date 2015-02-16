@@ -6,6 +6,11 @@
 
 namespace dragon
 {
+  Handle files_to_assembly(std::vector<Handle> files);
+  void desymbolize_expressions(Handle assembly);
+  Handle compile_assembly(Handle assembly);
+  void init_builtins(Handle assembly);
+
   class Import : public Token
   {
   public:
@@ -50,6 +55,7 @@ namespace dragon
       auto decl = h.is<IDeclaration>();
       assert(declarations.count(decl->get_name()) == 0);
       declarations[decl->get_name()] = h;
+      decl->set_parent(shared_from_this());
     }
 
     virtual Handle get_parent_table() { return Handle(); }
@@ -71,6 +77,7 @@ namespace dragon
     }
 
     friend class ImportDecl;
+    friend void dragon::desymbolize_expressions(Handle);
   };
 
   class CompiledAssembly : public Token
@@ -78,8 +85,4 @@ namespace dragon
     // TODO: everything
   };
 
-  Handle files_to_assembly(std::vector<Handle> files);
-  Handle desymbolize_expressions(Handle assembly);
-  Handle compile_assembly(Handle assembly);
-  void init_builtins(Handle assembly);
 }

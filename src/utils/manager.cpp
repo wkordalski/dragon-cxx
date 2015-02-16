@@ -127,7 +127,7 @@ namespace dragon
     }
     if(hs.size() > 0)
     {
-      std::wcerr << L"LEAKS DETECTED           \t [  running clean-up  ]" << std::endl;
+      std::wcerr << L"LEAKS DETECTED           \t [  running clean-up  ] ( objects: "<<hs.size()<<" )" << std::endl;
       for(int h : hs)
       {
         std::wcerr << L"Freeing managed object: 0x" << std::internal << std::hex << std::setw(4) << std::setfill(L'0') << h;

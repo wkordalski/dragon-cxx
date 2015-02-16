@@ -24,6 +24,9 @@ namespace dragon
     virtual Handle get_parent() = 0;
     virtual void set_parent(Handle h) = 0;
 
+    // Desymbolize expressions inside declaration
+    virtual void desymbolize() = 0;
+
     // Translation to LLVM
     virtual void llvm_decl(llvm::LLVMContext &ctx, llvm::Module *mod) = 0;
   };
