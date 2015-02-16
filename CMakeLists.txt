@@ -2,6 +2,7 @@ project (Dragon)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(BISON REQUIRED)
+find_package(Boost REQUIRED program_options)
 find_package(GTest)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Threads)
@@ -12,7 +13,10 @@ set(SOURCES
   src/ast/builtins.cpp
   src/ast/parsed.cpp
   src/ast/source.cpp
-  src/ast/value.cpp
+
+  src/ast/builtins/integer.cpp
+
+  src/ast/declarations/variable.cpp
 
   src/lexer/comment_remover.cpp
   src/lexer/lexer.cpp

@@ -1,8 +1,8 @@
 #include "source.hpp"
 
 #include "../token.hpp"
-#include "parsed.hpp"
-#include "value.hpp"
+#include "expressions.hpp"
+#include "builtins/integer.hpp"
 
 namespace dragon
 {

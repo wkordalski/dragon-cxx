@@ -109,6 +109,13 @@ namespace dragon
     assert(t->h != 0);
     manager_map[t->h].second = Handle::pointer(t);
   }
+  void Token::replace(std::shared_ptr<Token> t)
+  {
+    t->h = h;
+    h = 0;
+    assert(t->h != 0);
+    manager_map[t->h].second = t;
+  }
 
   void Handle::cleanup()
   {

@@ -1,4 +1,9 @@
-#include "value.hpp"
+#include "integer.hpp"
+
+
+#include "../../lexer/lexer.hpp"
+
+#include <llvm/IR/Constants.h>
 
 namespace dragon
 {
@@ -27,6 +32,11 @@ namespace dragon
     if(c == L'E') return 'e';
     if(c == L'F') return 'f';
     assert(false and "Wrong character");
+  }
+
+  void IntegralType::llvm_type(llvm::LLVMContext &ctx, llvm::Module *mod)
+  {
+    replace(new LLVMIntegralType(this, ctx, mod));
   }
 
   IntegralValue::IntegralValue(std::wstring s)
@@ -80,4 +90,25 @@ namespace dragon
     value = llvm::APSInt(llvm::APInt(width, srt, radix), !sign);
   }
 
+  void IntegralValue::llvm_value(llvm::LLVMContext &ctx, llvm::Module *mod)
+  {
+    //auto llv = new LLVMIntegralConstantValue(value, type.to_llvm());
+    //replace(llv);
+    // 1) RESOLVE NAMES!
+    //if(!type.is<ResolvedExpression>())
+    //{
+    //  // TODO
+    //}
+    // 2) LLVM'ize type
+    type.as<IType>()->llvm_type(ctx, mod);
+    // 3) create value
+    replace(new LLVMIntegralConstantValue(value, type));
+  }
+
+  LLVMIntegralConstantValue::LLVMIntegralConstantValue(llvm::APSInt value, Handle type) : _type(type)
+  {
+    auto tp = type.as<LLVMIntegralType>();
+    assert(tp);
+    val = llvm::ConstantInt::get(tp->_type, llvm::APInt(value));
+  }
 }

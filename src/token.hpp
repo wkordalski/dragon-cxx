@@ -14,7 +14,7 @@
 namespace dragon
 {
   // Represents a token
-  class Token
+  class Token : public std::enable_shared_from_this<Token>
   {
     int h;    // simple handle for itself :P
   public:
@@ -25,6 +25,7 @@ namespace dragon
 
     // Token replaces this token.
     void replace(Token *);
+    void replace(std::shared_ptr<Token>);
 
     friend class Handle;
 
@@ -66,15 +67,15 @@ namespace dragon
     }
 
     template<class T>
-    T * as()
+    T * is()
     {
       return dynamic_cast<T*>(this->get().get());
     }
 
     template<class T>
-    T * is()
+    T * as()
     {
-      if(auto r = as<T>()) return r;
+      if(auto r = is<T>()) return r;
       assert("Wrong cast is here!");
       return nullptr;
     }

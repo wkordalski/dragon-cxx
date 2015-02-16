@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../token.hpp"
+
 namespace dragon
 {
-  // some built-in types, etc.
+  void init_builtins(Handle assembly);
 }

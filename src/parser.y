@@ -224,7 +224,7 @@ program : declaration_block											{ root = Handle(new File(*$1)); del($1); }
 /* ------------------------------------------------------------------------------------------------------ */
 
 expr0
-	: IDENTIFIER																	{ $$ = $1; }
+	: IDENTIFIER																	{ $$ = make<IdentifierExpression>(*$1); del($1); }
 	| LITERAL																			{ $$ = $1; as<Literal>($$)->parse_literal(); }
 	| "(" ")"																			{ $$ = make<NoneOperator>(); del($1,$2); }
 	| "(" expr_all ")"														{ $$ = $2; del($1, $3);}

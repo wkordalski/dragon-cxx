@@ -1,5 +1,6 @@
 #include "../token.hpp"
-#include "decls.hpp"
+#include "declarations.hpp"
+#include "symbols.hpp"
 
 #include <unordered_set>
 
@@ -31,13 +32,13 @@ namespace dragon
 
     virtual void print(std::wostream &os) const
     {
-      os << "Import ["<<handle()<<"] ( module = [";
+      os << "Import ["<<handle()<<"] ( module = [ ";
       for(auto h : name) os << int(h) << " ";
       os << "] )" << std::endl;
     }
   };
 
-  class Assembly : public Token, public IDeclarationContainer
+  class Assembly : public Token, public IDeclarationContainer, public ISymbolTable
   {
     std::unordered_set<Handle> imports;
     std::unordered_map<Handle, Handle> declarations;
@@ -49,6 +50,15 @@ namespace dragon
       auto decl = h.is<IDeclaration>();
       assert(declarations.count(decl->get_name()) == 0);
       declarations[decl->get_name()] = h;
+    }
+
+    virtual Handle get_parent_table() { return Handle(); }
+    virtual bool lookup_this_only(Handle identifier, Handle &result)
+    {
+      auto it = declarations.find(identifier);
+      bool ret = it != declarations.end();
+      if(ret) result = it->second;
+      return ret;
     }
 
     virtual void print(std::wostream &os) const
@@ -69,6 +79,7 @@ namespace dragon
   };
 
   Handle files_to_assembly(std::vector<Handle> files);
+  Handle desymbolize_expressions(Handle assembly);
   Handle compile_assembly(Handle assembly);
   void init_builtins(Handle assembly);
 }

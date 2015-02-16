@@ -1,5 +1,7 @@
 #include "parsed.hpp"
 #include "ast.hpp"
+#include "declarations/namespace.hpp"
+#include "declarations/variable.hpp"
 
 namespace dragon
 {
@@ -44,7 +46,7 @@ namespace dragon
     {
       if(auto tt = hd.as<NamespaceDecl>()) tt->fillin_decls(hc);
       if(auto tt = hd.as<VariableDecls>()) tt->fillin_decls(hc);
-      if(auto tt = hd.as<ImportDecls>()) assert(false && "Import statements are illegal in namespace block! Should be error (TODO)");
+      if(hd.as<ImportDecls>()) assert(false && "Import statements are illegal in namespace block! Should be error (TODO)");
     }
   }
 
@@ -58,11 +60,7 @@ namespace dragon
     auto cont = h.is<IDeclarationContainer>();
     auto hc = cont->by_name(id);
     if(hc) assert(false && "Redeclaration of variable!");
-    hc = Handle::make<Variable>(id);
-    auto node = hc.is<Variable>();
-    node->attribs = attribs;
-    node->type = type;
-    node->value = value;
+    hc = Handle::make<Variable>(id, type, value, attribs);
     cont->add_declaration(hc);
   }
 }
