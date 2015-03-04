@@ -8,14 +8,14 @@
 #include <typeindex>
 #include <vector>
 
-#include "../token.hpp"
+#include "../node.hpp"
 
 #include "../utils/hash.hpp"
 
 
 namespace dragon
 {
-  class Identifier : public Token
+  class Identifier : public Node
   {
   public:
     std::wstring text;
@@ -26,14 +26,14 @@ namespace dragon
 
   public:
     virtual void print(std::wostream &os) const { os << L"Identifier ["<<handle()<<"] \""<<text<<"\"" << std::endl; }
-    virtual bool equal(const Token *t) const { if(auto tt = dynamic_cast<const Identifier*>(t)) return (text == tt->text); else return false; }
+    virtual bool equal(const Node *t) const { if(auto tt = dynamic_cast<const Identifier*>(t)) return (text == tt->text); else return false; }
     virtual std::size_t hash() const
     {
       return hash_args< std::hash<std::type_index>, std::hash<std::wstring> >( std::type_index(typeid(*this)), text );
     }
   };
 
-  class Operator : public Token
+  class Operator : public Node
   {
   public:
     std::wstring text;
@@ -43,7 +43,7 @@ namespace dragon
     virtual void print(std::wostream &os) const { os << L"Operator ["<<handle()<<"] <nonprintable>" << std::endl; }
   };
 
-  class Literal : public Token
+  class Literal : public Node
   {
   public:
     std::wstring text;
@@ -55,21 +55,21 @@ namespace dragon
     void parse_literal();
   };
 
-  class Newline : public Token
+  class Newline : public Node
   {
   public:
     Place place;
     virtual void print(std::wostream &os) const { os << L"Newline ["<<handle()<<"]" << std::endl; }
   };
 
-  class Indent : public Token
+  class Indent : public Node
   {
   public:
     Place place;
     virtual void print(std::wostream &os) const { os << L"Indent ["<<handle()<<"]" << std::endl; }
   };
 
-  class Dedent : public Token
+  class Dedent : public Node
   {
   public:
     Place place;

@@ -2,7 +2,7 @@
 
 #include "../utils/generator.hpp"
 #include "../utils/prefix_tree.hpp"
-#include "../token.hpp"
+#include "../node.hpp"
 
 #include <istream>
 #include <stack>
@@ -99,9 +99,9 @@ namespace dragon
     virtual bool _source_empty();
   };
 
-  class Tokenizer : public IGenerator<Token*>
+  class Tokenizer : public IGenerator<Node*>
   {
-    typedef Token * token;
+    typedef Node * token;
     IGenerator<Character> &_source;
     PrefixTree<wchar_t> _opers;
 

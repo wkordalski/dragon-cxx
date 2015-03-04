@@ -61,8 +61,10 @@ namespace dragon
     }
     auto srt = llvm::StringRef(t);
     int width = llvm::APInt::getBitsNeeded(srt, radix);
-    if(width & 7) width = (width & ~7) + 8;
-    if(width > 64 and width & 63) width = (width & ~63) + 64;
+    int mask = 0xFFFFFFFF;
+    if(width < 32) width = 32;
+    while(width & mask && (width & ~(mask>>1) || width & (mask<<1))) mask <<= 1;
+    width = (~mask)+1;
     value = llvm::APSInt(llvm::APInt(width, srt, radix), false);
   }
 
@@ -94,18 +96,14 @@ namespace dragon
   {
     //auto llv = new LLVMIntegralConstantValue(value, type.to_llvm());
     //replace(llv);
-    // 1) RESOLVE NAMES!
-    //if(!type.is<ResolvedExpression>())
-    //{
-    //  // TODO
-    //}
+    // 1) RESOLVE NAMES! - should be resolved earlier
     // 2) LLVM'ize type
     type.as<IType>()->llvm_type(ctx, mod);
     // 3) create value
-    replace(new LLVMIntegralConstantValue(value, type));
+    replace(new LLVMIntegralValue(value, type));
   }
 
-  LLVMIntegralConstantValue::LLVMIntegralConstantValue(llvm::APSInt value, Handle type) : _type(type)
+  LLVMIntegralValue::LLVMIntegralValue(llvm::APSInt value, Handle type) : _type(type)
   {
     auto tp = type.as<LLVMIntegralType>();
     assert(tp);

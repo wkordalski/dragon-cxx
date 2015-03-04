@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../token.hpp"
+#include "../node.hpp"
 #include "expressions.hpp"
 
 #include <llvm/IR/LLVMContext.h>

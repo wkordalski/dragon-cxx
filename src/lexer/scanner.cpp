@@ -4,7 +4,7 @@ namespace dragon
 {
   int FileScanner::lex(dragon::Parser::semantic_type * val, dragon::Parser::location_type * loc)
   {
-    Token *t;
+    Node *t;
     if(tk.get(t))
     {
       val->token = new Handle(t);

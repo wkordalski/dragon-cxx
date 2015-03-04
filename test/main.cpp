@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/token.hpp"
+#include "../src/node.hpp"
 
 using namespace std;
 

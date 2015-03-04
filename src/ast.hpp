@@ -1,6 +1,6 @@
 #pragma once
 
-#include "token.hpp"
+#include "node.hpp"
 
 #include "ast/ast.hpp"
 #include "ast/declarations.hpp"

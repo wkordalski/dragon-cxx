@@ -1,27 +1,44 @@
-#include "../token.hpp"
+#include "../node.hpp"
 
 #include <cassert>
 #include <iomanip>
+#include <stack>
 #include <unordered_map>
 
 namespace dragon
 {
-  std::unordered_map<int, std::pair<int, Handle::pointer>> manager_map;
+  struct ObjectInfo
+  {
+    enum GCState
+    {
+      Unknown,
+      Known
+    };
+
+    GCState color;
+
+    void set_unknown() { color = GCState::Unknown; }
+    void set_known() { color = GCState::Known; }
+    bool is_known() { return color == GCState::Known; }
+  };
+
+  std::unordered_map<int, std::pair<Node *, ObjectInfo>> manager_map;
+  std::list<int> manager_roots;
   int manager_counter = 1;
 
-  Handle::pointer Handle::operator -> () const { return get(); }
-  Handle::pointer Handle::operator *  () const { return get(); }
+  Node * Handle::operator -> () const { return get(); }
+  Node * Handle::operator *  () const { return get(); }
 
   Handle::Handle() : h(0) { }
 
-  Handle::Handle(Token *t) : Handle(Handle::pointer(t)) {}
-
-  Handle::Handle(Handle::pointer p)
+  Handle::Handle(Node * p)
   {
-
+    // We want small numbers for debugging purposes
+    if(manager_counter > 1024) manager_counter = 1;
+    // Find free handle
     while(manager_counter == 0 or manager_map.count(manager_counter) > 0) manager_counter++;
-    manager_map[manager_counter] = std::make_pair(1, p);
-    p->h = manager_counter;
+    manager_map[manager_counter] = std::make_pair(p, ObjectInfo());
+    p->self = Handle(manager_counter);
     this->h = manager_counter;
     manager_counter++;
   }
@@ -29,16 +46,13 @@ namespace dragon
   Handle::Handle(const Handle &orig)
   {
     this->h = orig.h;
-    if(h != 0) manager_map[h].first++;
   }
 
   // ONLY DEBUGGING PURPOSES
   Handle::Handle(int handle)
   {
     this->h = handle;
-    if(h == 0) return;
-    assert(manager_map.count(handle) > 0 && "Invalid handle passed");
-    manager_map[h].first++;
+    assert(handle == 0 or manager_map.count(handle) > 0);
   }
 
   bool Handle::exists(int handle)
@@ -46,54 +60,33 @@ namespace dragon
     return manager_map.count(handle) > 0;
   }
 
-  Handle::~Handle()
-  {
-    if(h == 0) return;
-    if(manager_map.count(h) == 0) return;
-    manager_map[h].first--;
-    if(manager_map[h].first == 0)
-    {
-      manager_map.erase(h);
-    }
-  }
+  Handle::~Handle() {}
 
   Handle & Handle::operator = (const Handle &orig)
   {
-    if(this->h == orig.h) return *this;
-
-    if(h != 0)
-    {
-      manager_map[h].first--;
-      if(manager_map[h].first == 0)
-      {
-        manager_map.erase(h);
-      }
-    }
-
     this->h = orig.h;
-    if(h != 0) manager_map[h].first++;
     return *this;
   }
 
-  Handle::pointer Handle::get() const
+  Node * Handle::get() const
   {
     assert(h != 0);
-    return manager_map[h].second;
+    return manager_map[h].first;
   }
 
-  const Handle & Handle::set(Handle::pointer p) const
+  const Handle & Handle::set(Node *p) const
   {
-    assert(h != 0);
-    p->h = h;
-    manager_map[h].second = p;
+    if(valid()) delete get();
+    p->self = *this;
+    manager_map[h].first = p;
     return *this;
   }
 
-  Handle & Handle::set(Handle::pointer p)
+  Handle & Handle::set(Node *p)
   {
-    assert(h != 0);
-    p->h = h;
-    manager_map[h].second = p;
+    if(valid()) delete get();
+    p->self = *this;
+    manager_map[h].first = p;
     return *this;
   }
 
@@ -102,47 +95,130 @@ namespace dragon
     return (h != 0);
   }
 
-  void Token::replace(Token *t)
+  Handle Handle::operator % (Handle h) const
   {
-    t->h = h;
-    h = 0;
-    assert(t->h != 0);
-    manager_map[t->h].second = Handle::pointer(t);
+    if(!valid() or !h.valid()) return Handle();
+    if(get()->equal(h.get())) return h;
+    else return Handle();
   }
-  void Token::replace(std::shared_ptr<Token> t)
+
+  void Node::replace(Node *t)
   {
-    t->h = h;
-    h = 0;
-    assert(t->h != 0);
-    manager_map[t->h].second = t;
+    self.set(t);
   }
 
   void Handle::cleanup()
   {
-
-    std::vector<int> hs;
-    for(std::pair<int,std::pair<int,Handle::pointer>> p : manager_map)
+    std::stack<int> known;
+    // Let's start with setting color to Unknown
+    for(auto &p : manager_map)
+      p.second.second.set_unknown();
+    // Color roots with Known
+    for(int h : manager_roots)
     {
-      hs.push_back(p.first);
+      manager_map[h].second.set_known();
+      known.push(h);
     }
-    if(hs.size() > 0)
+    // Work with graph
+    while(!known.empty())
     {
-      std::wcerr << L"LEAKS DETECTED           \t [  running clean-up  ] ( objects: "<<hs.size()<<" )" << std::endl;
-      for(int h : hs)
+      int h = known.top();
+      known.pop();
+      auto p = manager_map[h].first;
+      auto vc = p->get_members();
+      for(auto vch : vc)
       {
-        std::wcerr << L"Freeing managed object: 0x" << std::internal << std::hex << std::setw(4) << std::setfill(L'0') << h;
-        if(manager_map.count(h))
+        if(!vch) continue;
+        auto hh = vch.h;
+        if(!manager_map[hh].second.is_known())
         {
-          std::wcerr << L"\t [ " << std::internal << std::hex << std::setw(18) << std::setfill(L'0') << manager_map[h].second.get() << L" ]" << std::endl;
-          manager_map.erase(h);
-        }
-        else
-        {
-          std::wcerr << L"\t [    dead pointer    ]" << std::endl;
+          manager_map[hh].second.set_known();
+          known.push(hh);
         }
       }
-      std::wcerr << L"Clear container..." << std::endl;
     }
-    manager_map.clear();
+    // Remove unknown objects
+    std::vector<std::pair<int, std::pair<Node *, ObjectInfo>>> trash;
+    for(auto &p : manager_map)
+    {
+      if(!p.second.second.is_known())
+      {
+        trash.push_back(p);
+      }
+    }
+    for(auto &p : trash)
+    {
+      delete p.second.first;
+      manager_map.erase(p.first);
+    }
+  }
+
+  Root::Root()
+  {
+    this->h = 0;
+    this->entry = manager_roots.end();
+  }
+
+  Root::Root(const Handle &h)
+  {
+    this->h = h.h;
+    manager_roots.push_front(h.h);
+    this->entry = manager_roots.begin();
+  }
+  Root::Root(Root &h)
+  {
+    this->h = h.h;
+    manager_roots.push_front(h.h);
+    this->entry = manager_roots.begin();
+  }
+  Root::Root(Root &&h)
+  {
+    this->h = h.h;
+    this->entry = h.entry;
+    h.h = 0;
+    h.entry = manager_roots.end();
+  }
+
+  Root & Root::operator = (const Handle &h)
+  {
+    if(this->h != 0)
+      manager_roots.erase(this->entry);
+    this->h = h.h;
+    manager_roots.push_front(h.h);
+    this->entry = manager_roots.begin();
+    return *this;
+  }
+  Root & Root::operator = (Root &h)
+  {
+    if(this->h != 0)
+      manager_roots.erase(this->entry);
+    this->h = h.h;
+    manager_roots.push_front(h.h);
+    this->entry = manager_roots.begin();
+    return *this;
+  }
+  Root & Root::operator = (Root &&h)
+  {
+    if(this->h != 0)
+      manager_roots.erase(this->entry);
+    this->h = h.h;
+    this->entry = h.entry;
+    h.h = 0;
+    h.entry = manager_roots.end();
+    return *this;
+  }
+
+  Root::~Root()
+  {
+    if(this->h != 0)
+      manager_roots.erase(this->entry);
+  }
+}
+
+namespace std
+{
+  std::wostream & operator << (std::wostream &os, dragon::Handle h)
+  {
+    return os << int(h);
   }
 }

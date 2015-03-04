@@ -16,7 +16,7 @@
 	#define STRINGIZE_NX(A) #A
 	#define STRINGIZE(A) STRINGIZE_NX(A)
 
-	#include STRINGIZE(AST_HPP_FILE)
+	#include STRINGIZE(SYNTACTIC_HPP_FILE)
 
 	#include <vector>
 

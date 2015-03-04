@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../token.hpp"
+#include "../../node.hpp"
 #include "../declarations.hpp"
 
 namespace dragon
 {
-  class Namespace : public Token, public IDeclaration, public IDeclarationContainer, public ISymbolTable
+  class Namespace : public Node, public IDeclaration, public IDeclarationContainer, public ISymbolTable
   {
     Handle _parent;
   public:
@@ -37,7 +37,7 @@ namespace dragon
       auto decl = h.is<IDeclaration>();
       assert(declarations.count(decl->get_name()) == 0);
       declarations[decl->get_name()] = h;
-      decl->set_parent(shared_from_this());
+      decl->set_parent(self);
     }
 
     virtual Handle get_parent_table() { return _parent; }

@@ -1,8 +1,9 @@
-#include "../token.hpp"
+#include "../node.hpp"
 #include "declarations.hpp"
 #include "symbols.hpp"
 
 #include <unordered_set>
+#include <unordered_map>
 
 namespace dragon
 {
@@ -11,7 +12,7 @@ namespace dragon
   Handle compile_assembly(Handle assembly);
   void init_builtins(Handle assembly);
 
-  class Import : public Token
+  class Import : public Node
   {
   public:
     std::vector<Handle> name;
@@ -19,7 +20,7 @@ namespace dragon
     Import(std::vector<Handle> name) : name(name) {}
 
     virtual std::size_t hash() const { return hash_sequence<std::hash<Handle>>(name); }
-    virtual bool equal(const Token *t) const
+    virtual bool equal(const Node *t) const
     {
       if(auto tt = dynamic_cast<const Import*>(t))
       {
@@ -41,9 +42,11 @@ namespace dragon
       for(auto h : name) os << int(h) << " ";
       os << "] )" << std::endl;
     }
+
+    virtual std::vector<Handle> get_members() const { return name; }
   };
 
-  class Assembly : public Token, public IDeclarationContainer, public ISymbolTable
+  class Assembly : public Node, public IDeclarationContainer, public ISymbolTable
   {
     std::unordered_set<Handle> imports;
     std::unordered_map<Handle, Handle> declarations;
@@ -55,7 +58,7 @@ namespace dragon
       auto decl = h.is<IDeclaration>();
       assert(declarations.count(decl->get_name()) == 0);
       declarations[decl->get_name()] = h;
-      decl->set_parent(shared_from_this());
+      decl->set_parent(self);
     }
 
     virtual Handle get_parent_table() { return Handle(); }
@@ -76,11 +79,24 @@ namespace dragon
       os << "] )" << std::endl;
     }
 
+    virtual std::vector<Handle> get_members() const
+    {
+      std::vector<Handle> r;
+      r.reserve(imports.size() + declarations.size() * 2);
+      for(auto h : imports) r.push_back(h);
+      for(auto p : declarations)
+      {
+        r.push_back(p.first);
+        r.push_back(p.second);
+      }
+      return r;
+    }
+
     friend class ImportDecl;
     friend void dragon::desymbolize_expressions(Handle);
   };
 
-  class CompiledAssembly : public Token
+  class CompiledAssembly : public Node
   {
     // TODO: everything
   };

@@ -44,7 +44,7 @@ set(TEST
 add_definitions (-std=c++11)
 
 set(SCANNER_HPP_FILE "${PROJECT_SOURCE_DIR}/src/lexer/scanner.hpp")
-set(AST_HPP_FILE "${PROJECT_SOURCE_DIR}/src/ast.hpp")
+set(SYNTACTIC_HPP_FILE "${PROJECT_SOURCE_DIR}/src/ast/syntactic.hpp")
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/config.hpp.in"

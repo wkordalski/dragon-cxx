@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../token.hpp"
+#include "../node.hpp"
 
 namespace dragon
 {
-  class File : public Token
+  class File : public Node
   {
   public:
     Handle docstring = Handle();
@@ -21,10 +21,19 @@ namespace dragon
       os << "] )" << std::endl;
     }
 
+    virtual std::vector<Handle> get_members() const
+    {
+      std::vector<Handle> r;
+      r.reserve(declarations.size() + 1);
+      r.push_back(docstring);
+      for(auto h : declarations) r.push_back(h);
+      return r;
+    }
+
     void fillin(Handle h);
   };
 
-  class ImportDecls : public Token
+  class ImportDecls : public Node
   {
   public:
     std::vector<Handle> imports;
@@ -40,9 +49,14 @@ namespace dragon
     }
 
     void add_imports(Handle h);
+
+    virtual std::vector<Handle> get_members() const
+    {
+      return imports;
+    }
   };
 
-  class ImportDecl : public Token
+  class ImportDecl : public Node
   {
   public:
     std::vector<Handle> module;
@@ -58,9 +72,11 @@ namespace dragon
     }
 
     void add_import(Handle h);
+
+    virtual std::vector<Handle> get_members() const { return module; }
   };
 
-  class NamespaceDecl : public Token
+  class NamespaceDecl : public Node
   {
   public:
     std::vector<Handle> name;
@@ -78,10 +94,19 @@ namespace dragon
       os << "] )" << std::endl;
     }
 
+    virtual std::vector<Handle> get_members() const
+    {
+      std::vector<Handle> r;
+      r.reserve(name.size() + declarations.size());
+      for(auto h : name) r.push_back(h);
+      for(auto h : declarations) r.push_back(h);
+      return r;
+    }
+
     void fillin_decls(Handle h);
   };
 
-  class VariableDecls : public Token
+  class VariableDecls : public Node
   {
   public:
     std::vector<Handle> attribs;
@@ -101,10 +126,20 @@ namespace dragon
       os << "])" << std::endl;
     }
 
+    virtual std::vector<Handle> get_members() const
+    {
+      std::vector<Handle> r;
+      r.reserve(attribs.size() + decls.size() + 1);
+      for(auto h : attribs) r.push_back(h);
+      for(auto h : decls) r.push_back(h);
+      r.push_back(docstring);
+      return r;
+    }
+
     void fillin_decls(Handle h);
   };
 
-  class VariableDecl : public Token
+  class VariableDecl : public Node
   {
   public:
     Handle id;
@@ -117,6 +152,11 @@ namespace dragon
     virtual void print(std::wostream &os) const
     {
       os << "VariableDecl ["<<handle()<<"] ( id = " << int(id) << ", type = "<< int(type) << ", value = "<<int(value)<<")" <<std::endl;
+    }
+
+    virtual std::vector<Handle> get_members() const
+    {
+      return {id, type, value};
     }
 
     void fillin_decls(Handle h, std::vector<Handle> attribs);

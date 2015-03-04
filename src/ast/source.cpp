@@ -1,6 +1,6 @@
 #include "source.hpp"
 
-#include "../token.hpp"
+#include "../node.hpp"
 #include "expressions.hpp"
 #include "builtins/integer.hpp"
 
@@ -38,8 +38,8 @@ namespace dragon
       {
         if(pfx == end)
         {
-          // Default width of integer - I should also add type too (TODO)
-          replace(new IntegralValue(lit, 64, true));
+          // Default width of integer (min 32-bit, power of two) - I should also add type too (TODO)
+          replace(new IntegralValue(lit));
         }
         else
         {

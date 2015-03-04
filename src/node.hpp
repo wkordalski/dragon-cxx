@@ -3,6 +3,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <memory>
 #include <string>
 #include <vector>
@@ -13,63 +14,36 @@
 
 namespace dragon
 {
-  // Represents a token
-  class Token : public std::enable_shared_from_this<Token>
-  {
-    int h;    // simple handle for itself :P
-  public:
-    virtual ~Token() {};
-    virtual void print(std::wostream &os) const { os << L"Token ["<< h <<"]" << std::endl; }
-    virtual bool equal(const Token *t) const { assert(false && "Unimplemented comparison between tokens"); }
-    virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
-
-    // Token replaces this token.
-    void replace(Token *);
-    void replace(std::shared_ptr<Token>);
-
-    friend class Handle;
-
-  protected:
-    int handle() const { return h; }
-  };
+  class Handle;
+  class Node;
 
   class Handle
   {
   public:
-    typedef std::shared_ptr<Token> pointer;
-
     Handle();
-    Handle(Token *);
-    Handle(pointer);
+    Handle(Node *);
     Handle(const Handle &);
-    ~Handle();
+    virtual ~Handle();
 
     Handle & operator = (const Handle &);
 
-    pointer operator -> () const;
-    pointer operator *  () const;
+    Node * operator -> () const;
+    Node * operator *  () const;
 
-    pointer get() const;
-    const Handle & set(pointer) const;
-    Handle & set(pointer);
+    Node * get() const;
+    const Handle & set(Node *) const;
+    Handle & set(Node *);
 
     bool valid() const;
     operator bool() const { return valid(); }
     bool operator !() const { return !valid(); }
 
-    explicit operator int() const { return h; }
-
-    Handle operator % (Handle h) const
-    {
-      if(!valid() or !h.valid()) return Handle();
-      if(get()->equal(h.get().get())) return h;
-      else return Handle();
-    }
+    Handle operator % (Handle h) const;
 
     template<class T>
     T * is()
     {
-      return dynamic_cast<T*>(this->get().get());
+      return dynamic_cast<T*>(this->get());
     }
 
     template<class T>
@@ -91,11 +65,56 @@ namespace dragon
     // DEBUGGING PURPOSES ONLY!!!
     explicit Handle(int h);
     static bool exists(int h);
+    explicit operator int() const { return h; }
+
 
   protected:
     int h;
 
-    friend class Token;
+    friend class Node;
+    friend class Root;
+  };
+
+
+
+  // Represents a token
+  class Node
+  {
+  protected:
+    Handle self;    // handle for itself
+  public:
+    virtual ~Node() {};
+    virtual void print(std::wostream &os) const { os << L"Node ["<< self <<"]" << std::endl; }
+    virtual bool equal(const Node *t) const { assert(false && "Unimplemented comparison between nodes"); }
+    virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
+
+    virtual std::vector<Handle> get_members() const { return {}; }
+
+    // Token replaces this token.
+    void replace(Node *);
+
+    friend class Handle;
+
+  protected:
+    Handle handle() const { return self; }
+  };
+
+
+  // A root object
+  class Root : public Handle
+  {
+    std::list<int>::iterator entry;
+  public:
+    Root();
+    Root(const Handle &h);
+    Root(Root &h);
+    Root(Root &&h);
+
+    Root & operator = (const Handle &h);
+    Root & operator = (Root &h);
+    Root & operator = (Root &&h);
+
+    virtual ~Root();
   };
 
   struct Place
@@ -129,7 +148,10 @@ namespace std
   {
     bool operator () (const dragon::Handle &l, const dragon::Handle &r) const
     {
-      return l->equal(r.get().get());
+      return l->equal(r.get());
     }
   };
+
+
+  std::wostream & operator << (std::wostream &os, dragon::Handle h);
 }

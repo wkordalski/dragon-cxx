@@ -104,7 +104,7 @@ namespace dragon
     CommentRemover cr(sr);
     Tokenizer tk(cr);
 
-    Token *t;
+    Node *t;
     while(tk.get(t))
     {
       r.push_back(Handle(t));

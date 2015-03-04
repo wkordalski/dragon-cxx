@@ -1,13 +1,9 @@
 #pragma once
 
-#include "../token.hpp"
+#include "../node.hpp"
 
-#include "type.hpp"
-#include "value.hpp"
-
-#include <unordered_map>
-
-#include <llvm/IR/GlobalVariable.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 
 namespace dragon
 {

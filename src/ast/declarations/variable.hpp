@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../../token.hpp"
+#include "../../node.hpp"
 #include "../declarations.hpp"
 #include "../expressions.hpp"
+#include "../type.hpp"
 #include "../value.hpp"
 
 namespace dragon
 {
-  class Variable : public Token, public IDeclaration, public IValue
+  class Variable : public Node, public IDeclaration, public IValue
   {
   protected:
     Handle _parent;
