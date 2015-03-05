@@ -6,7 +6,6 @@
 #include "../../src/lexer/scanner.hpp"
 #include "parser.hpp"
 
-#include "../../src/ast.hpp"
 
 int main(int argc, char *argv[])
 {

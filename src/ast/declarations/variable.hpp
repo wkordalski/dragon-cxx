@@ -17,18 +17,6 @@ namespace dragon
 
     Variable(Handle name, Handle type = Handle(), Handle value = Handle(), std::vector<Handle> attribs = {}, bool internal = true)
       : parent(Handle()), name(name), type(type), value(value), attribs(attribs), internal(internal) {}
-
-    virtual void print(std::wostream &os) const
-    {
-      os << "Variable ["<<handle()<<"] ( name = "<<int(name)<<(internal?", internal":"")<<", type = "<<int(type)<<", value = "<<int(value);
-      if(!attribs.empty())
-      {
-        os << ", attribs = [ ";
-        for(auto p : attribs) os << int(p) << " ";
-        os << "]";
-      }
-      os << " )" << std::endl;
-    }
   };
 
   struct LLVMVariable : public Variable

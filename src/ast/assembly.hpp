@@ -15,24 +15,8 @@ namespace dragon
     virtual bool equal(const Node *t) const
     {
       if(auto tt = dynamic_cast<const Import*>(t))
-      {
-        if(name.size()!= tt->name.size()) return false;
-        else
-        {
-          for(int i = 0; i < name.size(); i++)
-            if(!(name[i] % tt->name[i]))
-              return false;
-          return true;
-        }
-      }
+        return std::equal(name.begin(), name.end(), tt->name.begin(), tt->name.end(), [](Handle a, Handle b) { return a % b; });
       else return false;
-    }
-
-    virtual void print(std::wostream &os) const
-    {
-      os << "Import ["<<handle()<<"] ( module = [ ";
-      for(auto h : name) os << int(h) << " ";
-      os << "] )" << std::endl;
     }
 
     virtual std::vector<Handle> get_members() const { return name; }
@@ -42,15 +26,6 @@ namespace dragon
   {
     std::unordered_set<Handle> imports;
     std::unordered_map<Handle, Handle> declarations;
-
-    virtual void print(std::wostream &os) const
-    {
-      os << "Assembly ["<<handle()<<"] ( decls = [ ";
-      for(auto p : declarations) os << int(p.second) << " ";
-      os << "], imports = [ ";
-      for(auto h : imports) os << int(h) << " ";
-      os << "] )" << std::endl;
-    }
 
     virtual std::vector<Handle> get_members() const
     {

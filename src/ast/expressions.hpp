@@ -10,9 +10,7 @@ namespace dragon
     Handle id;
 
     IdentifierExpression(Handle id) : id(id) {}
-
-    virtual void print(std::wostream &os) const { os << L"IdentifierExpression ["<<handle()<<"] ( identifier = "<< int(id) <<" )" << std::endl;}
-  };
+};
 
   struct ArrayLiteral : public Node
   {
@@ -20,8 +18,6 @@ namespace dragon
 
     ArrayLiteral() {}
     ArrayLiteral(std::vector<Handle> elements) : exprs(elements) {}
-
-    virtual void print(std::wostream &os) const { os << L"[ArrayLiteral]"; }
   };
 
   class MemberOperator : public Node
@@ -203,7 +199,5 @@ namespace dragon
 
     PostfixLiteralOperator() {}
     PostfixLiteralOperator(Handle literal, Handle op) : literal(literal), op(op) {}
-
-    virtual void print(std::wostream &os) const { os << "PostfixLiteralOperator ["<<handle()<<"] ( literal = "<<int(literal)<<", operator = "<<int(op)<<")"<<std::endl;}
   };
 }

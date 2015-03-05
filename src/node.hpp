@@ -16,6 +16,7 @@ namespace dragon
 {
   class Handle;
   class Node;
+  class Visitor;
 
   class Handle
   {
@@ -75,8 +76,6 @@ namespace dragon
     friend class Root;
   };
 
-
-
   // Represents a token
   class Node
   {
@@ -84,7 +83,7 @@ namespace dragon
     Handle self;    // handle for itself
   public:
     virtual ~Node() {};
-    virtual void print(std::wostream &os) const { os << L"Node ["<< self <<"]" << std::endl; }
+    virtual void accept(Visitor &v) { assert("Unimplemented acceptor!" and false); }
     virtual bool equal(const Node *t) const { assert(false && "Unimplemented comparison between nodes"); }
     virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
 
@@ -95,7 +94,7 @@ namespace dragon
 
     friend class Handle;
 
-  protected:
+  public:
     Handle handle() const { return self; }
   };
 

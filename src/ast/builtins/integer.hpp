@@ -20,11 +20,6 @@ namespace dragon
   public:
     IntegralType(int width = 32, bool sign = false) : _width(width), _sign(sign) {}
 
-    virtual void print(std::wostream &os) const
-    {
-      os << "IntegralType ["<<handle()<<"] ( width = \""<<_width<<"\""<<(_sign?", signed" : ", unsigned")<<" )" << std::endl;
-    }
-
     virtual std::vector<Handle> get_members() const
     {
       return { _parent };
@@ -50,16 +45,6 @@ namespace dragon
 
     IntegralValue(std::wstring s);
     IntegralValue(std::wstring s, int width, bool sign = false);
-
-    void print(std::wostream &os) const
-    {
-      std::string s;
-      {
-        llvm::raw_string_ostream oos(s);
-        oos << value;
-      }
-      os << "IntegralValue ["<<handle()<<"] ( type = "<<int(type)<<", value = \""<<s.c_str()<< "\", width=\""<<value.getBitWidth()<<"\" )" << std::endl;
-    }
 
     virtual std::vector<Handle> get_members() const
     {
@@ -94,18 +79,9 @@ namespace dragon
       _default = Handle::make<IntegralType>(32, sign);
     }
 
-    virtual Handle get_name() { return _id; }
-    virtual bool is_internal() { return false; }
-    virtual Handle get_parent() { return _parent; }
-    virtual void set_parent(Handle h) { _parent = h; }
-    virtual void desymbolize() { /* TODO */ }
-    virtual void llvm_decl(llvm::LLVMContext &ctx, llvm::Module *mod) {}
-
     virtual std::vector<Handle> get_members() const
     {
       return { _default, _parent, _id };
     }
-
-    Handle get_default() { return _default; }
   };
 }

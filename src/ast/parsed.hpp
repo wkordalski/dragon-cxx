@@ -13,14 +13,6 @@ namespace dragon
     File() {}
     File(std::vector<Handle> decls, Handle doc = Handle()) : docstring(doc), declarations(decls) {}
 
-    virtual void levelup() { /* TODO */ }
-    virtual void print(std::wostream &os) const
-    {
-      os << "File [" << handle() << "] ( doc = " << int(docstring) << ", decls = [ ";
-      for(auto h : declarations) os << int(h) << " ";
-      os << "] )" << std::endl;
-    }
-
     virtual std::vector<Handle> get_members() const
     {
       std::vector<Handle> r;
@@ -39,13 +31,6 @@ namespace dragon
     ImportDecls() {}
     ImportDecls(std::vector<Handle> imports) : imports(imports) {}
 
-    virtual void print(std::wostream &os) const
-    {
-      os << "ImportDecls ["<<handle()<<"] ( imports = [ ";
-      for(auto h : imports) os << int(h) << " ";
-      os << "] )" << std::endl;
-    }
-
     virtual std::vector<Handle> get_members() const
     {
       return imports;
@@ -60,13 +45,6 @@ namespace dragon
     ImportDecl() {}
     ImportDecl(std::vector<Handle> module) : module(module) {}
 
-    virtual void print(std::wostream &os) const
-    {
-      os << "ImportDecl ["<<handle()<<"] ( name = [ ";
-      for(auto h : module) os << int(h) << " ";
-      os << "] )" << std::endl;
-    }
-
     virtual std::vector<Handle> get_members() const { return module; }
   };
 
@@ -78,15 +56,6 @@ namespace dragon
 
     NamespaceDecl() {}
     NamespaceDecl(std::vector<Handle> name, std::vector<Handle> decls = {}) : name(name), declarations(decls) {}
-
-    virtual void print(std::wostream &os) const
-    {
-      os << "NamespaceDecl [" << handle() << "] ( name = [ ";
-      for(auto h : name) os << int(h) << " ";
-      os << "], decls = [ ";
-      for(auto h : declarations) os << int(h) << " ";
-      os << "] )" << std::endl;
-    }
 
     virtual std::vector<Handle> get_members() const
     {
@@ -109,15 +78,6 @@ namespace dragon
     VariableDecls(std::vector<Handle> attribs, std::vector<Handle> decls, Handle doc = Handle())
       : attribs(attribs), decls(decls), docstring(doc) {}
 
-    virtual void print(std::wostream &os) const
-    {
-      os << "VariableDecls ["<<handle()<<"] ( attribs = [ ";
-      for(auto h : attribs) os << int(h) << " ";
-      os << "], decls = [ ";
-      for(auto h : decls) os << int(h) << " ";
-      os << "])" << std::endl;
-    }
-
     virtual std::vector<Handle> get_members() const
     {
       std::vector<Handle> r;
@@ -138,11 +98,6 @@ namespace dragon
 
     VariableDecl() {}
     VariableDecl(Handle id, Handle type, Handle value) : id(id), type(type), value(value) {}
-
-    virtual void print(std::wostream &os) const
-    {
-      os << "VariableDecl ["<<handle()<<"] ( id = " << int(id) << ", type = "<< int(type) << ", value = "<<int(value)<<")" <<std::endl;
-    }
 
     virtual std::vector<Handle> get_members() const
     {
