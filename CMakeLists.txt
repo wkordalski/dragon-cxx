@@ -10,7 +10,6 @@ find_package(Threads)
 
 set(SOURCES
   src/ast/ast.cpp
-  src/ast/builtins.cpp
   src/ast/parsed.cpp
   src/ast/source.cpp
 

@@ -1,41 +1,21 @@
 #pragma once
 
 #include "../node.hpp"
-#include "symbols.hpp"
 #include "declarations/alias.hpp"
 
 namespace dragon
 {
-  class IExpression
+  struct IdentifierExpression : public Node
   {
-  public:
-    virtual void desymbolize_expression(Handle symbol_table) { assert(false or "Should be abstract!"); }
-  };
-
-  class IdentifierExpression : public Node, public IExpression
-  {
-  public:
     Handle id;
 
     IdentifierExpression(Handle id) : id(id) {}
 
-    virtual void desymbolize_expression(Handle symbol_table)
-    {
-      auto desym = symbol_table.as<ISymbolTable>()->lookup(id);
-      if(!desym) assert("Error - no suchly named thing!");
-      while(desym.is<Alias>())
-      {
-        desym = desym.as<Alias>()->get_target();
-      }
-      replace(desym.get());
-    }
-
     virtual void print(std::wostream &os) const { os << L"IdentifierExpression ["<<handle()<<"] ( identifier = "<< int(id) <<" )" << std::endl;}
   };
 
-  class ArrayLiteral : public Node, public IExpression
+  struct ArrayLiteral : public Node
   {
-  public:
     std::vector<Handle> exprs;
 
     ArrayLiteral() {}
@@ -44,7 +24,7 @@ namespace dragon
     virtual void print(std::wostream &os) const { os << L"[ArrayLiteral]"; }
   };
 
-  class MemberOperator : public Node, public IExpression
+  class MemberOperator : public Node
   {
   public:
     Handle left;
@@ -53,7 +33,7 @@ namespace dragon
     MemberOperator(Handle l, Handle r) : left(l), right(r) {}
   };
 
-  class CallOperator : public Node, public IExpression
+  class CallOperator : public Node
   {
   public:
     Handle left;
@@ -62,7 +42,7 @@ namespace dragon
     CallOperator(Handle l, std::vector<Handle> r) : left(l), right(r) {}
   };
 
-  class IndexOperator : public Node, public IExpression
+  class IndexOperator : public Node
   {
   public:
     Handle left;
@@ -71,7 +51,7 @@ namespace dragon
     IndexOperator(Handle l, std::vector<Handle> r) : left(l), right(r) {}
   };
 
-  class IfElseExpression : public Node, public IExpression
+  class IfElseExpression : public Node
   {
   public:
     std::vector<std::pair<Handle,Handle>> if_exprs;
@@ -81,7 +61,7 @@ namespace dragon
     IfElseExpression(Handle else_expr) : else_expr(else_expr) {}
   };
 
-  class TryExceptExpression : public Node, public IExpression
+  class TryExceptExpression : public Node
   {
   public:
     Handle expr = Handle();
@@ -91,7 +71,7 @@ namespace dragon
     TryExceptExpression(std::pair<Handle,Handle> acatch) : catches({acatch}) {}
   };
 
-  class AssignOperator : public Node, public IExpression
+  class AssignOperator : public Node
   {
   public:
     Handle left;
@@ -101,7 +81,7 @@ namespace dragon
     AssignOperator(Handle l, Handle r) : left(l), right(r) {}
   };
 
-  class BinaryUserOperator : public Node, public IExpression
+  class BinaryUserOperator : public Node
   {
   public:
     Handle left;
@@ -112,7 +92,7 @@ namespace dragon
     BinaryUserOperator(std::string o, Handle l, Handle r) : left(l), right(r), op(o) {}
   };
 
-  class BinaryUserAssignOperator : public Node, public IExpression
+  class BinaryUserAssignOperator : public Node
   {
   public:
     Handle left;
@@ -123,7 +103,7 @@ namespace dragon
     BinaryUserAssignOperator(std::string o, Handle l, Handle r) : left(l), right(r), op(o) {}
   };
 
-  class RangeOperator : public Node, public IExpression
+  class RangeOperator : public Node
   {
   public:
     Handle left;
@@ -133,7 +113,7 @@ namespace dragon
     RangeOperator(Handle l, Handle r) : left(l), right(r) {}
   };
 
-  class CompareOperator : public Node, public IExpression
+  class CompareOperator : public Node
   {
   public:
     Handle left;
@@ -144,7 +124,7 @@ namespace dragon
     CompareOperator(std::string o, Handle l, Handle r) : left(l), right(r), rel(o) {}
   };
 
-  class UnaryPrefixUserOperator : public Node, public IExpression
+  class UnaryPrefixUserOperator : public Node
   {
   public:
     Handle expr;
@@ -154,7 +134,7 @@ namespace dragon
     UnaryPrefixUserOperator(std::string o, Handle e) : expr(e), op(o) {}
   };
 
-  class UnaryPostfixUserOperator : public Node, public IExpression
+  class UnaryPostfixUserOperator : public Node
   {
   public:
     Handle expr;
@@ -164,7 +144,7 @@ namespace dragon
     UnaryPostfixUserOperator(std::string o, Handle e) : expr(e), op(o) {}
   };
 
-  class PointerTypeOperator : public Node, public IExpression
+  class PointerTypeOperator : public Node
   {
   public:
     Handle type;
@@ -172,7 +152,7 @@ namespace dragon
     PointerTypeOperator(Handle t) : type(t) {}
   };
 
-  class StorePointerOperator : public Node, public IExpression
+  class StorePointerOperator : public Node
   {
   public:
     Handle left;
@@ -183,7 +163,7 @@ namespace dragon
   };
 
 
-  class RelationOperator : public Node, public IExpression
+  class RelationOperator : public Node
   {
   public:
     Handle left;
@@ -194,12 +174,12 @@ namespace dragon
     RelationOperator(std::string o, Handle l, Handle r) : left(l), right(r), rel(o) {}
   };
 
-  class LambdaOperator : public Node, public IExpression
+  class LambdaOperator : public Node
   {
     // TODO
   };
 
-  class CommaOperator : public Node, public IExpression
+  class CommaOperator : public Node
   {
   public:
     Handle left;
@@ -209,13 +189,13 @@ namespace dragon
     CommaOperator(Handle l, Handle r) : left(l), right(r) {}
   };
 
-  class NoneOperator : public Node, public IExpression
+  class NoneOperator : public Node
   {
   public:
     NoneOperator() {}
   };
 
-  class PostfixLiteralOperator : public Node, public IExpression
+  class PostfixLiteralOperator : public Node
   {
   public:
     Handle literal;

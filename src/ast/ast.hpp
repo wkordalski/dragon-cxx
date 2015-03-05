@@ -1,20 +1,12 @@
 #include "../node.hpp"
-#include "declarations.hpp"
-#include "symbols.hpp"
 
 #include <unordered_set>
 #include <unordered_map>
 
 namespace dragon
 {
-  Handle files_to_assembly(std::vector<Handle> files);
-  void desymbolize_expressions(Handle assembly);
-  Handle compile_assembly(Handle assembly);
-  void init_builtins(Handle assembly);
-
-  class Import : public Node
+  struct Import : public Node
   {
-  public:
     std::vector<Handle> name;
 
     Import(std::vector<Handle> name) : name(name) {}
@@ -46,29 +38,10 @@ namespace dragon
     virtual std::vector<Handle> get_members() const { return name; }
   };
 
-  class Assembly : public Node, public IDeclarationContainer, public ISymbolTable
+  struct Assembly : public Node
   {
     std::unordered_set<Handle> imports;
     std::unordered_map<Handle, Handle> declarations;
-  public:
-
-    virtual Handle by_name(Handle h) { if(declarations.count(h) > 0) return declarations[h]; else return Handle(); }
-    virtual void add_declaration(Handle h)
-    {
-      auto decl = h.is<IDeclaration>();
-      assert(declarations.count(decl->get_name()) == 0);
-      declarations[decl->get_name()] = h;
-      decl->set_parent(self);
-    }
-
-    virtual Handle get_parent_table() { return Handle(); }
-    virtual bool lookup_this_only(Handle identifier, Handle &result)
-    {
-      auto it = declarations.find(identifier);
-      bool ret = it != declarations.end();
-      if(ret) result = it->second;
-      return ret;
-    }
 
     virtual void print(std::wostream &os) const
     {
@@ -91,14 +64,5 @@ namespace dragon
       }
       return r;
     }
-
-    friend class ImportDecl;
-    friend void dragon::desymbolize_expressions(Handle);
   };
-
-  class CompiledAssembly : public Node
-  {
-    // TODO: everything
-  };
-
 }

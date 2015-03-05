@@ -29,8 +29,6 @@ namespace dragon
       for(auto h : declarations) r.push_back(h);
       return r;
     }
-
-    void fillin(Handle h);
   };
 
   class ImportDecls : public Node
@@ -47,8 +45,6 @@ namespace dragon
       for(auto h : imports) os << int(h) << " ";
       os << "] )" << std::endl;
     }
-
-    void add_imports(Handle h);
 
     virtual std::vector<Handle> get_members() const
     {
@@ -70,8 +66,6 @@ namespace dragon
       for(auto h : module) os << int(h) << " ";
       os << "] )" << std::endl;
     }
-
-    void add_import(Handle h);
 
     virtual std::vector<Handle> get_members() const { return module; }
   };
@@ -102,8 +96,6 @@ namespace dragon
       for(auto h : declarations) r.push_back(h);
       return r;
     }
-
-    void fillin_decls(Handle h);
   };
 
   class VariableDecls : public Node
@@ -135,8 +127,6 @@ namespace dragon
       r.push_back(docstring);
       return r;
     }
-
-    void fillin_decls(Handle h);
   };
 
   class VariableDecl : public Node
@@ -158,7 +148,5 @@ namespace dragon
     {
       return {id, type, value};
     }
-
-    void fillin_decls(Handle h, std::vector<Handle> attribs);
   };
 }

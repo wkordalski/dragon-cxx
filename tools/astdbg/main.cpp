@@ -7,11 +7,10 @@
 #include "parser.hpp"
 
 #include "../../src/ast.hpp"
-#include "../../src/ast/value.hpp"
-#include "../../src/ast/builtins.hpp"
 
 int main(int argc, char *argv[])
 {
+  /*
   // Compilation and so on code
   {
     std::vector<dragon::Root> fileroots;
@@ -38,7 +37,7 @@ int main(int argc, char *argv[])
       std::wcout << "Linking..." << std::endl;
       ass = dragon::files_to_assembly(filrts);
     }
-    if(ass or false /* check if we turned on/off desymbolization */)
+    if(ass or false / * check if we turned on/off desymbolization * /)
     {
       dragon::init_builtins(ass);
       dragon::desymbolize_expressions(ass);
@@ -79,4 +78,5 @@ int main(int argc, char *argv[])
     dragon::Handle::cleanup();
   }
   return 0;
+  */
 }

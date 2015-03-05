@@ -34,11 +34,6 @@ namespace dragon
     assert(false and "Wrong character");
   }
 
-  void IntegralType::llvm_type(llvm::LLVMContext &ctx, llvm::Module *mod)
-  {
-    replace(new LLVMIntegralType(this, ctx, mod));
-  }
-
   IntegralValue::IntegralValue(std::wstring s)
   {
     assert(s.size() > 0);
@@ -90,17 +85,6 @@ namespace dragon
     }
     auto srt = llvm::StringRef(t);
     value = llvm::APSInt(llvm::APInt(width, srt, radix), !sign);
-  }
-
-  void IntegralValue::llvm_value(llvm::LLVMContext &ctx, llvm::Module *mod)
-  {
-    //auto llv = new LLVMIntegralConstantValue(value, type.to_llvm());
-    //replace(llv);
-    // 1) RESOLVE NAMES! - should be resolved earlier
-    // 2) LLVM'ize type
-    type.as<IType>()->llvm_type(ctx, mod);
-    // 3) create value
-    replace(new LLVMIntegralValue(value, type));
   }
 
   LLVMIntegralValue::LLVMIntegralValue(llvm::APSInt value, Handle type) : _type(type)
