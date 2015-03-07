@@ -1,4 +1,5 @@
 #include "../node.hpp"
+#include "../utils/collect.hpp"
 
 #include <unordered_set>
 #include <unordered_map>
@@ -18,26 +19,11 @@ namespace dragon
         return std::equal(name.begin(), name.end(), tt->name.begin(), tt->name.end(), [](Handle a, Handle b) { return a % b; });
       else return false;
     }
-
-    virtual std::vector<Handle> get_members() const { return name; }
   };
 
   struct Assembly : public Node
   {
     std::unordered_set<Handle> imports;
     std::unordered_map<Handle, Handle> declarations;
-
-    virtual std::vector<Handle> get_members() const
-    {
-      std::vector<Handle> r;
-      r.reserve(imports.size() + declarations.size() * 2);
-      for(auto h : imports) r.push_back(h);
-      for(auto p : declarations)
-      {
-        r.push_back(p.first);
-        r.push_back(p.second);
-      }
-      return r;
-    }
   };
 }

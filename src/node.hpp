@@ -87,8 +87,6 @@ namespace dragon
     virtual bool equal(const Node *t) const { assert(false && "Unimplemented comparison between nodes"); }
     virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
 
-    virtual std::vector<Handle> get_members() const { return {}; }
-
     // Token replaces this token.
     void replace(Node *);
 

@@ -19,11 +19,6 @@ namespace dragon
     bool _sign = false;
   public:
     IntegralType(int width = 32, bool sign = false) : _width(width), _sign(sign) {}
-
-    virtual std::vector<Handle> get_members() const
-    {
-      return { _parent };
-    }
   };
 
   class LLVMIntegralType : public IntegralType
@@ -45,11 +40,6 @@ namespace dragon
 
     IntegralValue(std::wstring s);
     IntegralValue(std::wstring s, int width, bool sign = false);
-
-    virtual std::vector<Handle> get_members() const
-    {
-      return { type };
-    }
   };
 
   class LLVMIntegralValue : public Node
@@ -59,12 +49,6 @@ namespace dragon
     llvm::Constant *val;
   public:
     LLVMIntegralValue(llvm::APSInt value, Handle type);
-
-
-    virtual std::vector<Handle> get_members() const
-    {
-      return { _type };
-    }
   };
 
   class IntegralTemplate : public Node
@@ -77,11 +61,6 @@ namespace dragon
     IntegralTemplate(Handle id, bool sign = false) : _id(id)
     {
       _default = Handle::make<IntegralType>(32, sign);
-    }
-
-    virtual std::vector<Handle> get_members() const
-    {
-      return { _default, _parent, _id };
     }
   };
 }

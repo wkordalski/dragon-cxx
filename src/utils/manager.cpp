@@ -1,4 +1,5 @@
 #include "../node.hpp"
+#include "../visitors/gc.hpp"
 
 #include <cassert>
 #include <iomanip>
@@ -7,24 +8,10 @@
 
 namespace dragon
 {
-  struct ObjectInfo
-  {
-    enum GCState
-    {
-      Unknown,
-      Known
-    };
-
-    GCState color;
-
-    void set_unknown() { color = GCState::Unknown; }
-    void set_known() { color = GCState::Known; }
-    bool is_known() { return color == GCState::Known; }
-  };
-
-  std::unordered_map<int, std::pair<Node *, ObjectInfo>> manager_map;
+  std::unordered_map<int, Node *> object_heap;
   std::list<int> manager_roots;
   int manager_counter = 1;
+  GC gc(object_heap, manager_roots);
 
   Node * Handle::operator -> () const { return get(); }
   Node * Handle::operator *  () const { return get(); }
@@ -36,8 +23,8 @@ namespace dragon
     // We want small numbers for debugging purposes
     if(manager_counter > 1024) manager_counter = 1;
     // Find free handle
-    while(manager_counter == 0 or manager_map.count(manager_counter) > 0) manager_counter++;
-    manager_map[manager_counter] = std::make_pair(p, ObjectInfo());
+    while(manager_counter == 0 or object_heap.count(manager_counter) > 0) manager_counter++;
+    object_heap[manager_counter] = p;
     p->self = Handle(manager_counter);
     this->h = manager_counter;
     manager_counter++;
@@ -52,12 +39,12 @@ namespace dragon
   Handle::Handle(int handle)
   {
     this->h = handle;
-    assert(handle == 0 or manager_map.count(handle) > 0);
+    assert(handle == 0 or object_heap.count(handle) > 0);
   }
 
   bool Handle::exists(int handle)
   {
-    return manager_map.count(handle) > 0;
+    return object_heap.count(handle) > 0;
   }
 
   Handle::~Handle() {}
@@ -70,15 +57,15 @@ namespace dragon
 
   Node * Handle::get() const
   {
-    assert(h != 0);
-    return manager_map[h].first;
+    assert(h != 0 and object_heap.count(h) > 0);
+    return object_heap[h];
   }
 
   const Handle & Handle::set(Node *p) const
   {
     if(valid()) delete get();
     p->self = *this;
-    manager_map[h].first = p;
+    object_heap[h] = p;
     return *this;
   }
 
@@ -86,12 +73,13 @@ namespace dragon
   {
     if(valid()) delete get();
     p->self = *this;
-    manager_map[h].first = p;
+    object_heap[h] = p;
     return *this;
   }
 
   bool Handle::valid() const
   {
+    if(h != 0) assert(object_heap.count(h) > 0);
     return (h != 0);
   }
 
@@ -109,48 +97,12 @@ namespace dragon
 
   void Handle::cleanup()
   {
-    std::stack<int> known;
-    // Let's start with setting color to Unknown
-    for(auto &p : manager_map)
-      p.second.second.set_unknown();
-    // Color roots with Known
-    for(int h : manager_roots)
+    if(object_heap.size() > 0) std::cerr << "Removing " << object_heap.size() << " objects..." << std::endl;
+    for(auto p : object_heap)
     {
-      manager_map[h].second.set_known();
-      known.push(h);
+      delete p.second;
     }
-    // Work with graph
-    while(!known.empty())
-    {
-      int h = known.top();
-      known.pop();
-      auto p = manager_map[h].first;
-      auto vc = p->get_members();
-      for(auto vch : vc)
-      {
-        if(!vch) continue;
-        auto hh = vch.h;
-        if(!manager_map[hh].second.is_known())
-        {
-          manager_map[hh].second.set_known();
-          known.push(hh);
-        }
-      }
-    }
-    // Remove unknown objects
-    std::vector<std::pair<int, std::pair<Node *, ObjectInfo>>> trash;
-    for(auto &p : manager_map)
-    {
-      if(!p.second.second.is_known())
-      {
-        trash.push_back(p);
-      }
-    }
-    for(auto &p : trash)
-    {
-      delete p.second.first;
-      manager_map.erase(p.first);
-    }
+    object_heap.clear();
   }
 
   Root::Root()

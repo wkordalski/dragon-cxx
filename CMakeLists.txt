@@ -20,9 +20,10 @@ set(SOURCES
   src/lexer/scanner.cpp
   src/lexer/tokenizer.cpp
 
+  src/utils/collect.cpp
   src/utils/manager.cpp
 
-
+  src/visitors/gc.cpp
 )
 
 set(TEST

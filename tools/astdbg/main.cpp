@@ -6,9 +6,34 @@
 #include "../../src/lexer/scanner.hpp"
 #include "parser.hpp"
 
+#include "../../src/visitors/gc.hpp"
+
 
 int main(int argc, char *argv[])
 {
+  {
+    std::vector<dragon::Root> fileroots;
+    std::vector<char*> files;
+    for(int i = 1; i < argc; i++)
+    {
+      std::wifstream input(argv[i]);
+      dragon::Handle rt;
+      dragon::FileScanner sc(input, argv[i]);
+      dragon::Parser pr(sc, rt);
+      std::wcout << "Parsing:   " << argv[i] << std::endl;
+      if(pr.parse() == 0)
+      {
+        fileroots.push_back(rt);
+        files.push_back(argv[i]);
+      }
+    }
+    dragon::Root ass;
+  }
+  {
+    dragon::gc.run();
+    dragon::Handle::cleanup();
+    return 0;
+  }
   /*
   // Compilation and so on code
   {

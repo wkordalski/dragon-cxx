@@ -7,16 +7,15 @@ namespace dragon
   class Node;
 
   // Subnode types declarations goes here
-  //...
+  class Identifier;
 
   // Visitor base
   class Visitor
   {
   public:
-    void visit(Node &n) { assert("Unimplemented visitor!" and false); }
-
+    virtual void visit(Node &n) { assert("Unimplemented visitor!" and false); }
 
     // Subnode types visits goes here
-    //...
+    virtual void visit(Identifier &n) {}
   };
 }
