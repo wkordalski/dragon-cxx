@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "visitor.hpp"
+
 #include "utils/hash.hpp"
 
 #include "location.hh"
@@ -16,7 +18,6 @@ namespace dragon
 {
   class Handle;
   class Node;
-  class Visitor;
 
   class Handle
   {

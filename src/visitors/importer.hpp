@@ -21,13 +21,17 @@
  */
 
 /*
- * This file should be included and used by parser (Bison-generated one)
+ * Imports the tree from persistent representation
  */
 
 #pragma once
 
-#include "parsed.hpp"
-#include "expressions.hpp"
-#include "source.hpp"
+#include "../visitor.hpp"
 
-#include "syntactic/file.hpp"
+namespace dragon
+{
+  class Importer : public Visitor
+  {
+    //...
+  };
+}

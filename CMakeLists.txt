@@ -2,7 +2,7 @@ project (Dragon)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(BISON REQUIRED)
-find_package(Boost REQUIRED program_options)
+find_package(Boost REQUIRED program_options serialization)
 find_package(GTest)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Threads)
@@ -39,7 +39,7 @@ set(TEST
 # if DEBUG
   add_definitions(-g -Wall -DYYDEBUG)
 # endif
-add_definitions (-std=c++11)
+add_definitions (-std=c++14)
 
 set(SCANNER_HPP_FILE "${PROJECT_SOURCE_DIR}/src/lexer/scanner.hpp")
 set(SYNTACTIC_HPP_FILE "${PROJECT_SOURCE_DIR}/src/ast/syntactic.hpp")
@@ -54,10 +54,12 @@ include_directories(${PROJECT_BINARY_DIR})
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
+include_directories(${Boost_INCLUDE_DIRS})
+
 bison_target(parser src/parser.y ${PROJECT_BINARY_DIR}/parser.cpp)
 llvm_map_components_to_libnames(LLVM_LIBRARIES core codegen)
-add_library(dragon ${SOURCES} ${BISON_parser_OUTPUTS})
-target_link_libraries(dragon ${LLVM_LIBRARIES})
+add_library(dragon SHARED ${SOURCES} ${BISON_parser_OUTPUTS})
+target_link_libraries(dragon ${LLVM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARY})
 
 if(GTEST_FOUND)
   add_executable(utest ${TEST})

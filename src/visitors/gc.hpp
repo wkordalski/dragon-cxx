@@ -19,6 +19,21 @@ namespace dragon
     // Returns true if next process is needed
     // False if the node was earlier processed
     bool mark(Node &n) { return flag.erase(int(n.handle())) > 0; }
+    void accept(const Handle &h) { if(h) h->accept(*this); }
+    void accept(const std::vector<Handle> &v)
+    { for(auto h : v) if(h) h->accept(*this); }
+
+    void accept(const std::unordered_set<Handle> &v)
+    { for(auto h : v) if(h) h->accept(*this); }
+
+    void accept(const std::unordered_map<Handle, Handle> &v)
+    {
+      for(auto p : v)
+      {
+        if(p.first) p.first->accept(*this);
+        if(p.second) p.second->accept(*this);
+      }
+    }
 
   public:
     GC(std::unordered_map<int, Node *> &objects, std::list<int> &roots) : objects(objects), roots(roots) {}
@@ -38,7 +53,18 @@ namespace dragon
       flag.clear();
     }
 
+    // Source tokens
     virtual void visit(Identifier &n);
+    virtual void visit(Operator &n);
+    virtual void visit(Literal &n);
+    virtual void visit(Newline &n);
+    virtual void visit(Indent &n);
+    virtual void visit(Dedent &n);
+    // Syntactic nodes
+    virtual void visit(File &n);
+    // Semantic nodes
+    virtual void visit(Assembly &n);
+    virtual void visit(Import &n);
   };
 
   extern GC gc;

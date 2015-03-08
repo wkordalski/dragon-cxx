@@ -25,7 +25,7 @@ namespace dragon
     Identifier(std::wstring s) : text(s) {}
 
   public:
-    virtual void print(std::wostream &os) const { os << L"Identifier ["<<handle()<<"] \""<<text<<"\"" << std::endl; }
+    virtual void accept(Visitor &v) { v.visit(*this); }
     virtual bool equal(const Node *t) const { if(auto tt = dynamic_cast<const Identifier*>(t)) return (text == tt->text); else return false; }
     virtual std::size_t hash() const
     {
@@ -40,7 +40,7 @@ namespace dragon
     Place place;
 
   public:
-    virtual void print(std::wostream &os) const { os << L"Operator ["<<handle()<<"] <nonprintable>" << std::endl; }
+    virtual void accept(Visitor &v) { v.visit(*this); }
   };
 
   class Literal : public Node
@@ -50,7 +50,7 @@ namespace dragon
     Place place;
 
   public:
-    virtual void print(std::wostream &os) const { os << L"[! "<<text<<"]"; }
+    virtual void accept(Visitor &v) { v.visit(*this); }
 
     void parse_literal();
   };
@@ -59,20 +59,20 @@ namespace dragon
   {
   public:
     Place place;
-    virtual void print(std::wostream &os) const { os << L"Newline ["<<handle()<<"]" << std::endl; }
+    virtual void accept(Visitor &v) { v.visit(*this); }
   };
 
   class Indent : public Node
   {
   public:
     Place place;
-    virtual void print(std::wostream &os) const { os << L"Indent ["<<handle()<<"]" << std::endl; }
+    virtual void accept(Visitor &v) { v.visit(*this); }
   };
 
   class Dedent : public Node
   {
   public:
     Place place;
-    virtual void print(std::wostream &os) const { os << L"Dedent ["<<handle()<<"]" << std::endl; }
+    virtual void accept(Visitor &v) { v.visit(*this); }
   };
 }

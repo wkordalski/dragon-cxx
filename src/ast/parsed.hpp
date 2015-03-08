@@ -5,25 +5,6 @@
 
 namespace dragon
 {
-  class File : public Node
-  {
-  public:
-    Handle docstring = Handle();
-    std::vector<Handle> declarations;
-
-    File() {}
-    File(std::vector<Handle> decls, Handle doc = Handle()) : docstring(doc), declarations(decls) {}
-
-    virtual std::vector<Handle> get_members() const
-    {
-      std::vector<Handle> r;
-      r.reserve(declarations.size() + 1);
-      r.push_back(docstring);
-      for(auto h : declarations) r.push_back(h);
-      return r;
-    }
-  };
-
   class ImportDecls : public Node
   {
   public:

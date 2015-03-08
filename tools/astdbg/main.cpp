@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
       }
     }
     dragon::Root ass;
+    dragon::gc.run();
   }
   {
     dragon::gc.run();

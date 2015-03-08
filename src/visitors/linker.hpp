@@ -21,13 +21,17 @@
  */
 
 /*
- * This file should be included and used by parser (Bison-generated one)
+ * Links few Assemblies into bigger one
  */
 
 #pragma once
 
-#include "parsed.hpp"
-#include "expressions.hpp"
-#include "source.hpp"
+#include "../visitor.hpp"
 
-#include "syntactic/file.hpp"
+namespace dragon
+{
+  class Linker : public Visitor
+  {
+    //...
+  };
+}
