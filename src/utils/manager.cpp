@@ -63,7 +63,7 @@ namespace dragon
 
   const Handle & Handle::set(Node *p) const
   {
-    if(valid()) delete get();
+    if(valid() && get()) delete get();
     p->self = *this;
     object_heap[h] = p;
     return *this;
@@ -71,7 +71,7 @@ namespace dragon
 
   Handle & Handle::set(Node *p)
   {
-    if(valid()) delete get();
+    if(valid() && get()) delete get();
     p->self = *this;
     object_heap[h] = p;
     return *this;

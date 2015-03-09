@@ -50,6 +50,7 @@ namespace dragon
         delete objects[h];
         objects.erase(h);
       }
+      //std::cerr << "Removed " << flag.size() << " objects..." << std::endl;
       flag.clear();
     }
 
@@ -62,9 +63,11 @@ namespace dragon
     virtual void visit(Dedent &n);
     // Syntactic nodes
     virtual void visit(File &n);
+    virtual void visit(syntax::VariablesDeclaration &n);
+    virtual void visit(syntax::SingleVariableDeclaration &n);
     // Semantic nodes
     virtual void visit(Assembly &n);
-    virtual void visit(Import &n);
+    virtual void visit(Module &n);
   };
 
   extern GC gc;

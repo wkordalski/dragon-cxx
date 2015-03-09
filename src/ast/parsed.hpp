@@ -53,42 +53,4 @@ namespace dragon
       return r;
     }*/
   };
-
-  class VariableDecls : public Node
-  {
-  public:
-    std::vector<Handle> attribs;
-    std::vector<Handle> decls;
-    Handle docstring;
-
-    VariableDecls() {}
-    VariableDecls(std::vector<Handle> attribs, std::vector<Handle> decls, Handle doc = Handle())
-      : attribs(attribs), decls(decls), docstring(doc) {}
-
-    virtual std::vector<Handle> get_members() const
-    {
-      std::vector<Handle> r;
-      r.reserve(attribs.size() + decls.size() + 1);
-      for(auto h : attribs) r.push_back(h);
-      for(auto h : decls) r.push_back(h);
-      r.push_back(docstring);
-      return r;
-    }
-  };
-
-  class VariableDecl : public Node
-  {
-  public:
-    Handle id;
-    Handle type;
-    Handle value;
-
-    VariableDecl() {}
-    VariableDecl(Handle id, Handle type, Handle value) : id(id), type(type), value(value) {}
-
-    virtual std::vector<Handle> get_members() const
-    {
-      return {id, type, value};
-    }
-  };
 }

@@ -23,7 +23,9 @@ set(SOURCES
   src/utils/collect.cpp
   src/utils/manager.cpp
 
+  src/visitors/exporter.cpp
   src/visitors/gc.cpp
+  src/visitors/importer.cpp
 )
 
 set(TEST

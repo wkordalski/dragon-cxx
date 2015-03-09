@@ -7,6 +7,7 @@
 #include "parser.hpp"
 
 #include "../../src/visitors/gc.hpp"
+#include "../../src/visitors/exporter.hpp"
 
 
 int main(int argc, char *argv[])
@@ -28,6 +29,10 @@ int main(int argc, char *argv[])
       }
     }
     dragon::Root ass;
+    std::ofstream ofs("export.dex");
+    dragon::Exporter dex(ofs);
+    dex.serialize(fileroots);
+    ofs.close();
     dragon::gc.run();
   }
   {

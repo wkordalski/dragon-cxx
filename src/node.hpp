@@ -14,6 +14,8 @@
 
 #include "location.hh"
 
+#include <boost/serialization/serialization.hpp>
+
 namespace dragon
 {
   class Handle;
@@ -69,12 +71,37 @@ namespace dragon
     static bool exists(int h);
     explicit operator int() const { return h; }
 
+    // SERIALIZATION
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+      ar & h;
+    }
 
   protected:
     int h;
 
     friend class Node;
     friend class Root;
+  };
+
+
+  // A root object
+  class Root : public Handle
+  {
+    std::list<int>::iterator entry;
+  public:
+    Root();
+    Root(const Handle &h);
+    Root(Root &h);
+    Root(Root &&h);
+
+    Root & operator = (const Handle &h);
+    Root & operator = (Root &h);
+    Root & operator = (Root &&h);
+
+    virtual ~Root();
   };
 
   // Represents a token
@@ -94,25 +121,7 @@ namespace dragon
     friend class Handle;
 
   public:
-    Handle handle() const { return self; }
-  };
-
-
-  // A root object
-  class Root : public Handle
-  {
-    std::list<int>::iterator entry;
-  public:
-    Root();
-    Root(const Handle &h);
-    Root(Root &h);
-    Root(Root &&h);
-
-    Root & operator = (const Handle &h);
-    Root & operator = (Root &h);
-    Root & operator = (Root &&h);
-
-    virtual ~Root();
+    Handle & handle() { return self; }
   };
 
   struct Place

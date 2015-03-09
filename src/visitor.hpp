@@ -22,12 +22,17 @@ namespace dragon
   // Syntactic nodes
   //
   class File;
+  namespace syntax
+  {
+    class VariablesDeclaration;
+    class SingleVariableDeclaration;
+  }
 
   //
   // Semantic nodes
   //
   class Assembly;
-  class Import;
+  class Module;
 
   // Visitor base
   class Visitor
@@ -46,8 +51,10 @@ namespace dragon
     virtual void visit(Dedent &n) {}
     // Syntactic nodes
     virtual void visit(File &n) {}
+    virtual void visit(syntax::VariablesDeclaration &n) {}
+    virtual void visit(syntax::SingleVariableDeclaration &n) {}
     // Semantic nodes
     virtual void visit(Assembly &n) {}
-    virtual void visit(Import &n) {}
+    virtual void visit(Module &n) {}
   };
 }

@@ -27,11 +27,53 @@
 #pragma once
 
 #include "../visitor.hpp"
+#include "../node.hpp"
+
+#include <unordered_set>
+
+#include <boost/archive/binary_oarchive.hpp>
 
 namespace dragon
 {
   class Exporter : public Visitor
   {
-    //...
+    boost::archive::binary_oarchive ar;
+    std::unordered_set<int> flag;
+  public:
+    Exporter(std::ostream &out) : ar(out) {}
+
+    void serialize(std::vector<Handle> v);
+    void serialize(std::vector<Root> v);
+
+  protected:
+    void save(Handle h)
+    {
+      if(!h) return;
+      if(flag.count(int(h)) > 0) return;
+      flag.insert(int(h));
+      h->accept(*this);
+    }
+
+    void save(std::vector<Handle> &v)
+    {
+      for(Handle h : v) save(h);
+    }
+
+  public:
+
+    // Source tokens
+    virtual void visit(Identifier &n);
+    virtual void visit(Operator &n);
+    virtual void visit(Literal &n);
+    virtual void visit(Newline &n);
+    virtual void visit(Indent &n);
+    virtual void visit(Dedent &n);
+    // Syntactic nodes
+    virtual void visit(File &n);
+    virtual void visit(syntax::VariablesDeclaration &n);
+    virtual void visit(syntax::SingleVariableDeclaration &n);
+    // Semantic nodes
+    virtual void visit(Assembly &n);
+    virtual void visit(Module &n);
   };
 }

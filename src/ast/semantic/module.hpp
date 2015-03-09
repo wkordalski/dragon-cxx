@@ -21,46 +21,33 @@
  */
 
 /*
- * Imports the tree from persistent representation
+ * Represents a module
  */
 
 #pragma once
 
-#include "../node.hpp"
-#include "../visitor.hpp"
+#include "../../node.hpp"
 
-#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
-#include <boost/archive/binary_iarchive.hpp>
-
 namespace dragon
 {
-  class Importer : public Visitor
+  class Module : public Node
   {
-    boost::archive::binary_iarchive ar;
-    std::unordered_map<int, int> readdress;
-    std::unordered_set<int> required;
   public:
-    Importer(std::istream &out) : ar(out) {}
+    std::vector<Handle> name;
+    std::unordered_set<Handle> decls;
 
-    std::vector<Handle> deserialize();
+    Module(std::vector<Handle> name) : name(name) {}
 
-  public:
-    // Source tokens
-    virtual void visit(Identifier &n);
-    virtual void visit(Operator &n);
-    virtual void visit(Literal &n);
-    virtual void visit(Newline &n);
-    virtual void visit(Indent &n);
-    virtual void visit(Dedent &n);
-    // Syntactic nodes
-    virtual void visit(File &n);
-    virtual void visit(syntax::VariablesDeclaration &n);
-    virtual void visit(syntax::SingleVariableDeclaration &n);
-    // Semantic nodes
-    virtual void visit(Assembly &n);
-    virtual void visit(Module &n);
+    virtual void accept(Visitor &v) { v.visit(*this); }
+    virtual std::size_t hash() const { return hash_sequence<std::hash<Handle>>(name); }
+    virtual bool equal(const Node *t) const
+    {
+      if(auto tt = dynamic_cast<const Module*>(t))
+        return std::equal(name.begin(), name.end(), tt->name.begin(), tt->name.end(), [](Handle a, Handle b) { return a % b; });
+      else return false;
+    }
   };
 }

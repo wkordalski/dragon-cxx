@@ -3,9 +3,10 @@
 #include "../ast/source.hpp"
 
 #include "../ast/syntactic/file.hpp"
+#include "../ast/syntactic/variable.hpp"
 
 #include "../ast/semantic/assembly.hpp"
-#include "../ast/semantic/import.hpp"
+#include "../ast/semantic/module.hpp"
 
 namespace dragon
 {
@@ -25,16 +26,34 @@ namespace dragon
       accept(n.declarations);
     }
   }
+  void GC::visit(syntax::VariablesDeclaration &n)
+  {
+    if(mark(n))
+    {
+      accept(n.attrs);
+      accept(n.decls);
+      accept(n.docstring);
+    }
+  }
+  void GC::visit(syntax::SingleVariableDeclaration &n)
+  {
+    if(mark(n))
+    {
+      accept(n.id);
+      accept(n.type);
+      accept(n.value);
+    }
+  }
   // Semantic nodes
   void GC::visit(Assembly &n)
   {
     if(mark(n))
     {
-      accept(n.imports);
+      accept(n.modules);
       accept(n.declarations);
     }
   }
-  void GC::visit(Import &n)
+  void GC::visit(Module &n)
   {
     if(mark(n))
     {
