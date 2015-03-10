@@ -1,8 +1,11 @@
 #include "exporter.hpp"
 
 #include "../ast/source.hpp"
+
 #include "../ast/syntactic/file.hpp"
 #include "../ast/syntactic/variable.hpp"
+
+#include "../ast/semantic/module.hpp"
 
 #include <iostream>
 #include <boost/serialization/serialization.hpp>
@@ -85,5 +88,16 @@ namespace dragon
     // And we also export Assembly
     // Then we shouldn't export all the other modules.
   }
-  void Exporter::visit(Module &n) {}
+  void Exporter::visit(Module &n)
+  {
+    int tid = 10;
+    std::vector<Handle> decls;
+    std::transform(n.decls.begin(), n.decls.end(), std::back_insert_iterator<std::vector<Handle>>(decls), [](Handle h){return h;});
+    ar << n.handle() << tid
+       << n.name
+       << decls;
+
+    save(n.name);
+    save(n.decls);
+  }
 }

@@ -42,7 +42,7 @@ namespace dragon
     operator bool() const { return valid(); }
     bool operator !() const { return !valid(); }
 
-    Handle operator % (Handle h) const;
+    //Handle operator % (Handle h) const;
 
     template<class T>
     T * is()
@@ -112,8 +112,8 @@ namespace dragon
   public:
     virtual ~Node() {};
     virtual void accept(Visitor &v) { assert("Unimplemented acceptor!" and false); }
-    virtual bool equal(const Node *t) const { assert(false && "Unimplemented comparison between nodes"); }
-    virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
+    // virtual bool equal(const Node *t) const { assert(false && "Unimplemented comparison between nodes"); }
+    // virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
 
     // Token replaces this token.
     void replace(Node *);
@@ -146,7 +146,7 @@ namespace std
   {
     std::size_t operator() (const dragon::Handle &h) const
     {
-      return h->hash();
+      return hash<int>()(int(h));
     }
   };
 
@@ -155,7 +155,7 @@ namespace std
   {
     bool operator () (const dragon::Handle &l, const dragon::Handle &r) const
     {
-      return l->equal(r.get());
+      return int(l) == int(r);
     }
   };
 

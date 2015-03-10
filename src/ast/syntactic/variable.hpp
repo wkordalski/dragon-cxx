@@ -13,6 +13,8 @@ namespace dragon
       std::vector<Handle> decls;
       Handle docstring;
 
+      VariablesDeclaration() = default;
+
       VariablesDeclaration(std::vector<Handle> attrs, std::vector<Handle> decls, Handle docstring)
         : attrs(attrs), decls(decls), docstring(docstring) {}
 
@@ -25,6 +27,8 @@ namespace dragon
       Handle id;
       Handle type;
       Handle value;
+
+      SingleVariableDeclaration() = default;
 
       SingleVariableDeclaration(Handle id, Handle type, Handle value)
         : id(id), type(type), value(value) {}

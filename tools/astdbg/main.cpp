@@ -8,6 +8,7 @@
 
 #include "../../src/visitors/gc.hpp"
 #include "../../src/visitors/exporter.hpp"
+#include "../../src/visitors/importer.hpp"
 
 
 int main(int argc, char *argv[])
@@ -34,6 +35,13 @@ int main(int argc, char *argv[])
     dex.serialize(fileroots);
     ofs.close();
     dragon::gc.run();
+  }
+  {
+    std::ifstream ifs("export.dex");
+    dragon::Importer dim(ifs);
+    auto v = dim.deserialize();
+    ifs.close();
+    std::cout << v.size() << std::endl;
   }
   {
     dragon::gc.run();

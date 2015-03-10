@@ -25,7 +25,7 @@ namespace dragon
     // Find free handle
     while(manager_counter == 0 or object_heap.count(manager_counter) > 0) manager_counter++;
     object_heap[manager_counter] = p;
-    p->self = Handle(manager_counter);
+    if(p != nullptr) p->self = Handle(manager_counter);
     this->h = manager_counter;
     manager_counter++;
   }
@@ -82,13 +82,15 @@ namespace dragon
     if(h != 0) assert(object_heap.count(h) > 0);
     return (h != 0);
   }
-
+  
+  /*
   Handle Handle::operator % (Handle h) const
   {
     if(!valid() or !h.valid()) return Handle();
     if(get()->equal(h.get())) return h;
     else return Handle();
   }
+  */
 
   void Node::replace(Node *t)
   {

@@ -39,15 +39,34 @@ namespace dragon
 {
   class Importer : public Visitor
   {
+    typedef void (Importer::*decode_func)(Handle &);
+
     boost::archive::binary_iarchive ar;
     std::unordered_map<int, int> readdress;
     std::unordered_set<int> required;
+
+    static decode_func decoder[];
+
   public:
     Importer(std::istream &out) : ar(out) {}
 
     std::vector<Handle> deserialize();
 
+  protected:
+    Handle translate(Handle h)
+    {
+      if(int(h) == 0) return Handle();
+      if(readdress.count(int(h)) == 0)
+      {
+        Handle nh(nullptr);
+        readdress[int(h)] = int(nh);
+        required.insert(int(h));
+      }
+      return Handle(readdress[int(h)]);
+    }
+
   public:
+    /*
     // Source tokens
     virtual void visit(Identifier &n);
     virtual void visit(Operator &n);
@@ -62,5 +81,9 @@ namespace dragon
     // Semantic nodes
     virtual void visit(Assembly &n);
     virtual void visit(Module &n);
+    */
+  protected:
+    template<class T>
+    void read(Handle &h);
   };
 }

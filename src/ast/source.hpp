@@ -26,11 +26,11 @@ namespace dragon
 
   public:
     virtual void accept(Visitor &v) { v.visit(*this); }
-    virtual bool equal(const Node *t) const { if(auto tt = dynamic_cast<const Identifier*>(t)) return (text == tt->text); else return false; }
-    virtual std::size_t hash() const
-    {
-      return hash_args< std::hash<std::type_index>, std::hash<std::wstring> >( std::type_index(typeid(*this)), text );
-    }
+    // virtual bool equal(const Node *t) const { if(auto tt = dynamic_cast<const Identifier*>(t)) return (text == tt->text); else return false; }
+    // virtual std::size_t hash() const
+    // {
+    //   return hash_args< std::hash<std::type_index>, std::hash<std::wstring> >( std::type_index(typeid(*this)), text );
+    // }
   };
 
   class Operator : public Node

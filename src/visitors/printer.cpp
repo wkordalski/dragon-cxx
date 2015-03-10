@@ -21,18 +21,12 @@
  */
 
 /*
- * Represents a variable
+ * Prints nodes to some output stream
  */
 
-#pragma once
+#include "printer.hpp"
 
 namespace dragon
 {
-  namespace sema
-  {
-    class Variable
-    {
-      //
-    };
-  }
+  //
 }

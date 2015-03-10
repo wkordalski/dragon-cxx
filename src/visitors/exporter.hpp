@@ -59,6 +59,12 @@ namespace dragon
       for(Handle h : v) save(h);
     }
 
+
+    void save(std::unordered_set<Handle> &v)
+    {
+      for(Handle h : v) save(h);
+    }
+
   public:
 
     // Source tokens
