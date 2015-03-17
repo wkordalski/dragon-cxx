@@ -31,4 +31,5 @@
 #include "source.hpp"
 
 #include "syntactic/file.hpp"
+#include "syntactic/use.hpp"
 #include "syntactic/variable.hpp"

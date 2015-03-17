@@ -3,14 +3,21 @@
 #include "../ast/source.hpp"
 
 #include "../ast/syntactic/file.hpp"
+#include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
 
 #include "../ast/semantic/module.hpp"
+#include "../ast/semantic/variable.hpp"
+#include "../ast/semantic/assembly.hpp"
+
+#include "../utils/lookup_table.hpp"
 
 #include <iostream>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
+
+// NEXT FREE TID: 17
 
 namespace dragon
 {
@@ -51,6 +58,22 @@ namespace dragon
     save(n.docstring);
     save(n.declarations);
   }
+  void Exporter::visit(syntax::UseDeclaration &n)
+  {
+    int tid = 11;
+    ar << n.handle() << tid
+       << n.decls;
+
+    save(n.decls);
+  }
+  void Exporter::visit(syntax::UsingNamespaceDeclaration &n)
+  {
+    int tid = 12;
+    ar << n.handle() << tid
+       << n.name;
+
+    save(n.name);
+  }
   void Exporter::visit(syntax::VariablesDeclaration &n)
   {
     int tid = 8;
@@ -78,7 +101,7 @@ namespace dragon
   // Semantic nodes
   void Exporter::visit(Assembly &n)
   {
-    // REMEMBER! Exporting whole assembly shouldn't export all nodes!
+    // REMEMBER! Exporting whole assembly/namespace shouldn't export all nodes!
     // Why?
     // We export a module.
     // So we export some definitions within the module.
@@ -87,6 +110,8 @@ namespace dragon
     // And their containers
     // And we also export Assembly
     // Then we shouldn't export all the other modules.
+		int tid = 16;
+		ar << n.handle() << tid;
   }
   void Exporter::visit(Module &n)
   {
@@ -99,5 +124,40 @@ namespace dragon
 
     save(n.name);
     save(n.decls);
+  }
+  void Exporter::visit ( ModuleSpecification &n )
+  {
+    int tid = 15;
+		ar << n.handle() << tid
+			 << n.name;
+		
+		save(n.name);
+  }
+  void Exporter::visit(sema::Variable &n)
+  {
+    int tid = 14;
+		ar << n.handle() << tid
+			 << n.parent
+			 << n.id
+			 << n.type
+			 << n.value
+			 << n.attributes;
+			 
+		save(n.parent);
+		save(n.id);
+		save(n.type);
+		save(n.value);
+		save(n.attributes);
+  }
+  // Utilities nodes
+  void Exporter::visit(LookupTable &n)
+  {
+    int tid = 13;
+    ar << n.handle() << tid
+       << n.parent
+       << n.places;
+
+    save(n.parent);
+    save(n.places);
   }
 }

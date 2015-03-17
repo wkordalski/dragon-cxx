@@ -24,6 +24,9 @@ namespace dragon
   class File;
   namespace syntax
   {
+    class UseDeclaration;
+    class UsingNamespaceDeclaration;
+
     class VariablesDeclaration;
     class SingleVariableDeclaration;
   }
@@ -33,6 +36,16 @@ namespace dragon
   //
   class Assembly;
   class Module;
+	class ModuleSpecification;
+	namespace sema
+	{
+		class Variable;
+	}
+
+  //
+  // Utilities nodes
+  //
+  class LookupTable;
 
   // Visitor base
   class Visitor
@@ -51,10 +64,16 @@ namespace dragon
     virtual void visit(Dedent &n) {}
     // Syntactic nodes
     virtual void visit(File &n) {}
+    virtual void visit(syntax::UseDeclaration &n) {}
+    virtual void visit(syntax::UsingNamespaceDeclaration &n) {}
     virtual void visit(syntax::VariablesDeclaration &n) {}
     virtual void visit(syntax::SingleVariableDeclaration &n) {}
     // Semantic nodes
     virtual void visit(Assembly &n) {}
     virtual void visit(Module &n) {}
+    virtual void visit(ModuleSpecification &n) {}
+    virtual void visit(sema::Variable &n) {}
+    // Utilities nodes
+    virtual void visit(LookupTable &n) {}
   };
 }

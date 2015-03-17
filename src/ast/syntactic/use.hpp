@@ -21,7 +21,7 @@
  */
 
 /*
- * Represents a variable
+ * `use` syntax construction
  */
 
 #pragma once
@@ -29,20 +29,32 @@
 #include "../../node.hpp"
 #include "../../visitor.hpp"
 
+#include <vector>
+
 namespace dragon
 {
-  namespace sema
+  namespace syntax
   {
-    class Variable : public Node
+    class UseDeclaration : public Node
     {
-		public:
-      Handle id;
-			Handle type;
-			Handle value;
-			Handle parent;
-			std::vector<Handle> attributes;
-			
-      virtual void accept ( Visitor &v ) { v.visit(*this); }
+    public:
+      std::vector<Handle> decls;
+
+      UseDeclaration() = default;
+      UseDeclaration(std::vector<Handle> decls) : decls(decls) {}
+
+      virtual void accept(Visitor &v) { v.visit(*this); }
+    };
+
+    class UsingNamespaceDeclaration : public Node
+    {
+    public:
+      std::vector<Handle> name;
+
+      UsingNamespaceDeclaration() = default;
+      UsingNamespaceDeclaration(std::vector<Handle> name) : name(name) {}
+
+      virtual void accept(Visitor &v) { v.visit(*this); }
     };
   }
 }

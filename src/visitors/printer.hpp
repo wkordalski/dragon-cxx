@@ -12,10 +12,28 @@ namespace dragon
   {
   public:
     std::wostream &out = std::wcout;
+		
+		void print(Handle h) { h->accept(*this); }
 
-    virtual void visit(Identifier &n)
-    {
-      out << "Identifier ["<<n.handle()<<"] ( text = \""<<n.text<<"\" )" << std::endl;
-    }
+		// Source tokens
+    virtual void visit(Identifier &n);
+    //virtual void visit(Operator &n);
+    //virtual void visit(Literal &n);
+    //virtual void visit(Newline &n);
+    //virtual void visit(Indent &n);
+    //virtual void visit(Dedent &n);
+    // Syntactic nodes
+    //virtual void visit(File &n);
+    //virtual void visit(syntax::UseDeclaration &n);
+    //virtual void visit(syntax::UsingNamespaceDeclaration &n);
+    //virtual void visit(syntax::VariablesDeclaration &n);
+    //virtual void visit(syntax::SingleVariableDeclaration &n);
+    // Semantic nodes
+    virtual void visit(Assembly &n);
+    virtual void visit(Module &n);
+    virtual void visit(ModuleSpecification &n);
+    virtual void visit(sema::Variable &n);
+    // Utilities nodes
+    virtual void visit(LookupTable &n);
   };
 }

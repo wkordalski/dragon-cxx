@@ -113,6 +113,7 @@
 %token <token> INTERFACE_KEYWORD "interface"
 %token <token> IS_KEYWORD "is"
 %token <token> LET_KEYWORD "let"
+%token <token> LOCAL_KEYWORD "local"
 %token <token> NAMESPACE_KEYWORD "namespace"
 %token <token> NOT_KEYWORD "not"
 %token <token> OR_KEYWORD "or"
@@ -120,6 +121,7 @@
 %token <token> REF_KEYWORD "ref"
 %token <token> RETURN_KEYWORD "return"
 %token <token> SET_KEYWORD "set"
+%token <token> STATIC_KEYWORD "static"
 %token <token> THEN_KEYWORD "then"
 %token <token> TRACE_KEYWORD "trace"
 %token <token> TRY_KEYWORD "try"
@@ -210,8 +212,10 @@
 
 %type <token> var_single_decl
 
+%type <token> use_declaration_element
+
 %type <list> id_dot_list declaration_block expr_list expr_list_noempty attribute attribute_list attribute_list_noempty var_single_decl_list
-%type <list> module_list
+%type <list> module_list use_declaration_list
 
 %%
 
@@ -485,7 +489,8 @@ declaration
 	}
 	| "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
 	{
-		$$ = make<NamespaceDecl>(*$2, *$5); del($1, $2, $3, $4, $5, $6); }
+		$$ = make<NamespaceDecl>(*$2, *$5); del($1, $2, $3, $4, $5, $6);
+	}
 	| attribute_list "var" var_single_decl_list "[--]"
 	{
 		$$ = make<syntax::VariablesDeclaration>(*$1, *$3, Handle()); del($1,$2,$3,$4);
@@ -494,6 +499,28 @@ declaration
 	{
 		$$ = make<syntax::VariablesDeclaration>(*$1, *$3, *$6); del($1,$2,$3,$4,$5,$6,$7,$8);
 	}
+	| "use" use_declaration_list
+	{
+		$$ = make<syntax::UseDeclaration>(*$2); del($1, $2);
+	}
+	| "import" /* identifier list separated with dot - specify version? */
+	{
+	}
+	| "import" "local" LITERAL
+	{
+	}
+	| "import" "static" LITERAL
+	{
+	}
+	;
+
+use_declaration_element
+	: id_dot_list																{ $$ = make<syntax::UsingNamespaceDeclaration>(*$1); del($1); }
+	/*| "[#]" "=" some_expression_rule_is_here */
+	;
+
+use_declaration_list : use_declaration_element				{ $$ = list(*$1); del($1); }
+	| use_declaration_list "," use_declaration_element	{ $$ = $1; $$->push_back(*$3); del($2,$3); }
 	;
 
 id_dot_list : "[#]"														{ $$ = list(*$1); del($1); }

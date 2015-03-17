@@ -3,10 +3,15 @@
 #include "../ast/source.hpp"
 
 #include "../ast/syntactic/file.hpp"
+#include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
 
 #include "../ast/semantic/assembly.hpp"
 #include "../ast/semantic/module.hpp"
+#include "../ast/semantic/variable.hpp"
+
+#include "../utils/lookup_table.hpp"
+
 
 namespace dragon
 {
@@ -24,6 +29,20 @@ namespace dragon
     {
       accept(n.docstring);
       accept(n.declarations);
+    }
+  }
+  void GC::visit(syntax::UseDeclaration &n)
+  {
+    if(mark(n))
+    {
+      accept(n.decls);
+    }
+  }
+  void GC::visit(syntax::UsingNamespaceDeclaration &n)
+  {
+    if(mark(n))
+    {
+      accept(n.name);
     }
   }
   void GC::visit(syntax::VariablesDeclaration &n)
@@ -58,6 +77,35 @@ namespace dragon
     if(mark(n))
     {
       accept(n.name);
+			accept(n.deps);
+			accept(n.decls);
+    }
+  }
+  void GC::visit ( ModuleSpecification &n )
+  {
+    if(mark(n))
+		{
+			accept(n.name);
+		}
+  }
+  void GC::visit(sema::Variable &n)
+  {
+    if(mark(n))
+		{
+			accept(n.id);
+			accept(n.type);
+			accept(n.value);
+			accept(n.attributes);
+			accept(n.parent);
+		}
+  }
+  // Utilities nodes
+  void GC::visit(LookupTable &n)
+  {
+    if(mark(n))
+    {
+      accept(n.parent);
+      accept(n.places);
     }
   }
 }

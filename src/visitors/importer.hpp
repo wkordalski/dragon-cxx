@@ -44,6 +44,7 @@ namespace dragon
     boost::archive::binary_iarchive ar;
     std::unordered_map<int, int> readdress;
     std::unordered_set<int> required;
+		std::unordered_map<int, std::vector<std::function<void()>>> deferred;
 
     static decode_func decoder[];
 
@@ -64,6 +65,30 @@ namespace dragon
       }
       return Handle(readdress[int(h)]);
     }
+    std::vector<Handle> translate(std::vector<Handle> v)
+		{
+			std::vector<Handle> ret;
+			ret.reserve(v.size());
+			std::transform(v.begin(), v.end(),
+										 std::back_insert_iterator<std::vector<Handle>>(ret),
+										 [this](Handle h){ return translate(h); });
+			return ret;
+		}
+		
+		void defer(Handle h, std::function<void()> f)
+		{
+			if(required.count(int(h)))
+			{
+				if(deferred.count(int(h)))
+					deferred[int(h)].push_back(f);
+				else
+					deferred[int(h)] = {f};
+			}
+			else
+			{
+				f();
+			}
+		}
 
   public:
     /*
@@ -76,6 +101,8 @@ namespace dragon
     virtual void visit(Dedent &n);
     // Syntactic nodes
     virtual void visit(File &n);
+    virtual void visit(syntax::UseDeclaration &n);
+    virtual void visit(syntax::UsingNamespaceDeclaration &n);
     virtual void visit(syntax::VariablesDeclaration &n);
     virtual void visit(syntax::SingleVariableDeclaration &n);
     // Semantic nodes

@@ -23,9 +23,11 @@ set(SOURCES
   src/utils/collect.cpp
   src/utils/manager.cpp
 
+  src/visitors/assembler.cpp
   src/visitors/exporter.cpp
   src/visitors/gc.cpp
   src/visitors/importer.cpp
+  src/visitors/printer.cpp
 )
 
 set(TEST
@@ -75,3 +77,6 @@ target_link_libraries(astdbg dragon)
 
 add_executable(drgc tools/drgc/main.cpp)
 target_link_libraries(drgc dragon)
+
+add_executable(dragonfly tools/dragonfly/main.cpp)
+target_link_libraries(dragonfly dragon)

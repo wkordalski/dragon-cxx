@@ -3,9 +3,14 @@
 #include "../ast/source.hpp"
 
 #include "../ast/syntactic/file.hpp"
+#include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
 
+#include "../ast/semantic/assembly.hpp"
 #include "../ast/semantic/module.hpp"
+#include "../ast/semantic/variable.hpp"
+
+#include "../utils/lookup_table.hpp"
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/string.hpp>
@@ -39,6 +44,32 @@ namespace dragon
   }
 
   template<>
+  void Importer::read<syntax::UseDeclaration>(Handle &h)
+  {
+    auto np = new syntax::UseDeclaration();
+    auto &n = *np;
+    std::vector<Handle> decls;
+    ar >> decls;
+    std::transform(decls.begin(), decls.end(),
+                   std::back_insert_iterator<std::vector<Handle>>(n.decls),
+                   [this](Handle h){return translate(h);});
+    h.set(np);
+  }
+
+  template<>
+  void Importer::read<syntax::UsingNamespaceDeclaration>(Handle &h)
+  {
+    auto np = new syntax::UsingNamespaceDeclaration();
+    auto &n = *np;
+    std::vector<Handle> name;
+    ar >> name;
+    std::transform(name.begin(), name.end(),
+                   std::back_insert_iterator<std::vector<Handle>>(n.name),
+                   [this](Handle h){return translate(h);});
+    h.set(np);
+  }
+
+  template<>
   void Importer::read<syntax::VariablesDeclaration>(Handle &h)
   {
     auto np = new syntax::VariablesDeclaration();
@@ -51,7 +82,7 @@ namespace dragon
     std::transform(decls.begin(), decls.end(),
                    std::back_insert_iterator<std::vector<Handle>>(n.decls),
                    [this](Handle h){return translate(h);});
-   std::transform(attrs.begin(), attrs.end(),
+    std::transform(attrs.begin(), attrs.end(),
                   std::back_insert_iterator<std::vector<Handle>>(n.attrs),
                   [this](Handle h){return translate(h);});
     h.set(np);
@@ -69,23 +100,100 @@ namespace dragon
     n.value = translate(value);
     h.set(np);
   }
+  
+  template<>
+  void Importer::read<Assembly>(Handle &h)
+	{
+		auto np = new Assembly();
+		h.set(np);
+	}
+  
+  template<>
+  void Importer::read<Module>(Handle &h)
+	{
+		auto np = new Module();
+		auto &n = *np;
+		std::vector<Handle> name;
+		std::vector<Handle> decls;
+		ar >> name >> decls;
+		n.name = translate(name);
+		std::transform(decls.begin(), decls.end(),
+                  std::inserter(n.decls, n.decls.begin()),
+                  [this](Handle h){return translate(h);});
+		h.set(np);
+	}
+  
+  template<>
+  void Importer::read<ModuleSpecification>(Handle &h)
+	{
+		auto np = new ModuleSpecification();
+		auto &n = *np;
+		std::vector<Handle> name;
+		ar >> name;
+		std::transform(name.begin(), name.end(),
+                  std::back_insert_iterator<std::vector<Handle>>(n.name),
+                  [this](Handle h){return translate(h);});
+		h.set(np);
+	}
+  
+  template<>
+  void Importer::read<sema::Variable>(Handle &h)
+	{
+		auto np = new sema::Variable();
+		auto &n = *np;
+		Handle id, type, value, parent;
+		std::vector<Handle> attrs;
+		ar >> parent >> id >> type >> value >> attrs;
+		n.parent = translate(parent);
+		n.id = translate(id);
+		n.type = translate(type);
+		n.value = translate(value);
+		std::transform(attrs.begin(), attrs.end(),
+                  std::back_insert_iterator<std::vector<Handle>>(n.attributes),
+                  [this](Handle h){return translate(h);});
+		h.set(np);
+		// set parent!
+		defer(parent, [np, h]()
+		{
+			if(auto tt = np->parent.is<Assembly>()) tt->declarations[np->id] = np->handle();
+		});
+		// if Namespace... do so...
+	}
+
+  template<>
+  void Importer::read<LookupTable>(Handle &h)
+  {
+    auto np = new LookupTable();
+    auto &n = *np;
+    Handle parent;
+    std::vector<Handle> places;
+    ar >> parent >> places;
+    n.parent = translate(parent);
+    std::transform(places.begin(), places.end(),
+                  std::back_insert_iterator<std::vector<Handle>>(n.places),
+                  [this](Handle h){return translate(h);});
+    h.set(np);
+  }
 
   Importer::decode_func Importer::decoder[] =
   {
-    nullptr,
+    nullptr,																							// 0
     &Importer::read<Identifier>,
     nullptr,
     nullptr,
     nullptr,
-    nullptr,
+    nullptr,																							// 5
     nullptr,
     &Importer::read<File>,
     &Importer::read<syntax::VariablesDeclaration>,
     &Importer::read<syntax::SingleVariableDeclaration>,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    &Importer::read<Module>,															// 10
+    &Importer::read<syntax::UseDeclaration>,
+    &Importer::read<syntax::UsingNamespaceDeclaration>,
+    &Importer::read<LookupTable>,
+    &Importer::read<sema::Variable>,
+    &Importer::read<ModuleSpecification>,									// 15
+    &Importer::read<Assembly>
   };
 
 
@@ -114,6 +222,11 @@ namespace dragon
       assert(f && "Should be a proper function - not nullptr");
       if(f) (this->*f)(h);
       required.erase(int(nh));
+			if(deferred.count(int(nh)))
+			{
+				for(auto g : deferred[int(nh)]) g();
+				deferred.erase(int(nh));
+			}
     }
     return ret;
   }

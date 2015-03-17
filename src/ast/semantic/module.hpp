@@ -37,8 +37,10 @@ namespace dragon
   {
   public:
     std::vector<Handle> name;
+		std::vector<Handle> deps;
     std::unordered_set<Handle> decls;
 
+		Module() = default;
     Module(std::vector<Handle> name) : name(name) {}
 
     virtual void accept(Visitor &v) { v.visit(*this); }
@@ -49,5 +51,14 @@ namespace dragon
         return std::equal(name.begin(), name.end(), tt->name.begin(), tt->name.end(), [](Handle a, Handle b) { return a % b; });
       else return false;
     }
+  };
+  
+  /*
+   * Node for specifying dependent modules
+   */
+  class ModuleSpecification : public Node
+  {
+  public:
+    std::vector<Handle> name;
   };
 }

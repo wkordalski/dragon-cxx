@@ -42,8 +42,6 @@ namespace dragon
     operator bool() const { return valid(); }
     bool operator !() const { return !valid(); }
 
-    //Handle operator % (Handle h) const;
-
     template<class T>
     T * is()
     {

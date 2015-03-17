@@ -55,12 +55,14 @@ namespace dragon
         if(tt->text == L"interface") return Parser::token::INTERFACE_KEYWORD;
         if(tt->text == L"is") return Parser::token::IS_KEYWORD;
         if(tt->text == L"let") return Parser::token::LET_KEYWORD;
+				if(tt->text == L"local") return Parser::token::LOCAL_KEYWORD;
         if(tt->text == L"namespace") return Parser::token::NAMESPACE_KEYWORD;
         if(tt->text == L"not") return Parser::token::NOT_KEYWORD;
         if(tt->text == L"or") return Parser::token::OR_KEYWORD;
         if(tt->text == L"raise") return Parser::token::RAISE_KEYWORD;
         if(tt->text == L"return") return Parser::token::RETURN_KEYWORD;
         if(tt->text == L"set") return Parser::token::SET_KEYWORD;
+				if(tt->text == L"static") return Parser::token::STATIC_KEYWORD;
         if(tt->text == L"then") return Parser::token::THEN_KEYWORD;
         if(tt->text == L"trace") return Parser::token::TRACE_KEYWORD;
         if(tt->text == L"try") return Parser::token::TRY_KEYWORD;
