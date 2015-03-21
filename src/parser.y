@@ -489,7 +489,7 @@ declaration
 	}
 	| "namespace" id_dot_list "[--]" "[>>]" declaration_block "[<<]"
 	{
-		$$ = make<NamespaceDecl>(*$2, *$5); del($1, $2, $3, $4, $5, $6);
+		$$ = make<syntax::NamespaceDeclaration>(*$2, *$5); del($1, $2, $3, $4, $5, $6);
 	}
 	| attribute_list "var" var_single_decl_list "[--]"
 	{

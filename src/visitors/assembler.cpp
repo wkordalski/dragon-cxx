@@ -1,12 +1,20 @@
 #include "assembler.hpp"
 
+#include "../node.hpp"
+#include "../visitor.hpp"
+
 #include "../ast/syntactic/file.hpp"
 #include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
+#include "../ast/syntactic/namespace.hpp"
 
 #include "../ast/semantic/assembly.hpp"
-#include "../ast/semantic/variable.hpp"
 #include "../ast/semantic/module.hpp"
+#include "../ast/semantic/namespace.hpp"
+#include "../ast/semantic/variable.hpp"
+
+#include "../queries/get_decl_by_name.hpp"
+#include "../queries/decl_inserter.hpp"
 
 #include "../utils/lookup_table.hpp"
 
@@ -41,6 +49,31 @@ namespace dragon
     lookups.pop();
     containers.pop();
   }
+  void Assembler::visit ( syntax::NamespaceDeclaration &n )
+  {
+		for(auto ih : n.name)
+		{
+			// Check if such namespace exists
+			GetDeclarationByName gdbn;
+			Handle h = gdbn.get(ih, containers.top());
+			if(!h.valid())
+			{
+				h = Handle::make<sema::Namespace>(ih, containers.top());
+				DeclarationToContainerInserter dtci;
+				dtci.insert(h, containers.top());
+			}
+			lookups.push(Handle::make<LookupTable>());
+			containers.push(h);
+		}
+		
+		for(auto h : n.declarations) h->accept(*this);
+		
+		for(auto ih : n.name)
+		{
+			lookups.pop();
+			containers.pop();
+		}
+  }
 
   void Assembler::visit(syntax::UseDeclaration &n)
   {
@@ -72,18 +105,8 @@ namespace dragon
     // set its parent to containers.top()
 		np->parent = containers.top();
     // and add it to the container
-		if(auto tt = containers.top().is<Assembly>()) tt->declarations[n.id] = np->handle();
-		//if(auto tt = containers.top().is<Namespace>()) tt->declarations[n.id] = np->handle();
+		DeclarationToContainerInserter().insert(h, containers.top());
 		// and add to module
 		insert_module.as<Module>()->decls.insert(h);
   }
-
-  /*
-  void Assembler::visit(syntax::NamespaceDeclaration &n)
-  {
-    // scan for using-namespaces
-    // and push a lookup table
-  }
-  */
-
 }

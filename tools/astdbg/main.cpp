@@ -30,35 +30,39 @@ int main(int argc, char *argv[])
         files.push_back(argv[i]);
       }
     }
-    dragon::Assembler amb;
-		std::vector<dragon::Handle> filehandles;
-		std::transform(fileroots.begin(), fileroots.end(), std::inserter(filehandles, filehandles.begin()),
-			[](dragon::Root &h){ return dragon::Handle(h); }
-		);
-		dragon::Root mod = amb.new_module();
-		amb.assemble(filehandles, mod);
-    dragon::Root ass = amb.get_assembly();
-		
-		dragon::Root as2;
-		
+    dragon::Root ass;
+    // Assembling working with namespaces
+    if(true)
 		{
-			std::ofstream ofs("export.dex");
-			dragon::Exporter dex(ofs);
-			dex.serialize(std::vector<dragon::Handle>{dragon::Handle(mod)});
-			ofs.close();
-			dragon::gc.run();
+			dragon::Assembler amb;
+			std::vector<dragon::Handle> filehandles;
+			std::transform(fileroots.begin(), fileroots.end(), std::inserter(filehandles, filehandles.begin()),
+				[](dragon::Root &h){ return dragon::Handle(h); }
+			);
+			dragon::Root mod = amb.new_module();
+			amb.assemble(filehandles, mod);
+			ass = amb.get_assembly();
+			
+			dragon::Root as2;
+			
+			{
+				std::ofstream ofs("export.dex");
+				dragon::Exporter dex(ofs);
+				dex.serialize(std::vector<dragon::Handle>{dragon::Handle(mod)});
+				ofs.close();
+				dragon::gc.run();
+			}
+			{
+				std::ifstream ifs("export.dex");
+				dragon::Importer dim(ifs);
+				auto v = dim.deserialize();
+				ifs.close();
+				assert(v.size() == 1);
+				as2 = v[0];
+			}
+			
+			std::wcout << "Imported module: " << as2 << std::endl;
 		}
-		{
-			std::ifstream ifs("export.dex");
-			dragon::Importer dim(ifs);
-			auto v = dim.deserialize();
-			ifs.close();
-			assert(v.size() == 1);
-			as2 = v[0];
-		}
-		
-		std::wcout << "Imported module: " << as2 << std::endl;
-		
 		int cmd;
     std::wcout << ">> ";
 		dragon::NodePrinter p;
@@ -107,8 +111,10 @@ int main(int argc, char *argv[])
   }
   */
   {
+		std::wcout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b                \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" << std::flush;
     dragon::gc.run();
     dragon::Handle::cleanup();
+		std::wcout << "-- exitted --" << std::endl;
     return 0;
   }
 	return 0;

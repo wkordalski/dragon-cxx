@@ -29,6 +29,7 @@
 #include "../ast/semantic/assembly.hpp"
 #include "../ast/semantic/module.hpp"
 #include "../ast/semantic/variable.hpp"
+#include "../ast/semantic/namespace.hpp"
 
 #include "../utils/lookup_table.hpp"
 
@@ -46,7 +47,7 @@ namespace dragon
 		out << "Assembly ["<<n.handle()<<"] ( modules = [ ";
 		for(auto h : n.modules) out << h << " ";
 		out << "], declarations = [ ";
-		for(auto p : n.declarations) out << "<" << p.first << ", " << p.second << "> ";
+		for(auto h : n.declarations) out << h << " ";
 		out << "] )" << std::endl;
 	}
   void NodePrinter::visit ( Module &n )
@@ -67,6 +68,14 @@ namespace dragon
 		for(auto h : n.name) out << h << " ";
 		out << "] )" << std::endl;
   }
+  void NodePrinter::visit ( sema::Namespace &n )
+  {
+    out << "sema::Namespace [" << n.handle() << "] "
+				<< "( id = " << n.id << ", parent = " << n.parent
+				<< ", declarations = [ ";
+		for(auto h : n.declarations) out << h << " ";
+		out << "] )" << std::endl;
+  }
   void NodePrinter::visit ( sema::Variable &n )
   {
     out << "sema::Variable [" << n.handle() << "] "
@@ -80,5 +89,4 @@ namespace dragon
   {
     out << "LookupTable [" << n.handle() << "]" << std::endl;
   }
-
 }

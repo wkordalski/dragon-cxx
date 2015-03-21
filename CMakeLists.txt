@@ -13,13 +13,16 @@ set(SOURCES
 
   src/ast/builtins/integer.cpp
 
-  src/ast/declarations/variable.cpp
-
   src/lexer/comment_remover.cpp
   src/lexer/lexer.cpp
   src/lexer/scanner.cpp
   src/lexer/tokenizer.cpp
 
+	src/queries/comparer.cpp
+	src/queries/decl_inserter.cpp
+	src/queries/get_decl_by_name.cpp
+	src/queries/get_decl_id.cpp
+	
   src/utils/collect.cpp
   src/utils/manager.cpp
 

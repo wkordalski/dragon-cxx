@@ -32,6 +32,7 @@ namespace dragon
   public:
     // Syntactic nodes
     virtual void visit(File &n);
+		virtual void visit(syntax::NamespaceDeclaration &n);
     virtual void visit(syntax::UseDeclaration &n);
     virtual void visit(syntax::UsingNamespaceDeclaration &n);
     virtual void visit(syntax::VariablesDeclaration &n);

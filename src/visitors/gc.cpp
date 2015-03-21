@@ -5,10 +5,12 @@
 #include "../ast/syntactic/file.hpp"
 #include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
+#include "../ast/syntactic/namespace.hpp"
 
 #include "../ast/semantic/assembly.hpp"
 #include "../ast/semantic/module.hpp"
 #include "../ast/semantic/variable.hpp"
+#include "../ast/semantic/namespace.hpp"
 
 #include "../utils/lookup_table.hpp"
 
@@ -31,6 +33,15 @@ namespace dragon
       accept(n.declarations);
     }
   }
+  void GC::visit ( syntax::NamespaceDeclaration &n )
+  {
+    if(mark(n))
+		{
+			accept(n.name);
+			accept(n.declarations);
+		}
+  }
+
   void GC::visit(syntax::UseDeclaration &n)
   {
     if(mark(n))
@@ -86,6 +97,15 @@ namespace dragon
     if(mark(n))
 		{
 			accept(n.name);
+		}
+  }
+  void GC::visit ( sema::Namespace &n )
+  {
+    if(mark(n))
+		{
+			accept(n.id);
+			accept(n.parent);
+			accept(n.declarations);
 		}
   }
   void GC::visit(sema::Variable &n)

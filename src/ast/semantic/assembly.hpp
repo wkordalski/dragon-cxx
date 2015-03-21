@@ -9,7 +9,7 @@ namespace dragon
   {
   public:
     std::unordered_set<Handle> modules;
-    std::unordered_map<Handle, Handle> declarations;
+    std::unordered_set<Handle> declarations;
 
     virtual void accept(Visitor &v){ v.visit(*this); }
   };

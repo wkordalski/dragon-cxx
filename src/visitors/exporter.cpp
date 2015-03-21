@@ -5,10 +5,12 @@
 #include "../ast/syntactic/file.hpp"
 #include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
+#include "../ast/syntactic/namespace.hpp"
 
 #include "../ast/semantic/module.hpp"
 #include "../ast/semantic/variable.hpp"
 #include "../ast/semantic/assembly.hpp"
+#include "../ast/semantic/namespace.hpp"
 
 #include "../utils/lookup_table.hpp"
 
@@ -17,7 +19,7 @@
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 
-// NEXT FREE TID: 17
+// NEXT FREE TID: 19
 
 namespace dragon
 {
@@ -57,6 +59,16 @@ namespace dragon
 
     save(n.docstring);
     save(n.declarations);
+  }
+  void Exporter::visit ( syntax::NamespaceDeclaration &n )
+  {
+    int tid = 17;
+		ar << n.handle() << tid
+			 << n.name
+			 << n.declarations;
+			 
+		save(n.name);
+		save(n.declarations);
   }
   void Exporter::visit(syntax::UseDeclaration &n)
   {
@@ -132,6 +144,16 @@ namespace dragon
 			 << n.name;
 		
 		save(n.name);
+  }
+  void Exporter::visit ( sema::Namespace &n )
+  {
+    int tid = 18;
+		ar << n.handle() << tid
+			 << n.parent
+			 << n.id;
+			 
+		save(n.id);
+		save(n.parent);
   }
   void Exporter::visit(sema::Variable &n)
   {

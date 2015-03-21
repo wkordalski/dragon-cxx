@@ -90,25 +90,6 @@ namespace dragon
 			}
 		}
 
-  public:
-    /*
-    // Source tokens
-    virtual void visit(Identifier &n);
-    virtual void visit(Operator &n);
-    virtual void visit(Literal &n);
-    virtual void visit(Newline &n);
-    virtual void visit(Indent &n);
-    virtual void visit(Dedent &n);
-    // Syntactic nodes
-    virtual void visit(File &n);
-    virtual void visit(syntax::UseDeclaration &n);
-    virtual void visit(syntax::UsingNamespaceDeclaration &n);
-    virtual void visit(syntax::VariablesDeclaration &n);
-    virtual void visit(syntax::SingleVariableDeclaration &n);
-    // Semantic nodes
-    virtual void visit(Assembly &n);
-    virtual void visit(Module &n);
-    */
   protected:
     template<class T>
     void read(Handle &h);

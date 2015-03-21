@@ -5,10 +5,14 @@
 #include "../ast/syntactic/file.hpp"
 #include "../ast/syntactic/use.hpp"
 #include "../ast/syntactic/variable.hpp"
+#include "../ast/syntactic/namespace.hpp"
 
 #include "../ast/semantic/assembly.hpp"
 #include "../ast/semantic/module.hpp"
+#include "../ast/semantic/namespace.hpp"
 #include "../ast/semantic/variable.hpp"
+
+#include "../queries/decl_inserter.hpp"
 
 #include "../utils/lookup_table.hpp"
 
@@ -43,6 +47,18 @@ namespace dragon
     h.set(np);
   }
 
+  template<>
+  void Importer::read<syntax::NamespaceDeclaration>(Handle &h)
+	{
+		auto np = new syntax::NamespaceDeclaration();
+		auto &n = *np;
+		std::vector<Handle> name, decls;
+		ar >> name >> decls;
+		n.name = translate(name);
+		n.declarations = translate(decls);
+		h.set(np);
+	}
+  
   template<>
   void Importer::read<syntax::UseDeclaration>(Handle &h)
   {
@@ -137,6 +153,22 @@ namespace dragon
 	}
   
   template<>
+  void Importer::read<sema::Namespace>(Handle &h)
+	{
+		auto np = new sema::Namespace();
+		auto &n = *np;
+		Handle id, parent;
+		ar >> parent >> id;
+		n.parent = translate(parent);
+		n.id = translate(id);
+		h.set(np);
+		defer(parent, [np]()
+		{
+			DeclarationToContainerInserter().insert(np->handle(), np->parent);
+		});
+	}
+  
+  template<>
   void Importer::read<sema::Variable>(Handle &h)
 	{
 		auto np = new sema::Variable();
@@ -153,11 +185,10 @@ namespace dragon
                   [this](Handle h){return translate(h);});
 		h.set(np);
 		// set parent!
-		defer(parent, [np, h]()
+		defer(parent, [np]()
 		{
-			if(auto tt = np->parent.is<Assembly>()) tt->declarations[np->id] = np->handle();
+			DeclarationToContainerInserter().insert(np->handle(), np->parent);
 		});
-		// if Namespace... do so...
 	}
 
   template<>
@@ -193,7 +224,9 @@ namespace dragon
     &Importer::read<LookupTable>,
     &Importer::read<sema::Variable>,
     &Importer::read<ModuleSpecification>,									// 15
-    &Importer::read<Assembly>
+    &Importer::read<Assembly>,
+		&Importer::read<syntax::NamespaceDeclaration>,
+		&Importer::read<sema::Namespace>
   };
 
 
