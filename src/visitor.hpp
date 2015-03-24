@@ -41,7 +41,7 @@ namespace dragon
   //
   class Assembly;
   class Module;
-	class ModuleSpecification;
+	class ModuleName;
 	namespace sema
 	{
 		class Namespace;
@@ -78,7 +78,7 @@ namespace dragon
     // Semantic nodes
     virtual void visit(Assembly &n) {}
     virtual void visit(Module &n) {}
-    virtual void visit(ModuleSpecification &n) {}
+    virtual void visit(ModuleName &n) {}
     virtual void visit(sema::Namespace &n) {}
     virtual void visit(sema::Variable &n) {}
     // Utilities nodes

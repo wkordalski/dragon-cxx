@@ -55,10 +55,12 @@ namespace dragon
     int tid = 7;
     ar << n.handle() << tid
        << n.docstring
-       << n.declarations;
+       << n.declarations
+       << n.filename;
 
     save(n.docstring);
     save(n.declarations);
+    save(n.filename);
   }
   void Exporter::visit ( syntax::NamespaceDeclaration &n )
   {
@@ -129,15 +131,21 @@ namespace dragon
   {
     int tid = 10;
     std::vector<Handle> decls;
-    std::transform(n.decls.begin(), n.decls.end(), std::back_insert_iterator<std::vector<Handle>>(decls), [](Handle h){return h;});
+    std::vector<Handle> deps;
+    std::transform(n.decls.begin(), n.decls.end(), std::inserter(decls, decls.end()), [](Handle h){return h;});
+    std::transform(n.deps.begin(), n.deps.end(), std::inserter(deps, deps.end()), [](Handle h){return h;});
     ar << n.handle() << tid
        << n.name
+       << n.assembly
+       << deps
        << decls;
 
     save(n.name);
+    save(n.assembly);
+    save(n.deps);
     save(n.decls);
   }
-  void Exporter::visit ( ModuleSpecification &n )
+  void Exporter::visit ( ModuleName &n )
   {
     int tid = 15;
 		ar << n.handle() << tid

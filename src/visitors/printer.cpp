@@ -53,15 +53,13 @@ namespace dragon
   void NodePrinter::visit ( Module &n )
   {
     out << "Module ["<<n.handle()<<"] "
-				<< "( name = [ ";
-		for(auto h : n.name) out << h << " ";
-		out << "], dependencies = [ ";
+				<< "( name = "<< n.name<<", dependencies = [ ";
 		for(auto h : n.deps) out << h << " ";
 		out << "], declarations = [ ";
 		for(auto h : n.decls) out << h << " ";
 		out << "] )" << std::endl;
   }
-  void NodePrinter::visit ( ModuleSpecification &n )
+  void NodePrinter::visit ( ModuleName &n )
   {
     out << "ModuleSpecification ["<<n.handle()<<"] "
 				<< "( name = [ ";

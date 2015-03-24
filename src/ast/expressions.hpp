@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../node.hpp"
-#include "declarations/alias.hpp"
 
 namespace dragon
 {

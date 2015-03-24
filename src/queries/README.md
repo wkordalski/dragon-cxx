@@ -1,4 +1,4 @@
 Querying visitors
 =================
 
-(TODO)
+Simple queries for nodes working as visitors (uses node's accept method).

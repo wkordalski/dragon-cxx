@@ -16,7 +16,7 @@ TEST(ParserTest, Sample)
   std::wistringstream ss(code);
   dragon::FileScanner sc(ss);
   dragon::Handle pr;
-  dragon::Parser sp(sc, pr);
+  dragon::Parser sp(sc, pr, dragon::Handle::make<dragon::Literal>(L"myfile"));
   //sp.set_debug_level(1);
   ASSERT_EQ(sp.parse(), 0);
 }

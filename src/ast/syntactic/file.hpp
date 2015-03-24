@@ -9,10 +9,11 @@ namespace dragon
   public:
     Handle docstring = Handle();
     std::vector<Handle> declarations;
+    Handle filename;
 
     File() {}
-    File(std::vector<Handle> decls, Handle doc = Handle())
-      : docstring(doc), declarations(decls) {}
+    File(Handle filename, std::vector<Handle> decls, Handle doc = Handle())
+      : docstring(doc), declarations(decls), filename(filename) {}
 
     virtual void accept(Visitor &v) { v.visit(*this); }
   };

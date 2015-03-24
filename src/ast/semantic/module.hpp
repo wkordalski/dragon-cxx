@@ -36,29 +36,32 @@ namespace dragon
   class Module : public Node
   {
   public:
-    std::vector<Handle> name;
-		std::vector<Handle> deps;
+    Handle name;
+    Handle assembly;
+		std::unordered_set<Handle> deps;
     std::unordered_set<Handle> decls;
 
 		Module() = default;
-    Module(std::vector<Handle> name) : name(name) {}
+    Module(Handle name) : name(name) {}
 
     virtual void accept(Visitor &v) { v.visit(*this); }
-    virtual std::size_t hash() const { return hash_sequence<std::hash<Handle>>(name); }
-    virtual bool equal(const Node *t) const
-    {
-      if(auto tt = dynamic_cast<const Module*>(t))
-        return std::equal(name.begin(), name.end(), tt->name.begin(), tt->name.end(), [](Handle a, Handle b) { return a % b; });
-      else return false;
-    }
   };
   
   /*
-   * Node for specifying dependent modules
+   * Node for specifying name of module
    */
-  class ModuleSpecification : public Node
+  class ModuleName : public Node
   {
   public:
     std::vector<Handle> name;
+  };
+  
+  /*
+   * Node for specyfying name of module as a set of compiled files
+   */
+  class ModuleFileName : public Node
+  {
+  public:
+    std::vector<Handle> files;
   };
 }

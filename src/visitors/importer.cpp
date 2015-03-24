@@ -38,12 +38,12 @@ namespace dragon
     auto np = new File();
     auto &n = *np;
     Handle docstring;
+    Handle filename;
     std::vector<Handle> declarations;
-    ar >>  docstring >> declarations;
+    ar >>  docstring >> declarations >> filename;
     n.docstring = translate(docstring);
-    std::transform(declarations.begin(), declarations.end(),
-                   std::back_insert_iterator<std::vector<Handle>>(n.declarations),
-                   [this](Handle h){return translate(h);});
+    n.declarations = translate(declarations);
+    n.filename = translate(filename);
     h.set(np);
   }
 
@@ -129,26 +129,30 @@ namespace dragon
 	{
 		auto np = new Module();
 		auto &n = *np;
-		std::vector<Handle> name;
+    Handle name;
+    Handle assm;
 		std::vector<Handle> decls;
-		ar >> name >> decls;
+    std::vector<Handle> deps;
+		ar >> name >> assm >> deps >> decls;
 		n.name = translate(name);
+    n.assembly = translate(assm);
 		std::transform(decls.begin(), decls.end(),
                   std::inserter(n.decls, n.decls.begin()),
+                  [this](Handle h){return translate(h);});
+    std::transform(deps.begin(), deps.end(),
+                  std::inserter(n.deps, n.deps.begin()),
                   [this](Handle h){return translate(h);});
 		h.set(np);
 	}
   
   template<>
-  void Importer::read<ModuleSpecification>(Handle &h)
+  void Importer::read<ModuleName>(Handle &h)
 	{
-		auto np = new ModuleSpecification();
+		auto np = new ModuleName();
 		auto &n = *np;
 		std::vector<Handle> name;
 		ar >> name;
-		std::transform(name.begin(), name.end(),
-                  std::back_insert_iterator<std::vector<Handle>>(n.name),
-                  [this](Handle h){return translate(h);});
+		n.name = translate(name);
 		h.set(np);
 	}
   
@@ -223,7 +227,7 @@ namespace dragon
     &Importer::read<syntax::UsingNamespaceDeclaration>,
     &Importer::read<LookupTable>,
     &Importer::read<sema::Variable>,
-    &Importer::read<ModuleSpecification>,									// 15
+    &Importer::read<ModuleName>,									// 15
     &Importer::read<Assembly>,
 		&Importer::read<syntax::NamespaceDeclaration>,
 		&Importer::read<sema::Namespace>

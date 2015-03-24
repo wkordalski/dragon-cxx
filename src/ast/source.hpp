@@ -48,6 +48,9 @@ namespace dragon
   public:
     std::wstring text;
     Place place;
+    
+    Literal() = default;
+    Literal(std::wstring text) : text(text) {}
 
   public:
     virtual void accept(Visitor &v) { v.visit(*this); }

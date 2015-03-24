@@ -7,6 +7,7 @@
 %define parser_class_name {Parser}
 %parse-param { dragon::Scanner &scanner }
 %parse-param { dragon::Handle &root }
+%parse-param { dragon::Handle filename }
 %lex-param   { dragon::Scanner &scanner }
 
 
@@ -219,8 +220,8 @@
 
 %%
 
-program : declaration_block											{ root = Handle(new File(*$1)); del($1); }
-	| "[@]" "[--]" declaration_block							{ root = Handle(new File(*$3, *$1)); del($1,$2,$3); }
+program : declaration_block											{ root = Handle::make<File>(filename, *$1); del($1); }
+	| "[@]" "[--]" declaration_block							{ root = Handle::make<File>(filename, *$3, *$1); del($1,$2,$3); }
 	;
 
 /* ------------------------------------------------------------------------------------------------------ */

@@ -31,6 +31,7 @@ namespace dragon
     {
       accept(n.docstring);
       accept(n.declarations);
+      accept(n.filename);
     }
   }
   void GC::visit ( syntax::NamespaceDeclaration &n )
@@ -88,11 +89,12 @@ namespace dragon
     if(mark(n))
     {
       accept(n.name);
+      accept(n.assembly);
 			accept(n.deps);
 			accept(n.decls);
     }
   }
-  void GC::visit ( ModuleSpecification &n )
+  void GC::visit ( ModuleName &n )
   {
     if(mark(n))
 		{
