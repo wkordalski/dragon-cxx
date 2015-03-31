@@ -31,6 +31,15 @@ namespace dragon
     ar >> n.text;
     h.set(np);
   }
+  
+  template<>
+  void Importer::read<Literal>(Handle &h)
+  {
+    auto np = new Literal();
+    auto &n = *np;
+    ar >> n.text;
+    h.set(np);
+  }
 
   template<>
   void Importer::read<File>(Handle &h)
@@ -215,7 +224,7 @@ namespace dragon
     nullptr,																							// 0
     &Importer::read<Identifier>,
     nullptr,
-    nullptr,
+    &Importer::read<Literal>,
     nullptr,
     nullptr,																							// 5
     nullptr,

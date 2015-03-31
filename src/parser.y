@@ -95,14 +95,21 @@
 %token <token> AND_KEYWORD "and"
 %token <token> AS_KEYWORD "as"
 %token <token> ASSERT_KEYWORD "assert"
+%token <token> BASE_KEYWORD "base"
 %token <token> BREAK_KEYWORD "break"
 %token <token> CLASS_KEYWORD "class"
+%token <token> CONCEPT_KEYWORD "concept"
+%token <token> CONST_KEYWORD "const"
 %token <token> CONTINUE_KEYWORD "continue"
 %token <token> CUE_KEYWORD "cue"
 %token <token> DEF_KEYWORD "def"
+%token <token> DEFAULT_KEYWORD "default"
+%token <token> DELETE_KEYWORD "delete"
 %token <token> ELIF_KEYWORD "elif"
 %token <token> ELSE_KEYWORD "else"
+%token <token> ENSURE_KEYWORD "ensure"
 %token <token> ENUM_KEYWORD "enum"
+%token <token> EVENT_KEYWORD "event"
 %token <token> EXCEPT_KEYWORD "except"
 %token <token> FINALLY_KEYWORD "finally"
 %token <token> FOR_KEYWORD "for"
@@ -112,25 +119,38 @@
 %token <token> IMPORT_KEYWORD "import"
 %token <token> IN_KEYWORD "in"
 %token <token> INTERFACE_KEYWORD "interface"
+%token <token> INVARIANT_KEYWORD "invariant"
 %token <token> IS_KEYWORD "is"
 %token <token> LET_KEYWORD "let"
 %token <token> LOCAL_KEYWORD "local"
+%token <token> MIXIN_KEYWORD "mixin"
 %token <token> NAMESPACE_KEYWORD "namespace"
+%token <token> NEW_TOKEN "new"
 %token <token> NOT_KEYWORD "not"
 %token <token> OR_KEYWORD "or"
+%token <token> PARTIAL_KEYWORD "partial"
+%token <token> PASS_KEYWORD "pass"
+%token <token> PRIVATE_KEYWORD "private"
+%token <token> PRO_KEYWORD "pro"
+%token <token> PROTECTED_KEYWORD "protected"
+%token <token> PUBLIC_KEYWORD "public"
 %token <token> RAISE_KEYWORD "raise"
-%token <token> REF_KEYWORD "ref"
+%token <token> REQUIRE_KEYWORD "require"
 %token <token> RETURN_KEYWORD "return"
+%token <token> SELF_KEYWORD "self"
 %token <token> SET_KEYWORD "set"
 %token <token> STATIC_KEYWORD "static"
+%token <token> TEST_KEYWORD "test"
 %token <token> THEN_KEYWORD "then"
 %token <token> TRACE_KEYWORD "trace"
 %token <token> TRY_KEYWORD "try"
 %token <token> TYPE_KEYWORD "type"
 %token <token> USE_KEYWORD "use"
 %token <token> VAR_KEYWORD "var"
+%token <token> VIRTUAL_KEYWORD "virtual"
 %token <token> WHERE_KEYWORD "where"
 %token <token> WHILE_KEYWORD "while"
+%token <token> WITH_KEYWORD "with"
 %token <token> YIELD_KEYWORD "yield"
 
 %token <token> AMPERSAND "&"
@@ -201,7 +221,7 @@
 %token <token> TRIPPLE_LESSER "<<<"
 %token <token> TRIPPLE_LESSER_EQUAL "<<<="
 
-%type <token>  expr0  expr1  expr2  expr3  expr4  expr5  expr6  expr7  expr8  expr9
+%type <token>  expr0  expr1 expr1a expr1b  expr2  expr3  expr4  expr5  expr6  expr7  expr8  expr9
 %type <token> expr10 expr11 expr12 expr13 expr14 expr15 expr16 expr17 expr18 expr19 expr15a
 %type <token> expr20 expr21 expr22
 
@@ -242,12 +262,22 @@ expr1 : expr0																		{ $$ = $1; }
 	| expr1 "." expr0															{ $$ = make<MemberOperator>(*$1, *$3); del($1,$2,$3); }
 	| expr1 "++"																	{ $$ = make<UnaryPostfixUserOperator>("++", *$2); del($1,$2); }
 	| expr1 "--"																	{ $$ = make<UnaryPostfixUserOperator>("--", *$2); del($1,$2); }
-	| expr1 "*"  /* pointer type */								{ $$ = make<PointerTypeOperator>(*$1); del($1,$2);}
 	| expr1 "(" expr_list ")"											{ $$ = make<CallOperator>(*$1, *$3); del($1,$2,$3,$4);}
 	| expr1 "[" expr_list "]"											{ $$ = make<IndexOperator>(*$1, *$3); del($1,$2,$3,$4);}
 	;
 
-expr2 : expr1																		{ $$ = $1; }
+expr1a : expr1
+  | "const" expr1
+  ;
+
+expr1b : expr1a
+  | expr1b "*"  /* pointer type */              { $$ = make<PointerTypeOperator>(*$1); del($1,$2);}
+  | expr1b "const" "*"                          { assert(false); /* TODO */ }
+  | expr1b "&"  /* reference type */            { /* ReferenceTypeOperator... */ assert(false); }
+  | expr1b "&&" /* right reference */           { /* TODO */ }
+  ;
+	
+expr2 : expr1b																	{ $$ = $1; }
 	| "++" expr2																	{ $$ = make<UnaryPrefixUserOperator>("++", *$2); del($1,$2); }
 	| "--" expr2																	{ $$ = make<UnaryPrefixUserOperator>("--", *$2); del($1,$2); }
 	;
