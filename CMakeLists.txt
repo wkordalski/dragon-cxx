@@ -2,36 +2,17 @@ project (Dragon)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(BISON REQUIRED)
-find_package(Boost REQUIRED program_options serialization)
+find_package(Boost REQUIRED filesystem program_options serialization)
 find_package(GTest)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Threads)
-
 
 set(SOURCES
   src/ast/source.cpp
 
   src/ast/builtins/integer.cpp
 
-  src/lexer/comment_remover.cpp
-  src/lexer/lexer.cpp
-  src/lexer/scanner.cpp
-  src/lexer/tokenizer.cpp
-
-	src/queries/comparer.cpp
-	src/queries/decl_inserter.cpp
-	src/queries/get_decl_by_name.cpp
-	src/queries/get_decl_id.cpp
-	
-  src/utils/collect.cpp
   src/utils/manager.cpp
-
-  src/visitors/assembler.cpp
-  src/visitors/exporter.cpp
-  src/visitors/gc.cpp
-  src/visitors/importer.cpp
-  src/visitors/loader.cpp
-  src/visitors/printer.cpp
 )
 
 set(TEST
@@ -44,8 +25,14 @@ set(TEST
   test/tokenizer.cpp
 )
 
+add_subdirectory(src/lexer)
+add_subdirectory(src/queries)
+add_subdirectory(src/user)
+add_subdirectory(src/visitors)
+
+
 # if DEBUG
-  add_definitions(-g -Wall -DYYDEBUG)
+#  add_definitions(-g -Wall -DYYDEBUG)
 # endif
 add_definitions (-std=c++14)
 
@@ -67,7 +54,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 bison_target(parser src/parser.y ${PROJECT_BINARY_DIR}/parser.cpp)
 llvm_map_components_to_libnames(LLVM_LIBRARIES core codegen)
 add_library(dragon SHARED ${SOURCES} ${BISON_parser_OUTPUTS})
-target_link_libraries(dragon ${LLVM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARY})
+target_link_libraries(dragon ${LLVM_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
 
 if(GTEST_FOUND)
   add_executable(utest ${TEST})
@@ -83,4 +70,4 @@ add_executable(drgc tools/drgc/main.cpp)
 target_link_libraries(drgc dragon)
 
 add_executable(dragonfly tools/dragonfly/main.cpp)
-target_link_libraries(dragonfly dragon)
+target_link_libraries(dragonfly dragon ${Boost_PROGRAM_OPTIONS_LIBRARY})

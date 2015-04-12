@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../node.hpp"
-#include "../utils/collect.hpp"
 
 namespace dragon
 {
