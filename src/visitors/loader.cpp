@@ -33,7 +33,7 @@ namespace dragon {
   //
   void Loader::visit ( Identifier &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Identifier();
     node.set(np);
     auto &m = *np;
@@ -44,7 +44,7 @@ namespace dragon {
   
   void Loader::visit ( Literal &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Literal();
     node.set(np);
     auto &m = *np;
@@ -63,7 +63,7 @@ namespace dragon {
   
   void Loader::visit ( Module &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Module();
     node.set(np);
     auto &m = *np;
@@ -76,7 +76,7 @@ namespace dragon {
   
   void Loader::visit ( ModuleName &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new ModuleName();
     node.set(np);
     auto &m = *np;
@@ -86,7 +86,7 @@ namespace dragon {
   
   void Loader::visit ( ModuleFileName &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new ModuleFileName();
     node.set(np);
     auto &m = *np;
@@ -98,7 +98,7 @@ namespace dragon {
   {
     // Should optionally copy Namespace if no such exists...
     // firstly check if parent exists...
-    Root parent = copy(n.parent);
+    HeapRoot parent = copy(n.parent);
     // check if such namespace exists
     GetDeclarationByName gdbn;
     Handle mem = gdbn.get(n.id, parent);
@@ -110,7 +110,7 @@ namespace dragon {
     else
     {
       /* Create new namespace */
-      Root node = translate(n.handle());
+      HeapRoot node = translate(n.handle());
       auto *np = new sema::Namespace();
       node.set(np);
       auto &m = *np;
@@ -123,7 +123,7 @@ namespace dragon {
 
   void Loader::visit ( sema::Variable &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new sema::Variable();
     node.set(np);
     auto &m = *np;

@@ -6,7 +6,7 @@
 namespace dragon {
 	class Comparer : public Visitor
 	{
-		Root arg;
+		HeapRoot arg;
 		bool ret;
 	public:
 		bool compare(Handle g, Handle h)

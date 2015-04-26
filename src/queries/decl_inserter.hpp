@@ -6,7 +6,7 @@
 namespace dragon {
 	class DeclarationToContainerInserter : public Visitor
 	{
-		Root decl;
+		HeapRoot decl;
 	public:
 		void insert(Handle declaration, Handle container)
 		{

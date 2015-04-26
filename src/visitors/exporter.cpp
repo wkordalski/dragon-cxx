@@ -29,10 +29,10 @@ namespace dragon
     save(v);
   }
 
-  void Exporter::serialize(std::vector<Root> v)
+  void Exporter::serialize(std::vector<HeapRoot> v)
   {
     HVector mitm;
-    std::transform(v.begin(), v.end(), std::back_inserter(mitm), [](Root r){return Handle(r);});
+    std::transform(v.begin(), v.end(), std::back_inserter(mitm), [](HeapRoot r){return Handle(r);});
     serialize(mitm);
   }
 

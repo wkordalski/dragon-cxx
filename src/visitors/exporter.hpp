@@ -44,7 +44,7 @@ namespace dragon
     Exporter(std::ostream &out) : ar(out) {}
 
     void serialize( dragon::HVector v );
-    void serialize(std::vector<Root> v);
+    void serialize(std::vector<HeapRoot> v);
 
   protected:
     void save(Handle h)

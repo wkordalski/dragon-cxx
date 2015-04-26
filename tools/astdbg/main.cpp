@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   dragon::memory_limit(200);
   auto &memman = dragon::user::Memory::get();
   {
-    std::vector<drg::Root> fileroots;
+    std::vector<drg::HeapRoot> fileroots;
     std::vector<char*> files;
     for(int i = 1; i < argc; i++)
     {
@@ -36,20 +36,20 @@ int main(int argc, char *argv[])
         files.push_back(argv[i]);
       }
     }
-    drg::Root ass;
+    drg::HeapRoot ass;
     // Assembling working with namespaces
     if(true)
 		{
 			dragon::Assembler amb;
 			dragon::HVector filehandles;
 			std::transform(fileroots.begin(), fileroots.end(), std::inserter(filehandles, filehandles.begin()),
-				[](drg::Root &h){ return drg::Handle(h); }
+				[](drg::HeapRoot &h){ return drg::Handle(h); }
 			);
-			drg::Root mod = amb.new_module();
+			drg::HeapRoot mod = amb.new_module();
 			amb.assemble(filehandles, mod);
 			ass = amb.get_assembly();
 			
-			drg::Root as2;
+			drg::HeapRoot as2;
 			
 			{
         std::cout << "Exporting..." <<std::endl;

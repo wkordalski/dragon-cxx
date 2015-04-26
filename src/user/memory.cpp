@@ -41,7 +41,7 @@ namespace dragon {
         }
         Importer importer(ifs);
         HVector ret = importer.deserialize();
-        std::vector<Root> rrt;
+        std::vector<HeapRoot> rrt;
         rrt.reserve(ret.size());
         for(Handle h : ret) rrt.push_back(h);
         files[filename.wstring()] = cache_counter;
@@ -62,7 +62,7 @@ namespace dragon {
       // 1) Make copy
       Copier copier;
       HVector ret = copier.copy(handle);
-      std::vector<Root> rrt;
+      std::vector<HeapRoot> rrt;
       rrt.reserve(ret.size());
       for(Handle h : ret) rrt.push_back(h);
       // 2) Save it to cache

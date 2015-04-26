@@ -14,7 +14,8 @@ namespace dragon
   {
   private:
     std::unordered_map<int, Node *> &objects;
-    std::list<int> &roots;
+    std::list<int> &heap_roots;
+    std::vector<int> &stack_roots;
     std::unordered_set<int> flag;
 
     // Returns true if next process is needed
@@ -37,7 +38,8 @@ namespace dragon
     }
 
   public:
-    GC(std::unordered_map<int, Node *> &objects, std::list<int> &roots) : objects(objects), roots(roots) {}
+    GC(std::unordered_map<int, Node *> &objects, std::list<int> &heap_roots, std::vector<int> &stack_roots)
+      : objects(objects), heap_roots(heap_roots), stack_roots(stack_roots) {}
 
     // runs clean-up
     // returns number of bytes allocated
@@ -46,7 +48,10 @@ namespace dragon
       flag.clear();
       flag.reserve(objects.size());
       for(auto p : objects) flag.insert(p.first);
-      for(int h : roots) objects[h]->accept(*this);
+      for(int h : heap_roots) objects[h]->accept(*this);
+      for(int h : stack_roots)
+        if(h != 0 && h != std::numeric_limits<Handle::id>::max())
+          objects[h]->accept(*this);
       for(int h : flag)
       {
         delete objects[h];

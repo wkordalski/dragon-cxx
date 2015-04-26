@@ -7,11 +7,11 @@ namespace dragon
 {
 	class GetDeclarationId : public Visitor
 	{
-		Root ret;
+		HeapRoot ret;
 	public:
 		Handle get(Handle declaration)
 		{
-			ret = Root();
+			ret = HeapRoot();
 			declaration->accept(*this);
 			assert(ret.valid() && "Unnamed declarations not supported...");
 			return ret;

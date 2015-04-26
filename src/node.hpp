@@ -23,8 +23,9 @@ namespace dragon
 
   class Handle
   {
-    typedef int id;
   public:
+    typedef int id;
+    
     Handle();
     Handle(Node *);
     Handle(const Handle &);
@@ -82,25 +83,42 @@ namespace dragon
     id h;
 
     friend class Node;
-    friend class Root;
+    friend class HeapRoot;
+    friend class StackRoot;
   };
 
 
   // A root object
-  class Root : public Handle
+  class HeapRoot : public Handle
   {
-    std::list<int>::iterator entry;
+    std::list<Handle::id>::iterator entry;
   public:
-    Root();
-    Root(const Handle &h);
-    Root(Root &h);
-    Root(Root &&h);
+    HeapRoot();
+    HeapRoot(const Handle &h);
+    HeapRoot(const HeapRoot &h);
+    HeapRoot(HeapRoot &&h);
 
-    Root & operator = (const Handle &h);
-    Root & operator = (Root &h);
-    Root & operator = (Root &&h);
+    HeapRoot & operator = (const Handle &h);
+    HeapRoot & operator = (HeapRoot &h);
+    HeapRoot & operator = (HeapRoot &&h);
 
-    virtual ~Root();
+    virtual ~HeapRoot();
+  };
+  
+  class StackRoot : public Handle
+  {
+    std::size_t entry;
+  public:
+    StackRoot();
+    StackRoot(const Handle &h);
+    StackRoot(const StackRoot &h );
+    StackRoot(StackRoot &&h);
+    
+    StackRoot & operator = (const Handle &h);
+    StackRoot & operator = (StackRoot &h);
+    StackRoot & operator = (StackRoot &&h);
+
+    virtual ~StackRoot();
   };
 
   // Represents a token

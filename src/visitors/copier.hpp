@@ -40,7 +40,7 @@ namespace dragon
     std::unordered_map<int, int> readdress;
     
     // Copy result
-    Root result;
+    HeapRoot result;
   public:
     Handle translate(Handle h)
     {
@@ -81,11 +81,11 @@ namespace dragon
       return ret;
     }
     
-    HVector copy(std::vector<Root> v)
+    HVector copy(std::vector<HeapRoot> v)
     {
       HVector ret;
       ret.reserve(v.size());
-      for(Root h : v)
+      for(HeapRoot h : v)
       {
         h->accept(*this);
         ret.push_back(result);

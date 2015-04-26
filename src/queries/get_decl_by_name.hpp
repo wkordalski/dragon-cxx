@@ -7,13 +7,13 @@ namespace dragon
 {
 	class GetDeclarationByName : public Visitor
 	{
-		Root id;
-		Root ret;
+		HeapRoot id;
+		HeapRoot ret;
 	public:
 		Handle get(Handle id, Handle container)
 		{
 			this->id = id;
-			this->ret = Root();
+			this->ret = HeapRoot();
 			container->accept(*this);
 			return ret;
 		}

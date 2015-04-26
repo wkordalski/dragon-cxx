@@ -9,9 +9,10 @@
 namespace dragon
 {
   std::unordered_map<int, Node *> object_heap;
-  std::list<int> manager_roots;
+  std::list<int> manager_heap_roots;
+  std::vector<int> manager_stack_roots;
   int manager_counter = 1;
-  GC gc(object_heap, manager_roots);
+  GC gc(object_heap, manager_heap_roots, manager_stack_roots);
 
   Node * Handle::operator -> () const { return get(); }
   Node * Handle::operator *  () const { return get(); }
@@ -83,15 +84,6 @@ namespace dragon
     return (h != 0);
   }
   
-  /*
-  Handle Handle::operator % (Handle h) const
-  {
-    if(!valid() or !h.valid()) return Handle();
-    if(get()->equal(h.get())) return h;
-    else return Handle();
-  }
-  */
-
   void Node::replace(Node *t)
   {
     self.set(t);
@@ -107,65 +99,116 @@ namespace dragon
     object_heap.clear();
   }
 
-  Root::Root()
+  HeapRoot::HeapRoot()
   {
     this->h = 0;
-    this->entry = manager_roots.end();
+    this->entry = manager_heap_roots.end();
   }
 
-  Root::Root(const Handle &h)
+  HeapRoot::HeapRoot(const Handle &h)
   {
     this->h = h.h;
-    manager_roots.push_front(h.h);
-    this->entry = manager_roots.begin();
+    manager_heap_roots.push_front(h.h);
+    this->entry = manager_heap_roots.begin();
   }
-  Root::Root(Root &h)
+  HeapRoot::HeapRoot(const HeapRoot &h)
   {
     this->h = h.h;
-    manager_roots.push_front(h.h);
-    this->entry = manager_roots.begin();
+    manager_heap_roots.push_front(h.h);
+    this->entry = manager_heap_roots.begin();
   }
-  Root::Root(Root &&h)
+  HeapRoot::HeapRoot(HeapRoot &&h)
   {
     this->h = h.h;
     this->entry = h.entry;
     h.h = 0;
-    h.entry = manager_roots.end();
+    h.entry = manager_heap_roots.end();
   }
 
-  Root & Root::operator = (const Handle &h)
+  HeapRoot & HeapRoot::operator = (const Handle &h)
   {
     if(this->h != 0)
-      manager_roots.erase(this->entry);
+      manager_heap_roots.erase(this->entry);
     this->h = h.h;
-    manager_roots.push_front(h.h);
-    this->entry = manager_roots.begin();
+    manager_heap_roots.push_front(h.h);
+    this->entry = manager_heap_roots.begin();
     return *this;
   }
-  Root & Root::operator = (Root &h)
+  HeapRoot & HeapRoot::operator = (HeapRoot &h)
   {
     if(this->h != 0)
-      manager_roots.erase(this->entry);
+      manager_heap_roots.erase(this->entry);
     this->h = h.h;
-    manager_roots.push_front(h.h);
-    this->entry = manager_roots.begin();
+    manager_heap_roots.push_front(h.h);
+    this->entry = manager_heap_roots.begin();
     return *this;
   }
-  Root & Root::operator = (Root &&h)
+  HeapRoot & HeapRoot::operator = (HeapRoot &&h)
   {
     if(this->h != 0)
-      manager_roots.erase(this->entry);
+      manager_heap_roots.erase(this->entry);
     this->h = h.h;
     this->entry = h.entry;
     h.h = 0;
-    h.entry = manager_roots.end();
+    h.entry = manager_heap_roots.end();
     return *this;
   }
 
-  Root::~Root()
+  HeapRoot::~HeapRoot()
   {
     if(this->h != 0)
-      manager_roots.erase(this->entry);
+      manager_heap_roots.erase(this->entry);
+  }
+  
+  
+  StackRoot::StackRoot()
+  {
+    this->h = 0;
+    this->entry = manager_stack_roots.size() - 1;
+  }
+
+  StackRoot::StackRoot(const Handle &h)
+  {
+    this->h = h.h;
+    manager_stack_roots.push_back(h.h);
+    this->entry = manager_stack_roots.size() - 1;
+  }
+  StackRoot::StackRoot(const StackRoot &h)
+  {
+    this->h = h.h;
+    manager_stack_roots.push_back(h.h);
+    this->entry = manager_stack_roots.size() - 1;
+  }
+  StackRoot::StackRoot(StackRoot &&h)
+  {
+    this->h = h.h;
+    this->entry = h.entry;
+    h.h = 0;
+    h.entry = 0;
+  }
+
+  StackRoot & StackRoot::operator = (const Handle &h)
+  {
+    manager_stack_roots[this->entry] = h.h;
+    return *this;
+  }
+  StackRoot & StackRoot::operator = (StackRoot &h)
+  {
+    manager_stack_roots[this->entry] = h.h;
+    return *this;
+  }
+  StackRoot & StackRoot::operator = (StackRoot &&h)
+  {
+    manager_stack_roots[this->entry] = h.h;
+    return *this;
+  }
+
+  StackRoot::~StackRoot()
+  {
+    const Handle::id empty = std::numeric_limits<Handle::id>::max();
+    manager_stack_roots[this->entry] = empty;
+    while(manager_stack_roots.size() > 0 && manager_stack_roots[manager_stack_roots.size() - 1] == empty)
+      manager_stack_roots.pop_back();
   }
 }
 

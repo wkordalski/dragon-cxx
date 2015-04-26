@@ -13,7 +13,7 @@ namespace dragon {
 		assert(!GetDeclarationByName().get(GetDeclarationId().get(decl), n.handle()).valid()
 						&& "Declaration suchly named already exists.");
     n.declarations.insert(decl);
-		decl = Root();
+		decl = HeapRoot();
   }
 	
   void DeclarationToContainerInserter::visit ( sema::Namespace &n )
@@ -21,6 +21,6 @@ namespace dragon {
 		assert(!GetDeclarationByName().get(GetDeclarationId().get(decl), n.handle()).valid()
 						&& "Declaration suchly named already exists.");
     n.declarations.insert(decl);
-		decl = Root();
+		decl = HeapRoot();
   }
 }

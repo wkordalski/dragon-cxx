@@ -39,7 +39,7 @@ namespace dragon {
   //
   void Copier::visit ( Identifier &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Identifier();
     node.set(np);
     auto &m = *np;
@@ -50,7 +50,7 @@ namespace dragon {
   
   void Copier::visit ( Literal &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Literal();
     node.set(np);
     auto &m = *np;
@@ -64,7 +64,7 @@ namespace dragon {
   //
   void Copier::visit ( Assembly &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Assembly();
     node.set(np);
     result = node;
@@ -72,7 +72,7 @@ namespace dragon {
   
   void Copier::visit ( Module &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new Module();
     node.set(np);
     auto &m = *np;
@@ -86,7 +86,7 @@ namespace dragon {
   
   void Copier::visit ( ModuleName &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new ModuleName();
     node.set(np);
     auto &m = *np;
@@ -96,7 +96,7 @@ namespace dragon {
   
   void Copier::visit ( ModuleFileName &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new ModuleFileName();
     node.set(np);
     auto &m = *np;
@@ -106,9 +106,9 @@ namespace dragon {
   
   void Copier::visit ( sema::Namespace &n )
   {
-    Root parent = copy(n.parent);
+    HeapRoot parent = copy(n.parent);
     /* Create new namespace */
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new sema::Namespace();
     node.set(np);
     auto &m = *np;
@@ -120,7 +120,7 @@ namespace dragon {
 
   void Copier::visit ( sema::Variable &n )
   {
-    Root node = translate(n.handle());
+    HeapRoot node = translate(n.handle());
     auto *np = new sema::Variable();
     node.set(np);
     auto &m = *np;

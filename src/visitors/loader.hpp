@@ -13,11 +13,11 @@ namespace dragon
    */
   class Loader : public Visitor
   {
-    Root assembly;
+    HeapRoot assembly;
     std::unordered_map<int, int> readdress;
     
     // Copy result
-    Root result;
+    HeapRoot result;
     // TODO
   public:
     void load(Handle module, Handle assembly);

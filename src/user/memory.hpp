@@ -53,7 +53,7 @@ namespace dragon
       
       // Cache
       int cache_counter = 0;
-      std::unordered_map<int, std::vector<Root>> cache;
+      std::unordered_map<int, std::vector<HeapRoot>> cache;
       
       // File assignation
       std::unordered_map<std::wstring, int> files;
