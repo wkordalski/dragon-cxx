@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
 
 namespace dragon
@@ -13,10 +14,10 @@ namespace dragon
 
   struct ArrayLiteral : public Node
   {
-    std::vector<Handle> exprs;
+    HVector exprs;
 
     ArrayLiteral() {}
-    ArrayLiteral(std::vector<Handle> elements) : exprs(elements) {}
+    ArrayLiteral(HVector elements) : exprs(elements) {}
   };
 
   class MemberOperator : public Node
@@ -32,18 +33,18 @@ namespace dragon
   {
   public:
     Handle left;
-    std::vector<Handle> right;
+    HVector right;
 
-    CallOperator(Handle l, std::vector<Handle> r) : left(l), right(r) {}
+    CallOperator(Handle l, HVector r) : left(l), right(r) {}
   };
 
   class IndexOperator : public Node
   {
   public:
     Handle left;
-    std::vector<Handle> right;
+    HVector right;
 
-    IndexOperator(Handle l, std::vector<Handle> r) : left(l), right(r) {}
+    IndexOperator(Handle l, HVector r) : left(l), right(r) {}
   };
 
   class IfElseExpression : public Node

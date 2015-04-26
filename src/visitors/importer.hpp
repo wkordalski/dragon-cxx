@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
 #include "../visitor.hpp"
 
@@ -51,7 +52,7 @@ namespace dragon
   public:
     Importer(std::istream &out) : ar(out) {}
 
-    std::vector<Handle> deserialize();
+    HVector deserialize();
 
   protected:
     Handle translate(Handle h)
@@ -65,12 +66,12 @@ namespace dragon
       }
       return Handle(readdress[int(h)]);
     }
-    std::vector<Handle> translate(std::vector<Handle> v)
+    HVector translate(HVector v)
 		{
-			std::vector<Handle> ret;
+			HVector ret;
 			ret.reserve(v.size());
 			std::transform(v.begin(), v.end(),
-										 std::back_insert_iterator<std::vector<Handle>>(ret),
+										 std::back_inserter(ret),
 										 [this](Handle h){ return translate(h); });
 			return ret;
 		}

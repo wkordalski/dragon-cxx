@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "../../containers.hpp"
 #include "../../node.hpp"
+#include "../../visitor.hpp"
 
 #include <unordered_set>
 #include <vector>
@@ -53,7 +55,9 @@ namespace dragon
   class ModuleName : public Node
   {
   public:
-    std::vector<Handle> name;
+    HVector name;
+    
+    virtual void accept(Visitor &v) { v.visit(*this); }
   };
   
   /*
@@ -62,6 +66,8 @@ namespace dragon
   class ModuleFileName : public Node
   {
   public:
-    std::vector<Handle> files;
+    HVector files;
+    
+    virtual void accept(Visitor &v) { v.visit(*this); }
   };
 }

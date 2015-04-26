@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
 #include "../visitor.hpp"
 #include <unordered_set>
@@ -14,8 +15,6 @@ namespace dragon
   {
     Root assembly;
     std::unordered_map<int, int> readdress;
-    std::unordered_set<int> required;
-    std::unordered_map<int, std::vector<std::function<void()>>> deferred;
     
     // Copy result
     Root result;
@@ -25,15 +24,13 @@ namespace dragon
     
     Handle translate(Handle h)
     {
-      // TRANSLATION SHOULDN'T BE NEEDED SO MUCH...
       if(int(h) == 0) return Handle();
-      /*if(readdress.count(int(h)) == 0)
+      if(readdress.count(int(h)) > 0)
       {
-        Handle nh(nullptr);
-        readdress[int(h)] = int(nh);
-        required.insert(int(h));
+        return Handle(readdress[int(h)]);
       }
-      return Handle(readdress[int(h)]);*/
+      Handle ret(nullptr);
+      readdress[int(h)] = int(ret);
       return Handle(nullptr);
     }
     std::vector<Handle> translate(std::vector<Handle> v)
@@ -46,30 +43,15 @@ namespace dragon
       return ret;
     }
     
-    void defer(Handle h, std::function<void()> f)
-    {
-      if(required.count(int(h)))
-      {
-        if(deferred.count(int(h)))
-          deferred[int(h)].push_back(f);
-        else
-          deferred[int(h)] = {f};
-      }
-      else
-      {
-        f();
-      }
-    }
-    
     Handle copy(Handle h)
     {
       h->accept(*this);
       return result;
     }
     
-    std::vector<Handle> copy(std::vector<Handle> v)
+    HVector copy(HVector v)
     {
-      std::vector<Handle> ret;
+      HVector ret;
       ret.reserve(v.size());
       for(Handle h : v)
       {

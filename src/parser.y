@@ -58,32 +58,32 @@
 	}
 
 
-	std::vector<Handle> * list()
+	HVector * list()
 	{
-		return new std::vector<Handle>();
+		return new HVector();
 	}
 
 	template<typename T, typename... Args>
-	std::vector<Handle> * list(Args... args, T v)
+	HVector * list(Args... args, T v)
 	{
 		auto l = list(args...);
 		l->push_back(v);
 		return l;
 	}
 
-	template<typename T>
-	std::vector<Handle> * list(T v)
+	/*template<typename T>
+	HVector * list(T v)
 	{
 		auto l = list();
 		l->push_back(v);
 		return l;
-	}
+	}*/
 }
 
 
 %union {
 	dragon::Handle * token;
-	std::vector<dragon::Handle> * list;
+	dragon::HVector * list;
 }
 
 %token <token> IDENTIFIER "[#]"
@@ -498,6 +498,8 @@ expr_all : expr22 ;
 /* LAMBDA */
 
 lambda_head : "[#]"
+  | "(" /*param_list*/ ")"
+  | "(" /*param_list*/ ")" "[" /*special_list*/ "]"
 	/* TODO */
 	;
 

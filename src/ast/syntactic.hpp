@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "../node.hpp"
+#include "../containers.hpp"
+
 #include "parsed.hpp"
 #include "expressions.hpp"
 #include "source.hpp"

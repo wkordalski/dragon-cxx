@@ -23,6 +23,7 @@ namespace dragon
 
   class Handle
   {
+    typedef int id;
   public:
     Handle();
     Handle(Node *);
@@ -78,7 +79,7 @@ namespace dragon
     }
 
   protected:
-    int h;
+    id h;
 
     friend class Node;
     friend class Root;
@@ -110,11 +111,12 @@ namespace dragon
   public:
     virtual ~Node() {};
     virtual void accept(Visitor &v) { assert("Unimplemented acceptor!" and false); }
-    // virtual bool equal(const Node *t) const { assert(false && "Unimplemented comparison between nodes"); }
-    // virtual size_t hash() const { assert(false && "Unimplemented hash operation"); }
-
+    
     // Token replaces this token.
     void replace(Node *);
+    
+    void * operator new (std::size_t size);
+    void operator delete(void *pointer, std::size_t size);
 
     friend class Handle;
 
@@ -133,6 +135,59 @@ namespace dragon
       dragon::location c; c.initialize(&f, row+1, col+1); c.columns(len);
       return c;
     }
+  };
+  
+  void * allocate(std::size_t size);
+  void deallocate(void *pointer, std::size_t size);
+  std::size_t memory_use();
+  std::size_t memory_limit();
+  void memory_limit(std::size_t limit);
+  
+  template<class T>
+  class NodeAllocator : public std::allocator<T>
+  {
+  public:
+    typedef T value_type;
+    typedef T* pointer;
+    typedef const T* const_pointer;
+    typedef T& reference;
+    typedef const T& const_reference;
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+
+    T * allocate(size_type count)
+    {
+      std::size_t size = count * sizeof(T);
+      return reinterpret_cast<T*>(dragon::allocate(size));
+    }
+    void deallocate(T *pointer, size_type count)
+    {
+      std::size_t size = count * sizeof(T);
+      dragon::deallocate(pointer, size);
+    }
+    
+    template<class U>
+    bool operator == (const U& rhs)
+    {
+      return false;
+    }
+    
+    bool operator == (const T& rhs)
+    {
+      return true;
+    }
+    
+    template<class U>
+    bool operator != (const U& rhs)
+    {
+      return !(*this == rhs);
+    }
+    
+    template<class U>
+    struct rebind
+    {
+      typedef NodeAllocator<U> other;
+    };
   };
 }
 

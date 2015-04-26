@@ -1,5 +1,6 @@
 set(SOURCES ${SOURCES}
   src/visitors/assembler.cpp
+  src/visitors/copier.cpp
   src/visitors/exporter.cpp
   src/visitors/gc.cpp
   src/visitors/importer.cpp

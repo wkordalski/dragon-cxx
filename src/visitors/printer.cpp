@@ -30,6 +30,7 @@
 #include "../ast/semantic/module.hpp"
 #include "../ast/semantic/variable.hpp"
 #include "../ast/semantic/namespace.hpp"
+#include "../ast/syntactic/file.hpp"
 
 #include "../utils/lookup_table.hpp"
 
@@ -41,6 +42,13 @@ namespace dragon
     out << "Identifier ["<<n.handle()<<"] ( text = \""<<n.text<<"\" )" << std::endl;
   }
   // Syntactic nodes
+  void NodePrinter::visit ( File &n )
+  {
+    out << "File ["<<n.handle()<<"] ( filename = "<<n.filename
+        <<", docstring = "<<n.docstring<<", declarations = [ ";
+    for(auto h : n.declarations) out << h << " ";
+    out << "] )" << std::endl;
+  }
 	// Semantic nodes
   void NodePrinter::visit ( Assembly &n )
   {

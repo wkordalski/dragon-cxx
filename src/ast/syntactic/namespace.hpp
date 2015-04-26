@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../containers.hpp"
 #include "../../node.hpp"
 #include "../../visitor.hpp"
 
@@ -10,11 +11,11 @@ namespace dragon
 		class NamespaceDeclaration : public Node
 		{
 		public:
-			std::vector<Handle> name;
-			std::vector<Handle> declarations;
+			HVector name;
+			HVector declarations;
 
 			NamespaceDeclaration() = default;
-			NamespaceDeclaration(std::vector<Handle> name, std::vector<Handle> decls = {}) : name(name), declarations(decls) {}
+			NamespaceDeclaration(HVector name, HVector decls = {}) : name(name), declarations(decls) {}
 
 			virtual void accept(Visitor &v)
 			{

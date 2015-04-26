@@ -8,7 +8,7 @@ namespace dragon
   {
   public:
     Handle parent;
-    std::vector<Handle> places;
+    HVector places;
 
     LookupTable() = default;
   };

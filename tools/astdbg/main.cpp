@@ -12,10 +12,14 @@
 #include "../../src/visitors/importer.hpp"
 #include "../../src/visitors/printer.hpp"
 
+#include "../../src/user/memory.hpp"
+
 namespace drg = dragon;
 
 int main(int argc, char *argv[])
 {
+  dragon::memory_limit(200);
+  auto &memman = dragon::user::Memory::get();
   {
     std::vector<drg::Root> fileroots;
     std::vector<char*> files;
@@ -37,7 +41,7 @@ int main(int argc, char *argv[])
     if(true)
 		{
 			dragon::Assembler amb;
-			std::vector<drg::Handle> filehandles;
+			dragon::HVector filehandles;
 			std::transform(fileroots.begin(), fileroots.end(), std::inserter(filehandles, filehandles.begin()),
 				[](drg::Root &h){ return drg::Handle(h); }
 			);
@@ -48,13 +52,15 @@ int main(int argc, char *argv[])
 			drg::Root as2;
 			
 			{
+        std::cout << "Exporting..." <<std::endl;
 				std::ofstream ofs("export.dex");
 				drg::Exporter dex(ofs);
-				dex.serialize(std::vector<drg::Handle>{drg::Handle(mod)});
+				dex.serialize(dragon::HVector{drg::Handle(mod)});
 				ofs.close();
 				drg::gc.run();
 			}
 			{
+        std::cout << "Importing..." <<std::endl;
 				std::ifstream ifs("export.dex");
 				drg::Importer dim(ifs);
 				auto v = dim.deserialize();
@@ -96,25 +102,9 @@ int main(int argc, char *argv[])
     }
     
 	}
-	/*
-	{
-    std::ofstream ofs("export.dex");
-    dragon::Exporter dex(ofs);
-    dex.serialize(fileroots);
-    ofs.close();
-    dragon::gc.run();
-  }
-  {
-    std::ifstream ifs("export.dex");
-    dragon::Importer dim(ifs);
-    auto v = dim.deserialize();
-    ifs.close();
-    std::cout << v.size() << std::endl;
-  }
-  */
   {
 		std::wcout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b                \b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" << std::flush;
-    drg::gc.run();
+    memman.gc();
     drg::Handle::cleanup();
 		std::wcout << "-- exitted --" << std::endl;
     return 0;

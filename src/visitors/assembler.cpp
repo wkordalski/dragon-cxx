@@ -25,7 +25,7 @@ namespace dragon
     assembly = Handle::make<Assembly>();
   }
   
-  void Assembler::assemble ( std::vector< Handle > files, Handle module )
+  void Assembler::assemble ( dragon::HVector files, dragon::Handle module )
   {
 		insert_module = module;
 		for(auto h : files) h->accept(*this);

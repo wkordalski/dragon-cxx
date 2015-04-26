@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "../../containers.hpp"
 #include "../../node.hpp"
 #include "../../visitor.hpp"
 
@@ -38,10 +39,10 @@ namespace dragon
     class UseDeclaration : public Node
     {
     public:
-      std::vector<Handle> decls;
+      HVector decls;
 
       UseDeclaration() = default;
-      UseDeclaration(std::vector<Handle> decls) : decls(decls) {}
+      UseDeclaration(HVector decls) : decls(decls) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }
     };
@@ -49,10 +50,10 @@ namespace dragon
     class UsingNamespaceDeclaration : public Node
     {
     public:
-      std::vector<Handle> name;
+      HVector name;
 
       UsingNamespaceDeclaration() = default;
-      UsingNamespaceDeclaration(std::vector<Handle> name) : name(name) {}
+      UsingNamespaceDeclaration(HVector name) : name(name) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }
     };

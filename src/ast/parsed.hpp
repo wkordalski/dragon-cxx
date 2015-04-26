@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
 
 namespace dragon
@@ -7,25 +8,18 @@ namespace dragon
   class ImportDecls : public Node
   {
   public:
-    std::vector<Handle> imports;
+    HVector imports;
 
     ImportDecls() {}
-    ImportDecls(std::vector<Handle> imports) : imports(imports) {}
-
-    virtual std::vector<Handle> get_members() const
-    {
-      return imports;
-    }
+    ImportDecls(HVector imports) : imports(imports) {}
   };
 
   class ImportDecl : public Node
   {
   public:
-    std::vector<Handle> module;
+    HVector module;
 
     ImportDecl() {}
-    ImportDecl(std::vector<Handle> module) : module(module) {}
-
-    virtual std::vector<Handle> get_members() const { return module; }
+    ImportDecl(HVector module) : module(module) {}
   };
 }

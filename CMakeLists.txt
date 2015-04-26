@@ -2,17 +2,16 @@ project (Dragon)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(BISON REQUIRED)
-find_package(Boost REQUIRED filesystem program_options serialization)
+find_package(Boost REQUIRED filesystem program_options serialization system)
 find_package(GTest)
 find_package(LLVM REQUIRED CONFIG)
 find_package(Threads)
 
 set(SOURCES
+  src/node.cpp
   src/ast/source.cpp
 
   src/ast/builtins/integer.cpp
-
-  src/utils/manager.cpp
 )
 
 set(TEST
@@ -28,11 +27,12 @@ set(TEST
 add_subdirectory(src/lexer)
 add_subdirectory(src/queries)
 add_subdirectory(src/user)
+add_subdirectory(src/utils)
 add_subdirectory(src/visitors)
 
 
 # if DEBUG
-#  add_definitions(-g -Wall -DYYDEBUG)
+  add_definitions(-g -Wall -DYYDEBUG)
 # endif
 add_definitions (-std=c++14)
 
@@ -54,7 +54,10 @@ include_directories(${Boost_INCLUDE_DIRS})
 bison_target(parser src/parser.y ${PROJECT_BINARY_DIR}/parser.cpp)
 llvm_map_components_to_libnames(LLVM_LIBRARIES core codegen)
 add_library(dragon SHARED ${SOURCES} ${BISON_parser_OUTPUTS})
-target_link_libraries(dragon ${LLVM_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
+target_link_libraries(dragon
+  ${LLVM_LIBRARIES}
+  ${Boost_FILESYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+)
 
 if(GTEST_FOUND)
   add_executable(utest ${TEST})

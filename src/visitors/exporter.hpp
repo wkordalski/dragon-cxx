@@ -26,8 +26,9 @@
 
 #pragma once
 
-#include "../visitor.hpp"
+#include "../containers.hpp"
 #include "../node.hpp"
+#include "../visitor.hpp"
 
 #include <unordered_set>
 
@@ -42,7 +43,7 @@ namespace dragon
   public:
     Exporter(std::ostream &out) : ar(out) {}
 
-    void serialize(std::vector<Handle> v);
+    void serialize( dragon::HVector v );
     void serialize(std::vector<Root> v);
 
   protected:
@@ -54,7 +55,7 @@ namespace dragon
       h->accept(*this);
     }
 
-    void save(std::vector<Handle> &v)
+    void save(HVector &v)
     {
       for(Handle h : v) save(h);
     }

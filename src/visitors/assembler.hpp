@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
 #include "../visitor.hpp"
 
@@ -15,14 +16,14 @@ namespace dragon
     std::unordered_map<Handle, Handle> lookup;
     std::stack<Handle> lookups;
     std::stack<Handle> containers;
-		std::stack<std::vector<Handle>> attributes;
+		std::stack<HVector> attributes;
     // TODO: Attributes
 
   public:
     Assembler();
 
 		Handle new_module();
-    void assemble(std::vector<Handle> files, Handle module);
+    void assemble(HVector files, Handle module);
 
     Handle get_assembly() { return assembly; }
     auto get_lookup_table() { return lookup; }

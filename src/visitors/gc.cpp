@@ -18,12 +18,30 @@
 namespace dragon
 {
   // Source tokens
-  void GC::visit(Identifier &n) { mark(n); }
-  void GC::visit(Operator &n) { mark(n); }
-  void GC::visit(Literal &n) { mark(n); }
-  void GC::visit(Newline &n) { mark(n); }
-  void GC::visit(Indent &n) { mark(n); }
-  void GC::visit(Dedent &n) { mark(n); }
+  void GC::visit(Identifier &n)
+  {
+    mark(n);
+  }
+  void GC::visit(Operator &n)
+  {
+    mark(n);
+  }
+  void GC::visit(Literal &n)
+  {
+    mark(n);
+  }
+  void GC::visit(Newline &n)
+  {
+    mark(n);
+  }
+  void GC::visit(Indent &n)
+  {
+    mark(n);
+  }
+  void GC::visit(Dedent &n)
+  {
+    mark(n);
+  }
   // Syntactic nodes
   void GC::visit(File &n)
   {

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "../../containers.hpp"
 #include "../../node.hpp"
 #include "../../visitor.hpp"
 
@@ -40,7 +41,7 @@ namespace dragon
 			Handle type;
 			Handle value;
 			Handle parent;
-			std::vector<Handle> attributes;
+			HVector attributes;
 			
       virtual void accept ( Visitor &v ) { v.visit(*this); }
     };

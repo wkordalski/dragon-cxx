@@ -17,8 +17,10 @@ namespace dragon
 {
   class Identifier : public Node
   {
+    //typedef std::basic_string< wchar_t, std::char_traits< wchar_t >, NodeAllocator<wchar_t> > string;
+    typedef std::wstring string;
   public:
-    std::wstring text;
+    string text;
     Place place;
 
     Identifier() = default;
@@ -35,8 +37,10 @@ namespace dragon
 
   class Operator : public Node
   {
+    //typedef std::basic_string< wchar_t, std::char_traits< wchar_t >, NodeAllocator<wchar_t> > string;
+    typedef std::wstring string;
   public:
-    std::wstring text;
+    string text;
     Place place;
 
   public:
@@ -45,8 +49,10 @@ namespace dragon
 
   class Literal : public Node
   {
+    //typedef std::basic_string< wchar_t, std::char_traits< wchar_t >, NodeAllocator<wchar_t> > string;
+    typedef std::wstring string;
   public:
-    std::wstring text;
+    string text;
     Place place;
     
     Literal() = default;

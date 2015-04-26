@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../node.hpp"
+#include "../../containers.hpp"
 
 namespace dragon
 {
@@ -8,11 +9,11 @@ namespace dragon
   {
   public:
     Handle docstring = Handle();
-    std::vector<Handle> declarations;
+    HVector declarations;
     Handle filename;
 
     File() {}
-    File(Handle filename, std::vector<Handle> decls, Handle doc = Handle())
+    File(Handle filename, HVector decls, Handle doc = Handle())
       : docstring(doc), declarations(decls), filename(filename) {}
 
     virtual void accept(Visitor &v) { v.visit(*this); }

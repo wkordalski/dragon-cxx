@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
 #include "../visitor.hpp"
 
@@ -20,7 +21,7 @@ namespace dragon
     // False if the node was earlier processed
     bool mark(Node &n) { return flag.erase(int(n.handle())) > 0; }
     void accept(const Handle &h) { if(h) h->accept(*this); }
-    void accept(const std::vector<Handle> &v)
+    void accept(const HVector &v)
     { for(auto h : v) if(h) h->accept(*this); }
 
     void accept(const std::unordered_set<Handle> &v)
@@ -39,6 +40,7 @@ namespace dragon
     GC(std::unordered_map<int, Node *> &objects, std::list<int> &roots) : objects(objects), roots(roots) {}
 
     // runs clean-up
+    // returns number of bytes allocated
     void run()
     {
       flag.clear();
@@ -50,7 +52,7 @@ namespace dragon
         delete objects[h];
         objects.erase(h);
       }
-      //std::cerr << "Removed " << flag.size() << " objects..." << std::endl;
+      std::cerr << "Removed " << flag.size() << " objects..." << std::endl;
       flag.clear();
     }
 

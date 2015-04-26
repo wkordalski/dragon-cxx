@@ -23,7 +23,7 @@
 
 namespace dragon
 {
-  void Exporter::serialize(std::vector<Handle> v)
+  void Exporter::serialize(HVector v)
   {
     ar << v;
     save(v);
@@ -31,8 +31,8 @@ namespace dragon
 
   void Exporter::serialize(std::vector<Root> v)
   {
-    std::vector<Handle> mitm;
-    std::transform(v.begin(), v.end(), std::back_insert_iterator<std::vector<Handle>>(mitm), [](Root r){return Handle(r);});
+    HVector mitm;
+    std::transform(v.begin(), v.end(), std::back_inserter(mitm), [](Root r){return Handle(r);});
     serialize(mitm);
   }
 
@@ -130,8 +130,8 @@ namespace dragon
   void Exporter::visit(Module &n)
   {
     int tid = 10;
-    std::vector<Handle> decls;
-    std::vector<Handle> deps;
+    HVector decls;
+    HVector deps;
     std::transform(n.decls.begin(), n.decls.end(), std::inserter(decls, decls.end()), [](Handle h){return h;});
     std::transform(n.deps.begin(), n.deps.end(), std::inserter(deps, deps.end()), [](Handle h){return h;});
     ar << n.handle() << tid

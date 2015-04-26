@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../../containers.hpp"
 #include "../../node.hpp"
+#include "../../visitor.hpp"
 
 namespace dragon
 {
@@ -9,13 +11,13 @@ namespace dragon
     class VariablesDeclaration : public Node
     {
     public:
-      std::vector<Handle> attrs;
-      std::vector<Handle> decls;
+      HVector attrs;
+      HVector decls;
       Handle docstring;
 
       VariablesDeclaration() = default;
 
-      VariablesDeclaration(std::vector<Handle> attrs, std::vector<Handle> decls, Handle docstring)
+      VariablesDeclaration(HVector attrs, HVector decls, Handle docstring)
         : attrs(attrs), decls(decls), docstring(docstring) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }

@@ -48,7 +48,7 @@ namespace dragon
     auto &n = *np;
     Handle docstring;
     Handle filename;
-    std::vector<Handle> declarations;
+    HVector declarations;
     ar >>  docstring >> declarations >> filename;
     n.docstring = translate(docstring);
     n.declarations = translate(declarations);
@@ -61,7 +61,7 @@ namespace dragon
 	{
 		auto np = new syntax::NamespaceDeclaration();
 		auto &n = *np;
-		std::vector<Handle> name, decls;
+		HVector name, decls;
 		ar >> name >> decls;
 		n.name = translate(name);
 		n.declarations = translate(decls);
@@ -73,10 +73,10 @@ namespace dragon
   {
     auto np = new syntax::UseDeclaration();
     auto &n = *np;
-    std::vector<Handle> decls;
+    HVector decls;
     ar >> decls;
     std::transform(decls.begin(), decls.end(),
-                   std::back_insert_iterator<std::vector<Handle>>(n.decls),
+                   std::back_inserter(n.decls),
                    [this](Handle h){return translate(h);});
     h.set(np);
   }
@@ -86,10 +86,10 @@ namespace dragon
   {
     auto np = new syntax::UsingNamespaceDeclaration();
     auto &n = *np;
-    std::vector<Handle> name;
+    HVector name;
     ar >> name;
     std::transform(name.begin(), name.end(),
-                   std::back_insert_iterator<std::vector<Handle>>(n.name),
+                   std::back_inserter(n.name),
                    [this](Handle h){return translate(h);});
     h.set(np);
   }
@@ -100,15 +100,15 @@ namespace dragon
     auto np = new syntax::VariablesDeclaration();
     auto &n = *np;
     Handle docstring;
-    std::vector<Handle> decls;
-    std::vector<Handle> attrs;
+    HVector decls;
+    HVector attrs;
     ar >> attrs >> decls >> docstring;
     n.docstring = translate(docstring);
     std::transform(decls.begin(), decls.end(),
-                   std::back_insert_iterator<std::vector<Handle>>(n.decls),
+                   std::back_inserter(n.decls),
                    [this](Handle h){return translate(h);});
     std::transform(attrs.begin(), attrs.end(),
-                  std::back_insert_iterator<std::vector<Handle>>(n.attrs),
+                  std::back_inserter(n.attrs),
                   [this](Handle h){return translate(h);});
     h.set(np);
   }
@@ -140,8 +140,8 @@ namespace dragon
 		auto &n = *np;
     Handle name;
     Handle assm;
-		std::vector<Handle> decls;
-    std::vector<Handle> deps;
+		HVector decls;
+    HVector deps;
 		ar >> name >> assm >> deps >> decls;
 		n.name = translate(name);
     n.assembly = translate(assm);
@@ -159,7 +159,7 @@ namespace dragon
 	{
 		auto np = new ModuleName();
 		auto &n = *np;
-		std::vector<Handle> name;
+		HVector name;
 		ar >> name;
 		n.name = translate(name);
 		h.set(np);
@@ -187,14 +187,14 @@ namespace dragon
 		auto np = new sema::Variable();
 		auto &n = *np;
 		Handle id, type, value, parent;
-		std::vector<Handle> attrs;
+		HVector attrs;
 		ar >> parent >> id >> type >> value >> attrs;
 		n.parent = translate(parent);
 		n.id = translate(id);
 		n.type = translate(type);
 		n.value = translate(value);
 		std::transform(attrs.begin(), attrs.end(),
-                  std::back_insert_iterator<std::vector<Handle>>(n.attributes),
+                  std::back_inserter(n.attributes),
                   [this](Handle h){return translate(h);});
 		h.set(np);
 		// set parent!
@@ -210,11 +210,11 @@ namespace dragon
     auto np = new LookupTable();
     auto &n = *np;
     Handle parent;
-    std::vector<Handle> places;
+    HVector places;
     ar >> parent >> places;
     n.parent = translate(parent);
     std::transform(places.begin(), places.end(),
-                  std::back_insert_iterator<std::vector<Handle>>(n.places),
+                  std::back_inserter(n.places),
                   [this](Handle h){return translate(h);});
     h.set(np);
   }
@@ -243,11 +243,11 @@ namespace dragon
   };
 
 
-  std::vector<Handle> Importer::deserialize()
+  HVector Importer::deserialize()
   {
-    std::vector<Handle> lod;
+    HVector lod;
     ar >> lod;
-    std::vector<Handle> ret;
+    HVector ret;
     ret.reserve(lod.size());
     for(Handle h : lod)
     {

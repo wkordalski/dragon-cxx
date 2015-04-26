@@ -23,7 +23,7 @@ namespace dragon
     //virtual void visit(Indent &n);
     //virtual void visit(Dedent &n);
     // Syntactic nodes
-    //virtual void visit(File &n);
+    virtual void visit(File &n);
 		//virtual void visit(syntax::NamespaceDeclaration &n);
     //virtual void visit(syntax::UseDeclaration &n);
     //virtual void visit(syntax::UsingNamespaceDeclaration &n);

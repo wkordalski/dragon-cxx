@@ -25,7 +25,11 @@
  */
 #pragma once
 
+#include "../containers.hpp"
 #include "../node.hpp"
+
+#include <queue>
+#include <unordered_map>
 
 #include <boost/filesystem.hpp>
 
@@ -42,7 +46,20 @@ namespace dragon
       Memory() = default;
       
       // Bytes we can allocate (for cache)
-      unsigned long long _mem_amount;
+      std::size_t _mem_amount;
+      
+      // Some queue for storing write-to-file requests
+      std::queue<int> write_queue;
+      
+      // Cache
+      int cache_counter = 0;
+      std::unordered_map<int, std::vector<Root>> cache;
+      
+      // File assignation
+      std::unordered_map<std::wstring, int> files;
+      
+      // File hard/symlinking
+      std::unordered_map<std::wstring, boost::filesystem::path> symlinks;
       
       // Memory management
     public:
@@ -50,7 +67,7 @@ namespace dragon
       
       void gc();
       
-      void set_available_memory(unsigned long long int amount)
+      void set_available_memory(std::size_t amount)
       {
         _mem_amount = amount;
       }
@@ -66,8 +83,8 @@ namespace dragon
        * Memory manager can cache such handles and return cached handle
        * when load is called without loading it from file system.
        */
-      Handle load(boost::filesystem::path filename);
-      void save(Handle handle, boost::filesystem::path filename);
+      HVector load(boost::filesystem::path filename);
+      void save(HVector handle, std::vector<boost::filesystem::path> filename);
     };
   }
 }
