@@ -11,11 +11,12 @@ namespace dragon
 		class NamespaceDeclaration : public Node
 		{
 		public:
-			HVector name;
-			HVector declarations;
+			MVector name;
+			MVector declarations;
 
 			NamespaceDeclaration() = default;
-			NamespaceDeclaration(HVector name, HVector decls = {}) : name(name), declarations(decls) {}
+			NamespaceDeclaration(LVector name, LVector decls = {})
+        : name(to_member(name)), declarations(to_member(decls)) {}
 
 			virtual void accept(Visitor &v)
 			{

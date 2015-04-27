@@ -22,18 +22,18 @@ namespace dragon
 {
   Assembler::Assembler()
   {
-    assembly = Handle::make<Assembly>();
+    assembly = make_node<Assembly>();
   }
   
-  void Assembler::assemble ( dragon::HVector files, dragon::Handle module )
+  void Assembler::assemble ( dragon::LVector files, dragon::Local module )
   {
 		insert_module = module;
 		for(auto h : files) h->accept(*this);
   }
   
-  Handle Assembler::new_module()
+  Local Assembler::new_module()
   {
-		auto h = Handle::make<Module>();
+		auto h = make_node<Module>();
 		assembly.as<Assembly>()->modules.insert(h);
 		return h;
   }
@@ -43,7 +43,7 @@ namespace dragon
     // we have to do something
     // scan for using-namespaces
     // and push a lookup table
-    lookups.push(Handle::make<LookupTable>());
+    lookups.push(make_node<LookupTable>());
     containers.push(assembly);
     for(auto h : n.declarations) h->accept(*this);
     lookups.pop();
@@ -55,14 +55,14 @@ namespace dragon
 		{
 			// Check if such namespace exists
 			GetDeclarationByName gdbn;
-			Handle h = gdbn.get(ih, containers.top());
+			Local h = gdbn.get(ih, containers.top());
 			if(!h.valid())
 			{
-				h = Handle::make<sema::Namespace>(ih, containers.top());
+				h = make_node<sema::Namespace>(ih, containers.top());
 				DeclarationToContainerInserter dtci;
 				dtci.insert(h, containers.top());
 			}
-			lookups.push(Handle::make<LookupTable>());
+			lookups.push(make_node<LookupTable>());
 			containers.push(h);
 		}
 		
@@ -93,7 +93,7 @@ namespace dragon
 
   void Assembler::visit(syntax::SingleVariableDeclaration &n)
   {
-    auto h = Handle::make<sema::Variable>();
+    auto h = make_node<sema::Variable>();
 		auto np = h.as<sema::Variable>();
     // Initialize it!
 		np->id = n.id;

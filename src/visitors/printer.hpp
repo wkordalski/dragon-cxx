@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../containers.hpp"
 #include "../visitor.hpp"
 
 #include <iostream>
@@ -13,7 +14,7 @@ namespace dragon
   public:
     std::wostream &out = std::wcout;
 		
-		void print(Handle h) { h->accept(*this); }
+		void print(Local h) { h->accept(*this); }
 
 		// Source tokens
     virtual void visit(Identifier &n);

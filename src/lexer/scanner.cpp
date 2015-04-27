@@ -7,7 +7,7 @@ namespace dragon
     Node *t;
     if(tk.get(t))
     {
-      val->token = new Handle(t);
+      val->token = new Local(Handle(t));
       // determine token type!
       if(auto tt = dynamic_cast<Newline*>(t))
       {

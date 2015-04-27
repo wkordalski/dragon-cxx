@@ -49,9 +49,9 @@ namespace dragon
       return result;
     }
     
-    HVector copy(HVector v)
+    MVector copy(MVector v)
     {
-      HVector ret;
+      MVector ret;
       ret.reserve(v.size());
       for(Handle h : v)
       {

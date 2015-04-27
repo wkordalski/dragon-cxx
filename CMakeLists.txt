@@ -8,6 +8,7 @@ find_package(LLVM REQUIRED CONFIG)
 find_package(Threads)
 
 set(SOURCES
+  src/containers.cpp
   src/node.cpp
   src/ast/source.cpp
 
@@ -58,11 +59,12 @@ target_link_libraries(dragon
   ${LLVM_LIBRARIES}
   ${Boost_FILESYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY} ${Boost_SYSTEM_LIBRARY}
 )
-
+if(FALSE)
 if(GTEST_FOUND)
   add_executable(utest ${TEST})
   include_directories(${GTEST_INCLUDE_DIRS})
   target_link_libraries(utest dragon ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif()
 endif()
 
 

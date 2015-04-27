@@ -22,7 +22,7 @@ namespace dragon
     // False if the node was earlier processed
     bool mark(Node &n) { return flag.erase(int(n.handle())) > 0; }
     void accept(const Handle &h) { if(h) h->accept(*this); }
-    void accept(const HVector &v)
+    void accept(const MVector &v)
     { for(auto h : v) if(h) h->accept(*this); }
 
     void accept(const std::unordered_set<Handle> &v)
@@ -54,6 +54,7 @@ namespace dragon
           objects[h]->accept(*this);
       for(int h : flag)
       {
+        std::cerr << "Removing: " << h << std::endl;
         delete objects[h];
         objects.erase(h);
       }

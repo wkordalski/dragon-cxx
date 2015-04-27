@@ -7,8 +7,8 @@ namespace dragon
   class LookupTable : public Node
   {
   public:
-    Handle parent;
-    HVector places;
+    Member parent;
+    MVector places;
 
     LookupTable() = default;
   };

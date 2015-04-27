@@ -38,13 +38,13 @@ namespace dragon
   class Module : public Node
   {
   public:
-    Handle name;
-    Handle assembly;
+    Member name;
+    Member assembly;
 		std::unordered_set<Handle> deps;
     std::unordered_set<Handle> decls;
 
 		Module() = default;
-    Module(Handle name) : name(name) {}
+    Module(Local name) : name(name) {}
 
     virtual void accept(Visitor &v) { v.visit(*this); }
   };
@@ -55,7 +55,7 @@ namespace dragon
   class ModuleName : public Node
   {
   public:
-    HVector name;
+    MVector name;
     
     virtual void accept(Visitor &v) { v.visit(*this); }
   };
@@ -66,7 +66,7 @@ namespace dragon
   class ModuleFileName : public Node
   {
   public:
-    HVector files;
+    MVector files;
     
     virtual void accept(Visitor &v) { v.visit(*this); }
   };

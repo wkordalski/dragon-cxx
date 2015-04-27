@@ -6,8 +6,8 @@
 %define api.namespace {dragon}
 %define parser_class_name {Parser}
 %parse-param { dragon::Scanner &scanner }
-%parse-param { dragon::Handle &root }
-%parse-param { dragon::Handle filename }
+%parse-param { dragon::StackRoot &root }
+%parse-param { dragon::StackRoot filename }
 %lex-param   { dragon::Scanner &scanner }
 
 
@@ -52,38 +52,30 @@
 	}
 
 	template<typename T, typename... Args>
-	Handle * make(Args... args)
+	StackRoot * make(Args... args)
 	{
-		return new Handle(new T(args...));
+		return new StackRoot(Handle(new T(args...)));
 	}
 
 
-	HVector * list()
+	LVector * list()
 	{
-		return new HVector();
+		return new LVector();
 	}
 
 	template<typename T, typename... Args>
-	HVector * list(Args... args, T v)
+	LVector * list(Args... args, T v)
 	{
 		auto l = list(args...);
 		l->push_back(v);
 		return l;
 	}
-
-	/*template<typename T>
-	HVector * list(T v)
-	{
-		auto l = list();
-		l->push_back(v);
-		return l;
-	}*/
 }
 
 
 %union {
-	dragon::Handle * token;
-	dragon::HVector * list;
+	dragon::Local * token;
+	dragon::LVector * list;
 }
 
 %token <token> IDENTIFIER "[#]"
@@ -240,8 +232,8 @@
 
 %%
 
-program : declaration_block											{ root = Handle::make<File>(filename, *$1); del($1); }
-	| "[@]" "[--]" declaration_block							{ root = Handle::make<File>(filename, *$3, *$1); del($1,$2,$3); }
+program : declaration_block											{ root = make_node<File>(filename, *$1); del($1); }
+	| "[@]" "[--]" declaration_block							{ root = make_node<File>(filename, *$3, *$1); del($1,$2,$3); }
 	;
 
 /* ------------------------------------------------------------------------------------------------------ */
@@ -560,8 +552,8 @@ id_dot_list : "[#]"														{ $$ = list(*$1); del($1); }
 	| id_dot_list "." "[#]"											{ $$ = $1; $$->push_back(*$3); del($2, $3); }
 	;
 
-module_list : id_dot_list											{ $$ = list(Handle::make<ImportDecl>(*$1)); del($1); }
-	| module_list "," id_dot_list								{ $$ = $1; $$->push_back(Handle::make<ImportDecl>(*$3)); del($2, $3); }
+module_list : id_dot_list											{ $$ = list(make_node<ImportDecl>(*$1)); del($1); }
+	| module_list "," id_dot_list								{ $$ = $1; $$->push_back(make_node<ImportDecl>(*$3)); del($2, $3); }
 	;
 
 declaration_block : declaration								{ $$ = list(*$1); del($1); }

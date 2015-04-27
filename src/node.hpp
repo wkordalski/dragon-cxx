@@ -58,12 +58,6 @@ namespace dragon
       return nullptr;
     }
 
-    template<class T, class... Args>
-    static Handle make(Args... args)
-    {
-      return Handle(new T(args...));
-    }
-
     static void cleanup();
 
     // DEBUGGING PURPOSES ONLY!!!
@@ -112,11 +106,11 @@ namespace dragon
     StackRoot();
     StackRoot(const Handle &h);
     StackRoot(const StackRoot &h );
-    StackRoot(StackRoot &&h);
+    //StackRoot(StackRoot &&h);
     
     StackRoot & operator = (const Handle &h);
     StackRoot & operator = (StackRoot &h);
-    StackRoot & operator = (StackRoot &&h);
+    //StackRoot & operator = (StackRoot &&h);
 
     virtual ~StackRoot();
   };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../containers.hpp"
 #include "../../node.hpp"
 
 #include <llvm/IR/Constant.h>
@@ -60,7 +61,7 @@ namespace dragon
 
     IntegralTemplate(Handle id, bool sign = false) : _id(id)
     {
-      _default = Handle::make<IntegralType>(32, sign);
+      _default = make_node<IntegralType>(32, sign);
     }
   };
 }

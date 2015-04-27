@@ -23,7 +23,7 @@ namespace dragon {
       dragon::gc.run();
     }
     
-    HVector Memory::load ( boost::filesystem::path filename )
+    LVector Memory::load ( boost::filesystem::path filename )
     {
       auto it = this->files.find(filename.wstring());
       if(it != files.end())
@@ -40,8 +40,8 @@ namespace dragon {
           ifs.open(filename.c_str());
         }
         Importer importer(ifs);
-        HVector ret = importer.deserialize();
-        std::vector<HeapRoot> rrt;
+        LVector ret = importer.deserialize();
+        OVector rrt;
         rrt.reserve(ret.size());
         for(Handle h : ret) rrt.push_back(h);
         files[filename.wstring()] = cache_counter;
@@ -57,14 +57,14 @@ namespace dragon {
       }
     }
 
-    void Memory::save ( HVector handle, std::vector<boost::filesystem::path> filename )
+    void Memory::save ( LVector handle, std::vector<boost::filesystem::path> filename )
     {
       // 1) Make copy
       Copier copier;
-      HVector ret = copier.copy(handle);
+      LVector ret = copier.copy(handle);
       std::vector<HeapRoot> rrt;
       rrt.reserve(ret.size());
-      for(Handle h : ret) rrt.push_back(h);
+      for(Local h : ret) rrt.push_back(h);
       // 2) Save it to cache
       for(boost::filesystem::path p : filename)
       {

@@ -53,7 +53,7 @@ namespace dragon
       
       // Cache
       int cache_counter = 0;
-      std::unordered_map<int, std::vector<HeapRoot>> cache;
+      std::unordered_map<int, OVector> cache;
       
       // File assignation
       std::unordered_map<std::wstring, int> files;
@@ -83,8 +83,8 @@ namespace dragon
        * Memory manager can cache such handles and return cached handle
        * when load is called without loading it from file system.
        */
-      HVector load(boost::filesystem::path filename);
-      void save(HVector handle, std::vector<boost::filesystem::path> filename);
+      LVector load(boost::filesystem::path filename);
+      void save(LVector handle, std::vector<boost::filesystem::path> filename);
     };
   }
 }

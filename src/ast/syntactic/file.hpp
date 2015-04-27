@@ -8,13 +8,13 @@ namespace dragon
   class File : public Node
   {
   public:
-    Handle docstring = Handle();
-    HVector declarations;
-    Handle filename;
+    Member docstring = Handle();
+    MVector declarations;
+    Member filename;
 
     File() {}
-    File(Handle filename, HVector decls, Handle doc = Handle())
-      : docstring(doc), declarations(decls), filename(filename) {}
+    File(Local filename, LVector decls, Local doc = Handle())
+      : docstring(doc), declarations(to_member(decls)), filename(filename) {}
 
     virtual void accept(Visitor &v) { v.visit(*this); }
   };

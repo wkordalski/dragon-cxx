@@ -11,21 +11,21 @@ namespace dragon
 {
   class Assembler : public Visitor
   {
-    Handle assembly;
-		Handle insert_module;
+    Object assembly;
+		Object insert_module;
     std::unordered_map<Handle, Handle> lookup;
     std::stack<Handle> lookups;
     std::stack<Handle> containers;
-		std::stack<HVector> attributes;
+		std::stack<MVector> attributes;
     // TODO: Attributes
 
   public:
     Assembler();
 
-		Handle new_module();
-    void assemble(HVector files, Handle module);
+		Local new_module();
+    void assemble( dragon::LVector files, dragon::Local module );
 
-    Handle get_assembly() { return assembly; }
+    Local get_assembly() { return assembly; }
     auto get_lookup_table() { return lookup; }
     // returns a table that extends declarations with information about using-namespace derectives
     // needed by desymbolization algorithm

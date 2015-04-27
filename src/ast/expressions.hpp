@@ -7,51 +7,51 @@ namespace dragon
 {
   struct IdentifierExpression : public Node
   {
-    Handle id;
+    Member id;
 
-    IdentifierExpression(Handle id) : id(id) {}
+    IdentifierExpression(Local id) : id(id) {}
 };
 
   struct ArrayLiteral : public Node
   {
-    HVector exprs;
+    MVector exprs;
 
     ArrayLiteral() {}
-    ArrayLiteral(HVector elements) : exprs(elements) {}
+    ArrayLiteral(LVector elements) : exprs(to_member(elements)) {}
   };
 
   class MemberOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
 
-    MemberOperator(Handle l, Handle r) : left(l), right(r) {}
+    MemberOperator(Local l, Local r) : left(l), right(r) {}
   };
 
   class CallOperator : public Node
   {
   public:
-    Handle left;
-    HVector right;
+    Member left;
+    MVector right;
 
-    CallOperator(Handle l, HVector r) : left(l), right(r) {}
+    CallOperator(Local l, LVector r) : left(l), right(to_member(r)) {}
   };
 
   class IndexOperator : public Node
   {
   public:
-    Handle left;
-    HVector right;
+    Member left;
+    MVector right;
 
-    IndexOperator(Handle l, HVector r) : left(l), right(r) {}
+    IndexOperator(Local l, LVector r) : left(l), right(to_member(r)) {}
   };
 
   class IfElseExpression : public Node
   {
   public:
-    std::vector<std::pair<Handle,Handle>> if_exprs;
-    Handle else_expr;
+    MMVector if_exprs;
+    Member else_expr;
 
     IfElseExpression() {}
     IfElseExpression(Handle else_expr) : else_expr(else_expr) {}
@@ -60,114 +60,114 @@ namespace dragon
   class TryExceptExpression : public Node
   {
   public:
-    Handle expr = Handle();
-    std::vector<std::pair<Handle, Handle>> catches;
+    Member expr = Handle();
+    MMVector catches;
 
     TryExceptExpression() {}
-    TryExceptExpression(std::pair<Handle,Handle> acatch) : catches({acatch}) {}
+    TryExceptExpression(LLPair acatch) : catches({acatch}) {}
   };
 
   class AssignOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
 
     AssignOperator() {}
-    AssignOperator(Handle l, Handle r) : left(l), right(r) {}
+    AssignOperator(Local l, Local r) : left(l), right(r) {}
   };
 
   class BinaryUserOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
     std::string op;
 
     BinaryUserOperator() {}
-    BinaryUserOperator(std::string o, Handle l, Handle r) : left(l), right(r), op(o) {}
+    BinaryUserOperator(std::string o, Local l, Local r) : left(l), right(r), op(o) {}
   };
 
   class BinaryUserAssignOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
     std::string op;
 
     BinaryUserAssignOperator() {}
-    BinaryUserAssignOperator(std::string o, Handle l, Handle r) : left(l), right(r), op(o) {}
+    BinaryUserAssignOperator(std::string o, Local l, Local r) : left(l), right(r), op(o) {}
   };
 
   class RangeOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
 
     RangeOperator() {}
-    RangeOperator(Handle l, Handle r) : left(l), right(r) {}
+    RangeOperator(Local l, Local r) : left(l), right(r) {}
   };
 
   class CompareOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
     std::string rel;
 
     CompareOperator() {}
-    CompareOperator(std::string o, Handle l, Handle r) : left(l), right(r), rel(o) {}
+    CompareOperator(std::string o, Local l, Local r) : left(l), right(r), rel(o) {}
   };
 
   class UnaryPrefixUserOperator : public Node
   {
   public:
-    Handle expr;
+    Member expr;
     std::string op;
 
     UnaryPrefixUserOperator() {}
-    UnaryPrefixUserOperator(std::string o, Handle e) : expr(e), op(o) {}
+    UnaryPrefixUserOperator(std::string o, Local e) : expr(e), op(o) {}
   };
 
   class UnaryPostfixUserOperator : public Node
   {
   public:
-    Handle expr;
+    Member expr;
     std::string op;
 
     UnaryPostfixUserOperator() {}
-    UnaryPostfixUserOperator(std::string o, Handle e) : expr(e), op(o) {}
+    UnaryPostfixUserOperator(std::string o, Local e) : expr(e), op(o) {}
   };
 
   class PointerTypeOperator : public Node
   {
   public:
-    Handle type;
+    Member type;
 
-    PointerTypeOperator(Handle t) : type(t) {}
+    PointerTypeOperator(Local t) : type(t) {}
   };
 
   class StorePointerOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
 
     StorePointerOperator() {}
-    StorePointerOperator(Handle l, Handle r) : left(l), right(r) {}
+    StorePointerOperator(Local l, Local r) : left(l), right(r) {}
   };
 
 
   class RelationOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
     std::string rel;
 
     RelationOperator() {}
-    RelationOperator(std::string o, Handle l, Handle r) : left(l), right(r), rel(o) {}
+    RelationOperator(std::string o, Local l, Local r) : left(l), right(r), rel(o) {}
   };
 
   class LambdaOperator : public Node
@@ -178,11 +178,11 @@ namespace dragon
   class CommaOperator : public Node
   {
   public:
-    Handle left;
-    Handle right;
+    Member left;
+    Member right;
 
     CommaOperator() {}
-    CommaOperator(Handle l, Handle r) : left(l), right(r) {}
+    CommaOperator(Local l, Local r) : left(l), right(r) {}
   };
 
   class NoneOperator : public Node
@@ -194,10 +194,10 @@ namespace dragon
   class PostfixLiteralOperator : public Node
   {
   public:
-    Handle literal;
-    Handle op;
+    Member literal;
+    Member op;
 
     PostfixLiteralOperator() {}
-    PostfixLiteralOperator(Handle literal, Handle op) : literal(literal), op(op) {}
+    PostfixLiteralOperator(Local literal, Local op) : literal(literal), op(op) {}
   };
 }

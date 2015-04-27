@@ -39,10 +39,10 @@ namespace dragon
     class UseDeclaration : public Node
     {
     public:
-      HVector decls;
+      MVector decls;
 
       UseDeclaration() = default;
-      UseDeclaration(HVector decls) : decls(decls) {}
+      UseDeclaration(LVector decls) : decls(to_member(decls)) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }
     };
@@ -50,10 +50,10 @@ namespace dragon
     class UsingNamespaceDeclaration : public Node
     {
     public:
-      HVector name;
+      MVector name;
 
       UsingNamespaceDeclaration() = default;
-      UsingNamespaceDeclaration(HVector name) : name(name) {}
+      UsingNamespaceDeclaration(LVector name) : name(to_member(name)) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }
     };

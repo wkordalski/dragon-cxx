@@ -22,6 +22,14 @@ namespace dragon {
   {
     //std::cout << "Allocation   ("<<size<<"): " << _mem_used << "/" << _mem_limit << std::endl;
     // Cant run GC here because of inconsistent state!
+    if(_mem_used + size > _mem_limit)
+    {
+      gc.run();
+    }
+    if(_mem_used + size > _mem_limit)
+    {
+      assert(false && "Out of memory!");
+    }
     _mem_used += size;
     return malloc(size);
   }

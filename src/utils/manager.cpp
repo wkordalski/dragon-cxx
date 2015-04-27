@@ -58,6 +58,7 @@ namespace dragon
 
   Node * Handle::get() const
   {
+    std::cerr << "Getting object " << h << std::endl;
     assert(h != 0 and object_heap.count(h) > 0);
     return object_heap[h];
   }
@@ -107,15 +108,31 @@ namespace dragon
 
   HeapRoot::HeapRoot(const Handle &h)
   {
-    this->h = h.h;
-    manager_heap_roots.push_front(h.h);
-    this->entry = manager_heap_roots.begin();
+    if(h.h == 0)
+    {
+      this->h = 0;
+      this->entry = manager_heap_roots.end();
+    }
+    else
+    {
+      this->h = h.h;
+      manager_heap_roots.push_front(h.h);
+      this->entry = manager_heap_roots.begin();
+    }
   }
   HeapRoot::HeapRoot(const HeapRoot &h)
   {
-    this->h = h.h;
-    manager_heap_roots.push_front(h.h);
-    this->entry = manager_heap_roots.begin();
+    if(h.h == 0)
+    {
+      this->h = 0;
+      this->entry = manager_heap_roots.end();
+    }
+    else
+    {
+      this->h = h.h;
+      manager_heap_roots.push_front(h.h);
+      this->entry = manager_heap_roots.begin();
+    }
   }
   HeapRoot::HeapRoot(HeapRoot &&h)
   {
@@ -129,18 +146,34 @@ namespace dragon
   {
     if(this->h != 0)
       manager_heap_roots.erase(this->entry);
-    this->h = h.h;
-    manager_heap_roots.push_front(h.h);
-    this->entry = manager_heap_roots.begin();
+    if(h.h == 0)
+    {
+      this->h = 0;
+      this->entry = manager_heap_roots.end();
+    }
+    else
+    {
+      this->h = h.h;
+      manager_heap_roots.push_front(h.h);
+      this->entry = manager_heap_roots.begin();
+    }
     return *this;
   }
   HeapRoot & HeapRoot::operator = (HeapRoot &h)
   {
     if(this->h != 0)
       manager_heap_roots.erase(this->entry);
-    this->h = h.h;
-    manager_heap_roots.push_front(h.h);
-    this->entry = manager_heap_roots.begin();
+    if(h.h == 0)
+    {
+      this->h = 0;
+      this->entry = manager_heap_roots.end();
+    }
+    else
+    {
+      this->h = h.h;
+      manager_heap_roots.push_front(h.h);
+      this->entry = manager_heap_roots.begin();
+    }
     return *this;
   }
   HeapRoot & HeapRoot::operator = (HeapRoot &&h)
@@ -164,6 +197,7 @@ namespace dragon
   StackRoot::StackRoot()
   {
     this->h = 0;
+    manager_stack_roots.push_back(0);
     this->entry = manager_stack_roots.size() - 1;
   }
 
@@ -179,26 +213,16 @@ namespace dragon
     manager_stack_roots.push_back(h.h);
     this->entry = manager_stack_roots.size() - 1;
   }
-  StackRoot::StackRoot(StackRoot &&h)
-  {
-    this->h = h.h;
-    this->entry = h.entry;
-    h.h = 0;
-    h.entry = 0;
-  }
 
   StackRoot & StackRoot::operator = (const Handle &h)
   {
+    this->h = h.h;
     manager_stack_roots[this->entry] = h.h;
     return *this;
   }
   StackRoot & StackRoot::operator = (StackRoot &h)
   {
-    manager_stack_roots[this->entry] = h.h;
-    return *this;
-  }
-  StackRoot & StackRoot::operator = (StackRoot &&h)
-  {
+    this->h = h.h;
     manager_stack_roots[this->entry] = h.h;
     return *this;
   }

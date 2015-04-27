@@ -24,7 +24,7 @@
 namespace dragon
 {
   template<>
-  void Importer::read<Identifier>(Handle &h)
+  void Importer::read<Identifier>(Local &h)
   {
     auto np = new Identifier();
     auto &n = *np;
@@ -33,7 +33,7 @@ namespace dragon
   }
   
   template<>
-  void Importer::read<Literal>(Handle &h)
+  void Importer::read<Literal>(Local &h)
   {
     auto np = new Literal();
     auto &n = *np;
@@ -42,13 +42,13 @@ namespace dragon
   }
 
   template<>
-  void Importer::read<File>(Handle &h)
+  void Importer::read<File>(Local &h)
   {
     auto np = new File();
     auto &n = *np;
     Handle docstring;
     Handle filename;
-    HVector declarations;
+    MVector declarations;
     ar >>  docstring >> declarations >> filename;
     n.docstring = translate(docstring);
     n.declarations = translate(declarations);
@@ -57,11 +57,11 @@ namespace dragon
   }
 
   template<>
-  void Importer::read<syntax::NamespaceDeclaration>(Handle &h)
+  void Importer::read<syntax::NamespaceDeclaration>(Local &h)
 	{
 		auto np = new syntax::NamespaceDeclaration();
 		auto &n = *np;
-		HVector name, decls;
+		MVector name, decls;
 		ar >> name >> decls;
 		n.name = translate(name);
 		n.declarations = translate(decls);
@@ -69,11 +69,11 @@ namespace dragon
 	}
   
   template<>
-  void Importer::read<syntax::UseDeclaration>(Handle &h)
+  void Importer::read<syntax::UseDeclaration>(Local &h)
   {
     auto np = new syntax::UseDeclaration();
     auto &n = *np;
-    HVector decls;
+    MVector decls;
     ar >> decls;
     std::transform(decls.begin(), decls.end(),
                    std::back_inserter(n.decls),
@@ -82,11 +82,11 @@ namespace dragon
   }
 
   template<>
-  void Importer::read<syntax::UsingNamespaceDeclaration>(Handle &h)
+  void Importer::read<syntax::UsingNamespaceDeclaration>(Local &h)
   {
     auto np = new syntax::UsingNamespaceDeclaration();
     auto &n = *np;
-    HVector name;
+    MVector name;
     ar >> name;
     std::transform(name.begin(), name.end(),
                    std::back_inserter(n.name),
@@ -95,13 +95,13 @@ namespace dragon
   }
 
   template<>
-  void Importer::read<syntax::VariablesDeclaration>(Handle &h)
+  void Importer::read<syntax::VariablesDeclaration>(Local &h)
   {
     auto np = new syntax::VariablesDeclaration();
     auto &n = *np;
     Handle docstring;
-    HVector decls;
-    HVector attrs;
+    MVector decls;
+    MVector attrs;
     ar >> attrs >> decls >> docstring;
     n.docstring = translate(docstring);
     std::transform(decls.begin(), decls.end(),
@@ -114,7 +114,7 @@ namespace dragon
   }
 
   template<>
-  void Importer::read<syntax::SingleVariableDeclaration>(Handle &h)
+  void Importer::read<syntax::SingleVariableDeclaration>(Local &h)
   {
     auto np = new syntax::SingleVariableDeclaration();
     Handle id, type, value;
@@ -127,21 +127,21 @@ namespace dragon
   }
   
   template<>
-  void Importer::read<Assembly>(Handle &h)
+  void Importer::read<Assembly>(Local &h)
 	{
 		auto np = new Assembly();
 		h.set(np);
 	}
   
   template<>
-  void Importer::read<Module>(Handle &h)
+  void Importer::read<Module>(Local &h)
 	{
 		auto np = new Module();
 		auto &n = *np;
     Handle name;
     Handle assm;
-		HVector decls;
-    HVector deps;
+		MVector decls;
+    MVector deps;
 		ar >> name >> assm >> deps >> decls;
 		n.name = translate(name);
     n.assembly = translate(assm);
@@ -155,18 +155,18 @@ namespace dragon
 	}
   
   template<>
-  void Importer::read<ModuleName>(Handle &h)
+  void Importer::read<ModuleName>(Local &h)
 	{
 		auto np = new ModuleName();
 		auto &n = *np;
-		HVector name;
+		MVector name;
 		ar >> name;
 		n.name = translate(name);
 		h.set(np);
 	}
   
   template<>
-  void Importer::read<sema::Namespace>(Handle &h)
+  void Importer::read<sema::Namespace>(Local &h)
 	{
 		auto np = new sema::Namespace();
 		auto &n = *np;
@@ -182,12 +182,12 @@ namespace dragon
 	}
   
   template<>
-  void Importer::read<sema::Variable>(Handle &h)
+  void Importer::read<sema::Variable>(Local &h)
 	{
 		auto np = new sema::Variable();
 		auto &n = *np;
 		Handle id, type, value, parent;
-		HVector attrs;
+		MVector attrs;
 		ar >> parent >> id >> type >> value >> attrs;
 		n.parent = translate(parent);
 		n.id = translate(id);
@@ -205,12 +205,12 @@ namespace dragon
 	}
 
   template<>
-  void Importer::read<LookupTable>(Handle &h)
+  void Importer::read<LookupTable>(Local &h)
   {
     auto np = new LookupTable();
     auto &n = *np;
     Handle parent;
-    HVector places;
+    MVector places;
     ar >> parent >> places;
     n.parent = translate(parent);
     std::transform(places.begin(), places.end(),
@@ -243,11 +243,11 @@ namespace dragon
   };
 
 
-  HVector Importer::deserialize()
+  MVector Importer::deserialize()
   {
-    HVector lod;
+    MVector lod;
     ar >> lod;
-    HVector ret;
+    MVector ret;
     ret.reserve(lod.size());
     for(Handle h : lod)
     {

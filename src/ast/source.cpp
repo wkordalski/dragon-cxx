@@ -45,8 +45,8 @@ namespace dragon
         {
           // Postfix operator decides how wide should be the integer
           // I should also add type too (for PostfixLiteralOperator) (TODO)
-          auto hi = Handle::make<IntegralValue>(lit);
-          auto pi = Handle::make<Identifier>(opr);
+          auto hi = make_node<IntegralValue>(lit);
+          auto pi = make_node<Identifier>(opr);
           replace(new PostfixLiteralOperator(hi, pi));
         }
       }

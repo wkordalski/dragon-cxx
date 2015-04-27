@@ -11,14 +11,14 @@ namespace dragon
     class VariablesDeclaration : public Node
     {
     public:
-      HVector attrs;
-      HVector decls;
-      Handle docstring;
+      MVector attrs;
+      MVector decls;
+      Member docstring;
 
       VariablesDeclaration() = default;
 
-      VariablesDeclaration(HVector attrs, HVector decls, Handle docstring)
-        : attrs(attrs), decls(decls), docstring(docstring) {}
+      VariablesDeclaration(LVector attrs, LVector decls, Local docstring)
+        : attrs(to_member(attrs)), decls(to_member(decls)), docstring(docstring) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }
     };
@@ -26,13 +26,13 @@ namespace dragon
     class SingleVariableDeclaration : public Node
     {
     public:
-      Handle id;
-      Handle type;
-      Handle value;
+      Member id;
+      Member type;
+      Member value;
 
       SingleVariableDeclaration() = default;
 
-      SingleVariableDeclaration(Handle id, Handle type, Handle value)
+      SingleVariableDeclaration(Local id, Local type, Local value)
         : id(id), type(type), value(value) {}
 
       virtual void accept(Visitor &v) { v.visit(*this); }

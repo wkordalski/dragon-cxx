@@ -37,11 +37,11 @@ namespace dragon
     class Variable : public Node
     {
 		public:
-      Handle id;
-			Handle type;
-			Handle value;
-			Handle parent;
-			HVector attributes;
+      Member id;
+			Member type;
+			Member value;
+			Member parent;
+			MVector attributes;
 			
       virtual void accept ( Visitor &v ) { v.visit(*this); }
     };

@@ -8,18 +8,18 @@ namespace dragon
   class ImportDecls : public Node
   {
   public:
-    HVector imports;
+    MVector imports;
 
     ImportDecls() {}
-    ImportDecls(HVector imports) : imports(imports) {}
+    ImportDecls(LVector imports) : imports(to_member(imports)) {}
   };
 
   class ImportDecl : public Node
   {
   public:
-    HVector module;
+    MVector module;
 
     ImportDecl() {}
-    ImportDecl(HVector module) : module(module) {}
+    ImportDecl(LVector module) : module(to_member(module)) {}
   };
 }

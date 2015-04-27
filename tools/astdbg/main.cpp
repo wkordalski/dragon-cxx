@@ -18,17 +18,17 @@ namespace drg = dragon;
 
 int main(int argc, char *argv[])
 {
-  dragon::memory_limit(200);
+  dragon::memory_limit(4096);
   auto &memman = dragon::user::Memory::get();
   {
-    std::vector<drg::HeapRoot> fileroots;
+    dragon::LVector fileroots;
     std::vector<char*> files;
     for(int i = 1; i < argc; i++)
     {
       std::wifstream input(argv[i]);
-      drg::Handle rt;
+      dragon::Local rt;
       drg::FileScanner sc(input, argv[i]);
-      drg::Parser pr(sc, rt, drg::Handle::make<drg::Literal>(L"somefile"));
+      drg::Parser pr(sc, rt, drg::make_node<drg::Literal>(L"somefile"));
       std::wcout << "Parsing:   " << argv[i] << std::endl;
       if(pr.parse() == 0)
       {
@@ -41,12 +41,12 @@ int main(int argc, char *argv[])
     if(true)
 		{
 			dragon::Assembler amb;
-			dragon::HVector filehandles;
+			/*dragon::HVector filehandles;
 			std::transform(fileroots.begin(), fileroots.end(), std::inserter(filehandles, filehandles.begin()),
 				[](drg::HeapRoot &h){ return drg::Handle(h); }
-			);
-			drg::HeapRoot mod = amb.new_module();
-			amb.assemble(filehandles, mod);
+			);*/
+			dragon::Local mod = amb.new_module();
+			amb.assemble(fileroots, mod);
 			ass = amb.get_assembly();
 			
 			drg::HeapRoot as2;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
         std::cout << "Exporting..." <<std::endl;
 				std::ofstream ofs("export.dex");
 				drg::Exporter dex(ofs);
-				dex.serialize(dragon::HVector{drg::Handle(mod)});
+				dex.serialize(dragon::MVector{drg::Handle(mod)});
 				ofs.close();
 				drg::gc.run();
 			}

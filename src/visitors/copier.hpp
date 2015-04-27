@@ -53,9 +53,9 @@ namespace dragon
       readdress[int(h)] = int(ret);
       return ret;
     }
-    HVector translate(HVector v)
+    MVector translate(MVector v)
     {
-      HVector ret;
+      MVector ret;
       ret.reserve(v.size());
       std::transform(v.begin(), v.end(),
                      std::back_inserter(ret),
@@ -69,9 +69,9 @@ namespace dragon
       return result;
     }
     
-    HVector copy(HVector v)
+    MVector copy(MVector v)
     {
-      HVector ret;
+      MVector ret;
       ret.reserve(v.size());
       for(Handle h : v)
       {
@@ -81,9 +81,9 @@ namespace dragon
       return ret;
     }
     
-    HVector copy(std::vector<HeapRoot> v)
+    OVector copy(OVector v)
     {
-      HVector ret;
+      OVector ret;
       ret.reserve(v.size());
       for(HeapRoot h : v)
       {

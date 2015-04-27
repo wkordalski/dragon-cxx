@@ -23,15 +23,15 @@
 
 namespace dragon
 {
-  void Exporter::serialize(HVector v)
+  void Exporter::serialize(LVector v)
   {
     ar << v;
     save(v);
   }
 
-  void Exporter::serialize(std::vector<HeapRoot> v)
+  void Exporter::serialize(OVector v)
   {
-    HVector mitm;
+    MVector mitm;
     std::transform(v.begin(), v.end(), std::back_inserter(mitm), [](HeapRoot r){return Handle(r);});
     serialize(mitm);
   }
@@ -130,8 +130,8 @@ namespace dragon
   void Exporter::visit(Module &n)
   {
     int tid = 10;
-    HVector decls;
-    HVector deps;
+    MVector decls;
+    MVector deps;
     std::transform(n.decls.begin(), n.decls.end(), std::inserter(decls, decls.end()), [](Handle h){return h;});
     std::transform(n.deps.begin(), n.deps.end(), std::inserter(deps, deps.end()), [](Handle h){return h;});
     ar << n.handle() << tid

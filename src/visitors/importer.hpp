@@ -40,7 +40,7 @@ namespace dragon
 {
   class Importer : public Visitor
   {
-    typedef void (Importer::*decode_func)(Handle &);
+    typedef void (Importer::*decode_func)(Local &);
 
     boost::archive::binary_iarchive ar;
     std::unordered_map<int, int> readdress;
@@ -52,10 +52,10 @@ namespace dragon
   public:
     Importer(std::istream &out) : ar(out) {}
 
-    HVector deserialize();
+    LVector deserialize();
 
   protected:
-    Handle translate(Handle h)
+    Member translate(Handle h)
     {
       if(int(h) == 0) return Handle();
       if(readdress.count(int(h)) == 0)
@@ -66,9 +66,9 @@ namespace dragon
       }
       return Handle(readdress[int(h)]);
     }
-    HVector translate(HVector v)
+    MVector translate(MVector v)
 		{
-			HVector ret;
+			MVector ret;
 			ret.reserve(v.size());
 			std::transform(v.begin(), v.end(),
 										 std::back_inserter(ret),
@@ -93,6 +93,6 @@ namespace dragon
 
   protected:
     template<class T>
-    void read(Handle &h);
+    void read(Local &h);
   };
 }
